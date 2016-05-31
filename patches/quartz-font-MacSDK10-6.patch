@@ -1,0 +1,72 @@
+diff -Naur gfx/cairo/cairo/src/cairo-quartz-font.c gfx-patched/cairo/cairo/src/cairo-quartz-font.c
+--- gfx/cairo/cairo/src/cairo-quartz-font.c	2016-05-30 15:29:19.000000000 +0200
++++ gfx-patched/cairo/cairo/src/cairo-quartz-font.c	2016-05-31 11:17:57.000000000 +0200
+@@ -91,6 +91,9 @@
+ typedef const struct __CTFontDescriptor *CTFontDescriptorRef;
+ static CTFontRef (*CTFontCreateWithGraphicsFontPtr) (CGFontRef, CGFloat, const CGAffineTransform *, CTFontDescriptorRef) = NULL;
+ 
++/* Not public anymore in 64-bits nor in 10.7 */
++static ATSFontRef (*FMGetATSFontRefFromFontPtr) (FMFont iFont) = NULL;
++
+ static cairo_bool_t _cairo_quartz_font_symbol_lookup_done = FALSE;
+ static cairo_bool_t _cairo_quartz_font_symbols_present = FALSE;
+ 
+@@ -128,6 +131,8 @@
+     CGContextSetAllowsFontSmoothingPtr = dlsym(RTLD_DEFAULT, "CGContextSetAllowsFontSmoothing");
+ 
+     CTFontCreateWithGraphicsFontPtr = dlsym(RTLD_DEFAULT, "CTFontCreateWithGraphicsFont");
++	
++	FMGetATSFontRefFromFontPtr = dlsym(RTLD_DEFAULT, "FMGetATSFontRefFromFont");
+ 
+     if ((CGFontCreateWithFontNamePtr || CGFontCreateWithNamePtr) &&
+ 	CGFontGetGlyphBBoxesPtr &&
+@@ -800,7 +805,7 @@
+     return ffont->ctFont;
+ }
+ 
+-#if !defined(__LP64__) && !TARGET_OS_IPHONE
++#if !TARGET_OS_IPHONE
+ /*
+  * compat with old ATSUI backend
+  */
+@@ -821,15 +826,21 @@
+ cairo_font_face_t *
+ cairo_quartz_font_face_create_for_atsu_font_id (ATSUFontID font_id)
+ {
+-    ATSFontRef atsFont = FMGetATSFontRefFromFont (font_id);
+-    CGFontRef cgFont = CGFontCreateWithPlatformFont (&atsFont);
+-    cairo_font_face_t *ff;
+-
+-    ff = cairo_quartz_font_face_create_for_cgfont (cgFont);
++    quartz_font_ensure_symbols();
+ 
+-    CGFontRelease (cgFont);
++	if (FMGetATSFontRefFromFontPtr != NULL) {
++		ATSFontRef atsFont = FMGetATSFontRefFromFontPtr (font_id);
++		CGFontRef cgFont = CGFontCreateWithPlatformFont (&atsFont);
++		cairo_font_face_t *ff;
++		
++		ff = cairo_quartz_font_face_create_for_cgfont (cgFont);
++		CGFontRelease (cgFont);
+ 
+-    return ff;
++    	return ff;
++	} else {
++		_cairo_error_throw (CAIRO_STATUS_NO_MEMORY);
++		return (cairo_font_face_t *)&_cairo_font_face_nil;
++	}
+ }
+ 
+ /* This is the old name for the above function, exported for compat purposes */
+diff -Naur gfx/cairo/cairo/src/cairo-quartz.h gfx-patched/cairo/cairo/src/cairo-quartz.h
+--- gfx/cairo/cairo/src/cairo-quartz.h	2016-05-30 15:29:19.000000000 +0200
++++ gfx-patched/cairo/cairo/src/cairo-quartz.h	2016-05-31 11:15:51.000000000 +0200
+@@ -94,7 +94,7 @@
+ cairo_public cairo_font_face_t *
+ cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
+ 
+-#if !defined(__LP64__) && !TARGET_OS_IPHONE
++#if !TARGET_OS_IPHONE
+ cairo_public cairo_font_face_t *
+ cairo_quartz_font_face_create_for_atsu_font_id (ATSUFontID font_id);
+ #endif
