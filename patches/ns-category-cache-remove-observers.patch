@@ -1,0 +1,35 @@
+diff -Naur xpcom/glue/nsCategoryCache.cpp xpcom-patched/glue/nsCategoryCache.cpp
+--- xpcom/glue/nsCategoryCache.cpp	2016-06-02 11:49:25.000000000 +0200
++++ xpcom-patched/glue/nsCategoryCache.cpp	2016-06-02 11:50:56.000000000 +0200
+@@ -50,16 +50,6 @@
+       }
+     }
+   }
+-
+-  // Now, listen for changes
+-  nsCOMPtr<nsIObserverService> serv =
+-    mozilla::services::GetObserverService();
+-  if (serv) {
+-    serv->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, false);
+-    serv->AddObserver(this, NS_XPCOM_CATEGORY_ENTRY_ADDED_OBSERVER_ID, false);
+-    serv->AddObserver(this, NS_XPCOM_CATEGORY_ENTRY_REMOVED_OBSERVER_ID, false);
+-    serv->AddObserver(this, NS_XPCOM_CATEGORY_CLEARED_OBSERVER_ID, false);
+-  }
+ }
+ 
+ nsCategoryObserver::~nsCategoryObserver()
+@@ -82,14 +72,6 @@
+   }
+ 
+   mObserversRemoved = true;
+-  nsCOMPtr<nsIObserverService> obsSvc =
+-    mozilla::services::GetObserverService();
+-  if (obsSvc) {
+-    obsSvc->RemoveObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID);
+-    obsSvc->RemoveObserver(this, NS_XPCOM_CATEGORY_ENTRY_ADDED_OBSERVER_ID);
+-    obsSvc->RemoveObserver(this, NS_XPCOM_CATEGORY_ENTRY_REMOVED_OBSERVER_ID);
+-    obsSvc->RemoveObserver(this, NS_XPCOM_CATEGORY_CLEARED_OBSERVER_ID);
+-  }
+ }
+ 
+ NS_IMETHODIMP

@@ -1,0 +1,14 @@
+diff -Naur mfbt/Assertions.h mfbt-patched/Assertions.h
+--- mfbt/Assertions.h	2016-06-01 14:18:31.000000000 +0200
++++ mfbt-patched/Assertions.h	2016-06-01 14:23:57.000000000 +0200
+@@ -9,10 +9,6 @@
+ #ifndef mozilla_Assertions_h
+ #define mozilla_Assertions_h
+ 
+-#if defined(MOZILLA_INTERNAL_API) && defined(__cplusplus)
+-#define MOZ_DUMP_ASSERTION_STACK
+-#endif
+-
+ #include "mozilla/Attributes.h"
+ #include "mozilla/Compiler.h"
+ #include "mozilla/Likely.h"
