@@ -15,7 +15,7 @@ Compile shared library:
 `./build.sh patch`
 4. Run mozilla configure scripts:</br>
 `./build.sh configure`
-5. Run mozilla makefiles (backend.mk) generator scripts:</br>
+5. Prepare mozilla makefiles (backend.mk):</br>
 `./build.sh prepare`
 6. Parse and convert mozilla's backend.mk files to CMakeLists.txt:</br>
 `./build.sh export`
