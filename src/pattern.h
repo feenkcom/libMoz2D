@@ -17,12 +17,18 @@ extern "C" {
 #endif
 
 Pattern* moz2d_pattern_color_create(Color *color);
+Pattern* moz2d_pattern_color_create_rgba(Float red, Float green, Float blue, Float alpha);
 Pattern* moz2d_pattern_linear_gradient_create(Point *aBegin, Point *anEnd, GradientStops *aStops, Matrix *aMatrix);
+Pattern* moz2d_pattern_linear_gradient_create_flat(DrawTarget* drawTarget, Float beginX, Float beginY, Float endX, Float endY, Float * rawStops, uint32_t stopsNum, Float * rawMatrix, ExtendMode aExtendMode);
 Pattern* moz2d_pattern_radial_gradient_create(Point *innerCenter, Point *outerCenter, Float innerRadius, Float outerRadius, GradientStops *aStops, Matrix *aMatrix);
+Pattern* moz2d_pattern_radial_gradient_create_flat(DrawTarget* drawTarget, Float innerCenterX, Float innerCenterY, Float innerRadius, Float outerCenterX, Float outerCenterY, Float outerRadius, Float * rawStops, uint32_t stopsNum, Float * rawMatrix, ExtendMode aExtendMode);
+
 void moz2d_pattern_delete(Pattern* pattern);
 
 #ifdef __cplusplus
 }
 #endif
+
+already_AddRefed<GradientStops> create_gradient_stops (DrawTarget* drawTarget, Float * rawStops, uint32_t stopsNum, ExtendMode aExtendMode);
 
 #endif /* PATTERN_H_ */

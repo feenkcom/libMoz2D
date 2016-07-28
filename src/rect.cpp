@@ -7,6 +7,22 @@
 
 #include "rect.h"
 
+int32_t moz2d_int_rect_x(IntRect* rect) {
+	return rect->x;
+}
+
+int32_t moz2d_int_rect_y(IntRect* rect){
+	return rect->y;
+}
+
+int32_t moz2d_Int_rect_width(IntRect* rect) {
+	return rect->width;
+}
+
+int32_t moz2d_Int_rect_height(IntRect* rect) {
+	return rect->height;
+}
+
 bool moz2d_rect_is_empty(Rect* rect) {
 	return rect->IsEmpty();
 }

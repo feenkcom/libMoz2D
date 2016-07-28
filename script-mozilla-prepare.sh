@@ -142,7 +142,7 @@ function all(){
 }
 
 function configure {
-	# Enter mozilla central an configure repo
+	# Enter mozilla central and configure repo
 	cdDuring privConfigure $MOZ_CENTRAL
 }
 
@@ -196,32 +196,19 @@ function build {
 	recursiveBackendToCMake "$MOZ_OBJ_IPC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_IPC_PATH
 }
 
+function apply_shell_expansion() {
+    declare file="$1"
+    declare data=$(< "$file")
+    declare delimiter="__apply_shell_expansion_delimiter__"
+    declare command="cat <<$delimiter"$'\n'"$data"$'\n'"$delimiter"
+    eval "$command"
+}
+
 # Private: 
 function privConfigure {
 	mach="$(pwd)/./mach"
 
-	cat > .mozconfig <<EOL
-
-# Flags set for targeting x86.
-export CROSS_COMPILE=1	
-
-#CC+="clang -arch i386 -m32"
-#CXX+="clang++ -arch i386 -m32"
-#AR=ar
-
-# Define where build files should go. This places them in the directory
-# "obj-ff-dbg" under the current source directory
-mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/${MOZ_OBJ_DIR}
-
-# -s makes builds quieter by default
-# -j4 allows 4 tasks to run in parallel. Set the number to be the amount of
-# cores in your machine. 4 is a good number.
-mk_add_options MOZ_MAKE_FLAGS="-j4"
-
-# Disable sandbox
-ac_add_options --disable-sandbox
-
-EOL
+	printf "%s\n" "$(apply_shell_expansion ../moz.config)" > .mozconfig
 
 	$mach clobber
 	echo "Configuring mozilla build..."
@@ -568,7 +555,7 @@ function backendUnifiedSources {
 
 	IFS_backup=$IFS
 	IFS=$'\n'
-	lines=($(cat "$backend" | grep "^UNIFIED_CPPSRCS := \|^UNIFIED_CSRCS := \|^CPPSRCS := "))
+	lines=($(cat "$backend" | grep "^UNIFIED_CPPSRCS := \|^UNIFIED_CSRCS := \|^CPPSRCS := \|^UNIFIED_CMMSRCS := "))
 	IFS=$IFS_backup
 	
 	for line in "${lines[@]}"

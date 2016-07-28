@@ -10,8 +10,8 @@
 
 using namespace mozilla::gfx;
 
-DrawTarget* moz2d_draw_target_create(BackendType aBackend, IntSize *aSize, SurfaceFormat aFormat) {
-	return Factory::CreateDrawTarget(aBackend, *aSize, aFormat).take();
+DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
+	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
 }
 
 void moz2d_draw_target_delete(DrawTarget *drawTarget) {
@@ -34,6 +34,9 @@ void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPerm
 	drawTarget->SetPermitSubpixelAA(aPermitSubpixelAA);
 }
 
+/*
+ * Fill
+ */
 void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, DrawOptions* drawOptions) {
 	drawTarget->FillRect(*rect, *pattern, *drawOptions);
 }
@@ -42,12 +45,26 @@ void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pa
 	drawTarget->Fill(path, *pattern, *drawOptions);
 }
 
+/*
+ * Stroke
+ */
 void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->StrokeRect(*rect, *pattern, *strokeOptions, *drawOptions);
 }
 
 void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->Stroke(path, *pattern, *strokeOptions, *drawOptions);
+}
+
+/*
+ * Mask
+ */
+void moz2d_draw_target_mask_pattern(DrawTarget* drawTarget, Pattern* aSource, Pattern* aMask, DrawOptions* aOptions) {
+	drawTarget->Mask(*aSource, *aMask, *aOptions);
+}
+
+void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, SourceSurface *aMask, Float offsetX, Float offsetY, DrawOptions* aOptions) {
+	drawTarget->MaskSurface(*aSource, aMask, Point(offsetX, offsetY), *aOptions);
 }
 
 void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions) {

@@ -35,10 +35,61 @@ void moz2d_filter_node_set_attribute_bool(FilterNode *filterNode, uint32_t aInde
 	filterNode->SetAttribute(aIndex, value);
 }
 
-void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, Size value) {
-	filterNode->SetAttribute(aIndex, value);
+void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, float width, float height) {
+	filterNode->SetAttribute(aIndex, Size(width, height));
 }
 
-void moz2d_filter_node_set_attribute_int_rect(FilterNode *filterNode, uint32_t aIndex, IntRect value) {
-	filterNode->SetAttribute(aIndex, value);
+void moz2d_filter_node_set_attribute_int_rect(FilterNode *filterNode, uint32_t aIndex, int32_t x, int32_t y, int32_t width, int32_t height) {
+	filterNode->SetAttribute(aIndex, IntRect(x, y, width, height));
+}
+
+/*
+ * We need to access private field for debug purposes
+ */
+struct Turbulence_mNumOctaves {
+  typedef uint32_t FilterNodeTurbulenceSoftware::*type;
+  friend type get(Turbulence_mNumOctaves);
+};
+template struct Rob<Turbulence_mNumOctaves, &FilterNodeTurbulenceSoftware::mNumOctaves>;
+uint32_t moz2d_filter_node_turbulence_software_get_num_octaves(FilterNodeTurbulenceSoftware *filterNode) {
+	return filterNode->*get(Turbulence_mNumOctaves());
+}
+
+struct Turbulence_mSeed {
+  typedef uint32_t FilterNodeTurbulenceSoftware::*type;
+  friend type get(Turbulence_mSeed);
+};
+template struct Rob<Turbulence_mSeed, &FilterNodeTurbulenceSoftware::mSeed>;
+uint32_t moz2d_filter_node_turbulence_software_get_seed(FilterNodeTurbulenceSoftware *filterNode) {
+	return filterNode->*get(Turbulence_mSeed());
+}
+
+struct Turbulence_mBaseFrequency {
+  typedef Size FilterNodeTurbulenceSoftware::*type;
+  friend type get(Turbulence_mBaseFrequency);
+};
+template struct Rob<Turbulence_mBaseFrequency, &FilterNodeTurbulenceSoftware::mBaseFrequency>;
+Float moz2d_filter_node_turbulence_software_get_frequency_width(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mBaseFrequency())).width;
+}
+Float moz2d_filter_node_turbulence_software_get_frequency_height(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mBaseFrequency())).height;
+}
+
+struct Turbulence_mRenderRect {
+  typedef IntRect FilterNodeTurbulenceSoftware::*type;
+  friend type get(Turbulence_mRenderRect);
+};
+template struct Rob<Turbulence_mRenderRect, &FilterNodeTurbulenceSoftware::mRenderRect>;
+int32_t moz2d_filter_node_turbulence_software_get_rect_x(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mRenderRect())).x;
+}
+int32_t moz2d_filter_node_turbulence_software_get_rect_y(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mRenderRect())).y;
+}
+int32_t moz2d_filter_node_turbulence_software_get_rect_width(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mRenderRect())).width;
+}
+int32_t moz2d_filter_node_turbulence_software_get_rect_height(FilterNodeTurbulenceSoftware *filterNode) {
+	return (filterNode->*get(Turbulence_mRenderRect())).height;
 }

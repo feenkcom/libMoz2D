@@ -21,7 +21,7 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-DrawTarget* moz2d_draw_target_create(BackendType aBackend, IntSize *aSize, SurfaceFormat aFormat);
+DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
 void moz2d_draw_target_delete(DrawTarget *drawTarget);
 bool moz2d_draw_target_is_valid(DrawTarget *drawTarget);
 DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
@@ -33,14 +33,27 @@ SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
 IntSize* moz2d_draw_target_get_size(DrawTarget *drawTarget);
 void moz2d_draw_target_flush(DrawTarget *drawTarget);
 
+/*
+ * Fill
+ */
 void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, DrawOptions* drawOptions);
 void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions);
-
+/*
+ * Stroke
+ */
 void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+/*
+ * Mask
+ */
+void moz2d_draw_target_mask_pattern(DrawTarget* drawTarget, Pattern* aSource, Pattern* aMask, DrawOptions* aOptions);
+void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, SourceSurface *aMask, Float offsetX, Float offsetY, DrawOptions* aOptions);
 
 void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions);
 PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule);
+
+
+
 //
 uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
 

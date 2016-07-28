@@ -16,6 +16,11 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
+int32_t moz2d_int_rect_x(IntRect* rect);
+int32_t moz2d_int_rect_y(IntRect* rect);
+int32_t moz2d_Int_rect_width(IntRect* rect);
+int32_t moz2d_Int_rect_height(IntRect* rect);
+
 bool moz2d_rect_is_empty(Rect* rect);
 void moz2d_rect_set_empty(Rect* rect);
 bool moz2d_rect_is_finite(Rect* rect);
