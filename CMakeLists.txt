@@ -32,18 +32,32 @@ include_directories(${MOZ_TOP_OBJ_PATH}/dist/include/nspr)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/skia)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/graphite2/src)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/harfbuzz/src)
-	# add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/thebes)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/ots/src)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/qcms)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/modules/woff2)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/modules/brotli)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/modules/zlib/src)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/thebes)
 
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/memory/fallible)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/memory/mozalloc)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mfbt)
 	
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/ds)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/glue)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/string)
+	
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/libc)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/pr)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/common)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/stubdata)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/i18n)
+	
+	#add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/uconv)
 	#add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil)
-	#add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util/internal)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mozglue/misc)
 	
 	add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
@@ -60,14 +74,25 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:gfx_harfbuzz_src>
 	# Graphite2 is needed to work with Glyphs and Text	
 	$<TARGET_OBJECTS:gfx_graphite2_src>
+	# Quick color management used by Thebes
+	$<TARGET_OBJECTS:gfx_qcms>
+	# Sanitiser for OpenType used by Thebes
+	$<TARGET_OBJECTS:gfx_ots_src>
+	# Needed by OTS
+	$<TARGET_OBJECTS:modules_zlib_src>
+	# Needed by OTS
+	$<TARGET_OBJECTS:woff2>
+	# Needed by woff2
+	$<TARGET_OBJECTS:brotli>
 
 	$<TARGET_OBJECTS:fallible>
 	$<TARGET_OBJECTS:memory_mozalloc>
 	$<TARGET_OBJECTS:mfbt>
 	
 	# Thebes is needed to work with platform dependend fonts
-	# $<TARGET_OBJECTS:gfx_thebes>
+	$<TARGET_OBJECTS:gfx_thebes>
 	
+	#$<TARGET_OBJECTS:xpcom_ds>
 	# xpcom glue provides hash tables and various ns* stuff for thebes
 	$<TARGET_OBJECTS:xpcomglue>
 	# For nsString and friends needed by thebes
@@ -77,11 +102,25 @@ add_library(${PROJECT_NAME} SHARED
 	# For PL_strncasecmp needed by xpcom_string
 	$<TARGET_OBJECTS:plc4>
 
+	# For nsNCRFallbackEncoderWrapper used by unicharutil
+	#$<TARGET_OBJECTS:intl_uconv>
 	# Maybe usefull encoding convertions utils to work with text
 	#$<TARGET_OBJECTS:intl_unicharutil>
-	#$<TARGET_OBJECTS:unicharutil_external_s>
 	
+	# For GetScriptTagForCode, GetGeneralCategory and others from mozilla::unicode
+	$<TARGET_OBJECTS:unicharutil_external_s>
+	$<TARGET_OBJECTS:intl_unicharutil_util_internal>
+	$<TARGET_OBJECTS:icuuc>
+	$<TARGET_OBJECTS:icustubdata>
+	$<TARGET_OBJECTS:icui18n>
+	
+	# [Clean] TimeStamp utils
+	$<TARGET_OBJECTS:mozglue_misc>
+	
+	# C bindings
 	$<TARGET_OBJECTS:wrapper>
+	# Fake Telemetry
+	$<TARGET_OBJECTS:telemetry>
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

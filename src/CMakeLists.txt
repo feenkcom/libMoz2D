@@ -6,6 +6,8 @@ include_directories(${MOZ_TOP_PATH}/gfx/skia)
 include_directories(${MOZ_TOP_PATH}/gfx/skia/skia/include/config)
 include_directories(${MOZ_TOP_PATH}/gfx/skia/skia/include/core)
 
+add_subdirectory(telemetry)
+
 set(SRC draw_target.cpp draw_options.cpp filter_node.cpp color.cpp rect.cpp pattern.cpp path.cpp structs.cpp point.cpp text.cpp font.cpp mac_font.mm)
 
 add_library(wrapper OBJECT ${SRC})
