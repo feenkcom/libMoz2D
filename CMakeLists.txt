@@ -47,7 +47,7 @@ include_directories(${MOZ_TOP_OBJ_PATH}/dist/include/nspr)
 	
 	add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
-file(GLOB LIBRARIES "*.dylib")
+file(GLOB LIBRARIES "libs/mac/*.dylib")
 
 add_library(${PROJECT_NAME} SHARED
 
@@ -76,7 +76,7 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:nspr4>
 	# For PL_strncasecmp needed by xpcom_string
 	$<TARGET_OBJECTS:plc4>
-	
+
 	# Maybe usefull encoding convertions utils to work with text
 	#$<TARGET_OBJECTS:intl_unicharutil>
 	#$<TARGET_OBJECTS:unicharutil_external_s>
@@ -89,7 +89,7 @@ target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 include_directories(${MOZ_TOP_PATH}/gfx)
 include_directories(${MOZ_TOP_PATH}/gfx/cairo/cairo/src)
 include_directories(${MOZ_TOP_OBJ_PATH}/gfx/cairo/cairo/src)
-#include_directories(${MOZ_TOP_PATH}/modules/freetype2/include)
+include_directories(${MOZ_TOP_PATH}/modules/freetype2/include)
 # Add executable called "main" that is built from the source files 
 add_executable (main src/main.cpp) 
 # Link the executable to the lib library. 
