@@ -1,0 +1,1 @@
+pref("gfx.app_units_per_dev_pixel", 60);

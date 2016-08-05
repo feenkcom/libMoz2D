@@ -7,7 +7,6 @@
 
 #ifndef TEXT_H_
 #define TEXT_H_
-#define MOZILLA_INTERNAL_API
 
 #include "2d/2D.h"
 #include "nsString.h"

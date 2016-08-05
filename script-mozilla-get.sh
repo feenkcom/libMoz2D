@@ -40,6 +40,11 @@ function patches {
 	for file in $PATCHES_DIR"/"*.patch; do
 	    patch -p0 -d $DEFAULT_MOZ_CENTRAL < $file
 	done
+	for dir in $PATCHES_DIR"/"* ; do
+		if [ -d "$dir" ]; then
+			cp -Rv $dir $DEFAULT_MOZ_CENTRAL
+		fi
+	done
 }
 
 function help {

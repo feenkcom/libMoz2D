@@ -11,20 +11,24 @@ set (MOZ_TOP_OBJ_PATH ${MOZ_TOP_PATH}/obj-mozilla CACHE STRING "Path to object d
 
 enable_language(ASM)
 
-add_definitions(-DMOZILLA_EXTERNAL_LINKAGE)
+add_definitions(-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING)
 #set (CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--noexecstack -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
 set (CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -arch i386 -m32 -Wa,--noexecstack -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mssse3 -msse4.1 -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mssse3 -msse4.1 -std=gnu++11 -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -Wall -Wc++11-compat -Wempty-body -Wignored-qualifiers -Woverloaded-virtual -Wpointer-arith -Wsign-compare -Wtype-limits -Wunreachable-code -Wwrite-strings -Wc++11-compat-pedantic -Wc++14-compat -Wc++14-compat-pedantic -Wclass-varargs -Wimplicit-fallthrough -Wloop-analysis -Wthread-safety -Wno-invalid-offsetof -Wno-inline-new-delete -Wno-error=deprecated-declarations -Wno-error=array-bounds -Wno-unknown-warning-option -Wno-return-type-c-linkage -fno-exceptions -fno-strict-aliasing -stdlib=libc++ -fno-rtti -fno-exceptions -fno-math-errno -pthread -pipe")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -Wall -Wc++11-compat -Wempty-body -Wignored-qualifiers -Woverloaded-virtual -Wpointer-arith -Wsign-compare -Wtype-limits -Wunreachable-code -Wwrite-strings -Wc++11-compat-pedantic -Wc++14-compat -Wc++14-compat-pedantic -Wc++1z-compat -Wclass-varargs -Wimplicit-fallthrough -Wloop-analysis -Wstring-conversion -Wthread-safety -Wno-invalid-offsetof -Wno-inline-new-delete -Wno-error=deprecated-declarations -Wno-error=array-bounds -Wno-unknown-warning-option -Wno-return-type-c-linkage -fno-exceptions -fno-strict-aliasing -stdlib=libc++ -fno-rtti -fno-exceptions -fno-math-errno -pthread -pipe")
+# We throw runtime exceptions if stub method gets executed on runtime.
+# Normally, it should not happen.
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
 
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl")
 #set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
-set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore")
+set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore -framework IOKit")
 set (CMAKE_POSITION_INDEPENDENT_CODE TURE)
 
 include_directories(${MOZ_TOP_OBJ_PATH}/dist/include)
 include_directories(${MOZ_TOP_OBJ_PATH}/dist/include/nspr)
+include_directories(${MOZ_TOP_PATH}/intl/locale)
 
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/2d)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/cairo/cairo/src)
@@ -42,20 +46,20 @@ include_directories(${MOZ_TOP_OBJ_PATH}/dist/include/nspr)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/memory/fallible)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/memory/mozalloc)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mfbt)
+
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/dom/encoding)
 	
-	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/ds)
-	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/glue)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/glue/standalone)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/string)
-	
+		
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/libc)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/pr)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/ds)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/common)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/stubdata)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/i18n)
-	
-	#add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/uconv)
-	#add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil)
-	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util)
+
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/locale)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util/internal)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mozglue/misc)
 	
@@ -69,7 +73,7 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:gfx_cairo_cairo_src>
 	$<TARGET_OBJECTS:gfx_cairo_libpixman_src>
 	$<TARGET_OBJECTS:gfx_skia>
-	
+
 	# Harfbuzz is needed to work with Glyphs and Text	
 	$<TARGET_OBJECTS:gfx_harfbuzz_src>
 	# Graphite2 is needed to work with Glyphs and Text	
@@ -84,15 +88,14 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:woff2>
 	# Needed by woff2
 	$<TARGET_OBJECTS:brotli>
+	# Thebes is needed to work with platform dependend fonts
+	$<TARGET_OBJECTS:gfx_thebes>
 
 	$<TARGET_OBJECTS:fallible>
 	$<TARGET_OBJECTS:memory_mozalloc>
+	# Mozilla Framework Based on Templates https://developer.mozilla.org/en-US/docs/Mozilla/MFBT
 	$<TARGET_OBJECTS:mfbt>
-	
-	# Thebes is needed to work with platform dependend fonts
-	$<TARGET_OBJECTS:gfx_thebes>
-	
-	#$<TARGET_OBJECTS:xpcom_ds>
+
 	# xpcom glue provides hash tables and various ns* stuff for thebes
 	$<TARGET_OBJECTS:xpcomglue>
 	# For nsString and friends needed by thebes
@@ -101,35 +104,40 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:nspr4>
 	# For PL_strncasecmp needed by xpcom_string
 	$<TARGET_OBJECTS:plc4>
+	# For PL_HashTable needed by nsLocale
+	$<TARGET_OBJECTS:plds4>
 
-	# For nsNCRFallbackEncoderWrapper used by unicharutil
-	#$<TARGET_OBJECTS:intl_uconv>
-	# Maybe usefull encoding convertions utils to work with text
-	#$<TARGET_OBJECTS:intl_unicharutil>
-	
-	# For GetScriptTagForCode, GetGeneralCategory and others from mozilla::unicode
-	$<TARGET_OBJECTS:unicharutil_external_s>
+	# Needed bu FontUtils to get raw font name
+	$<TARGET_OBJECTS:dom_encoding>
+
+	# Needed to support Unicode
+	$<TARGET_OBJECTS:intl_locale>
+	$<TARGET_OBJECTS:intl_locale_mac>
 	$<TARGET_OBJECTS:intl_unicharutil_util_internal>
 	$<TARGET_OBJECTS:icuuc>
 	$<TARGET_OBJECTS:icustubdata>
 	$<TARGET_OBJECTS:icui18n>
-	
-	# [Clean] TimeStamp utils
+
+	# TimeStamp utils
 	$<TARGET_OBJECTS:mozglue_misc>
-	
+
 	# C bindings
 	$<TARGET_OBJECTS:wrapper>
 	# Fake Telemetry
 	$<TARGET_OBJECTS:telemetry>
+	# Fake preferences
+	$<TARGET_OBJECTS:preferences>
+	# Services
+	$<TARGET_OBJECTS:services>
+	# Defines undefined symbols
+	$<TARGET_OBJECTS:undefined>	
 )
 
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
-include_directories(${MOZ_TOP_PATH}/gfx)
-include_directories(${MOZ_TOP_PATH}/gfx/cairo/cairo/src)
-include_directories(${MOZ_TOP_OBJ_PATH}/gfx/cairo/cairo/src)
-include_directories(${MOZ_TOP_PATH}/modules/freetype2/include)
+# Uncomment to experiment with api without Pharo
+#add_definitions(-DMOZILLA_INTERNAL_API)
 # Add executable called "main" that is built from the source files 
-add_executable (main src/main.cpp) 
+#add_executable (main src/main.cpp) 
 # Link the executable to the lib library. 
-target_link_libraries (main ${PROJECT_NAME}) 
+#target_link_libraries (main ${PROJECT_NAME}) 

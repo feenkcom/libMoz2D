@@ -14,6 +14,10 @@ DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_
 	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
 }
 
+DrawTarget* moz2d_draw_target_create_for_data(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized) {
+	return Factory::CreateDrawTargetForData(aBackend, aData, IntSize(width, height), aStride, aFormat, aUninitialized).take();
+}
+
 void moz2d_draw_target_delete(DrawTarget *drawTarget) {
 	delete drawTarget;
 }

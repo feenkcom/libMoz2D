@@ -1,0 +1,1173 @@
+diff -Naur gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
+--- gfx/thebes/gfxFont.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-08-05 13:44:25.000000000 +0200
+@@ -167,25 +167,8 @@
+ }
+ 
+ gfxFontCache::gfxFontCache()
+-    : nsExpirationTracker<gfxFont,3>(FONT_TIMEOUT_SECONDS * 1000,
+-                                     "gfxFontCache")
+ {
+-    nsCOMPtr<nsIObserverService> obs = GetObserverService();
+-    if (obs) {
+-        obs->AddObserver(new Observer, "memory-pressure", false);
+-    }
+ 
+-#ifndef RELEASE_BUILD
+-    // Currently disabled for release builds, due to unexplained crashes
+-    // during expiration; see bug 717175 & 894798.
+-    mWordCacheExpirationTimer = do_CreateInstance("@mozilla.org/timer;1");
+-    if (mWordCacheExpirationTimer) {
+-        mWordCacheExpirationTimer->
+-            InitWithFuncCallback(WordCacheExpirationTimerCallback, this,
+-                                 SHAPED_WORD_TIMEOUT_SECONDS * 1000,
+-                                 nsITimer::TYPE_REPEATING_SLACK);
+-    }
+-#endif
+ }
+ 
+ gfxFontCache::~gfxFontCache()
+@@ -260,6 +243,24 @@
+     }
+ }
+ 
++nsresult
++gfxFontCache::AddObject(gfxFont* aFont)
++{
++	return NS_OK;
++}
++
++void
++gfxFontCache::RemoveObject(gfxFont* aFont)
++{
++
++}
++
++void
++gfxFontCache::AgeAllGenerations()
++{
++
++}
++
+ void
+ gfxFontCache::NotifyReleased(gfxFont *aFont)
+ {
+diff -Naur gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
+--- gfx/thebes/gfxFont.h	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-08-05 13:43:22.000000000 +0200
+@@ -276,7 +276,7 @@
+     size_t mShapedWords; // memory used by the per-font shapedWord caches
+ };
+ 
+-class gfxFontCache final : public nsExpirationTracker<gfxFont,3> {
++class gfxFontCache final {
+ public:
+     enum {
+         FONT_TIMEOUT_SECONDS = 10,
+@@ -318,7 +318,7 @@
+ 
+     // This gets called when the timeout has expired on a zero-refcount
+     // font; we just delete it.
+-    virtual void NotifyExpired(gfxFont *aFont) override;
++    virtual void NotifyExpired(gfxFont *aFont);
+ 
+     // Cleans out the hashtable and removes expired fonts waiting for cleanup.
+     // Other gfxFont objects may be still in use but they will be pushed
+@@ -328,6 +328,12 @@
+         AgeAllGenerations();
+     }
+ 
++    void AgeAllGenerations();
++
++    nsresult AddObject(gfxFont* aFont);
++
++    void RemoveObject(gfxFont* aFont);
++
+     void FlushShapedWordCaches();
+ 
+     void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
+diff -Naur gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
+--- gfx/thebes/gfxMacPlatformFontList.mm	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-05 13:52:43.000000000 +0200
+@@ -71,6 +71,8 @@
+ #include <time.h>
+ #include <dlfcn.h>
+ 
++#include "../../widget/cocoa/nsCocoaFeatures.mm"
++
+ using namespace mozilla;
+ 
+ // indexes into the NSArray objects that the Cocoa font manager returns
+@@ -102,6 +104,23 @@
+     9  // 14
+ };
+ 
++// static
++void
++nsCocoaUtils::GetStringForNSString(const NSString *aSrc, nsAString& aDist)
++{
++  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
++
++  if (!aSrc) {
++    aDist.Truncate();
++    return;
++  }
++
++  aDist.SetLength([aSrc length]);
++  [aSrc getCharacters: reinterpret_cast<unichar*>(aDist.BeginWriting())];
++
++  NS_OBJC_END_TRY_ABORT_BLOCK;
++}
++
+ // cache Cocoa's "shared font manager" for performance
+ static NSFontManager *sFontManager;
+ 
+@@ -699,8 +718,8 @@
+         sizeHint = 128.0;
+     }
+ 
+-    nsAutoString key;
+-    ToLowerCase(familyName, key);
++    nsAutoString key = familyName;
++    ToLowerCase(key);
+ 
+     gfxFontFamily* familyEntry = new gfxMacFontFamily(familyName, sizeHint);
+     table.Put(key, familyEntry);
+diff -Naur gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
+--- gfx/thebes/gfxPlatform.h	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-08-05 15:04:43.000000000 +0200
+@@ -158,6 +158,11 @@
+     static gfxPlatform *GetPlatform();
+ 
+     /**
++     * Purge caches to free memory
++     */
++    static void PurgeCache();
++
++    /**
+      * Returns whether or not graphics has been initialized yet. This is
+      * intended for Telemetry where we don't necessarily want to initialize
+      * graphics just to observe its state.
+@@ -268,15 +273,6 @@
+ 
+     static bool AsyncPanZoomEnabled();
+ 
+-    virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
+-      aObj.DefineProperty("AzureCanvasBackend", GetBackendName(mPreferredCanvasBackend));
+-      aObj.DefineProperty("AzureCanvasAccelerated", UseAcceleratedCanvas());
+-      aObj.DefineProperty("AzureFallbackCanvasBackend", GetBackendName(mFallbackCanvasBackend));
+-      aObj.DefineProperty("AzureContentBackend", GetBackendName(mContentBackend));
+-    }
+-    void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
+-    void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
+-
+     // Get the default content backend that will be used with the default
+     // compositor. If the compositor is known when calling this function,
+     // GetContentBackendFor() should be called instead.
+@@ -642,10 +638,6 @@
+ 
+     virtual void CompositorUpdated() {}
+ 
+-    // Return information on how child processes should initialize graphics
+-    // devices. Currently this is only used on Windows.
+-    virtual void GetDeviceInitData(mozilla::gfx::DeviceInitData* aOut);
+-
+     // Plugin async drawing support.
+     virtual bool SupportsPluginDirectBitmapDrawing() {
+       return false;
+@@ -684,9 +676,6 @@
+     // Returns whether or not layers should be accelerated by default on this platform.
+     virtual bool AccelerateLayersByDefault();
+ 
+-    // Returns a prioritized list of available compositor backends for acceleration.
+-    virtual void GetAcceleratedCompositorBackends(nsTArray<mozilla::layers::LayersBackend>& aBackends);
+-
+     /**
+      * Initialise the preferred and fallback canvas backends
+      * aBackendBitmask specifies the backends which are acceptable to the caller.
+@@ -806,10 +795,6 @@
+     int mTileWidth;
+     int mTileHeight;
+ 
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mAzureCanvasBackendCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mApzSupportCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mTilesInfoCollector;
+-
+     RefPtr<mozilla::gfx::DrawEventRecorder> mRecorder;
+     RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
+ 
+diff -Naur gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
+--- gfx/thebes/gfxPlatformFontList.cpp	2016-07-31 07:48:03.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-05 14:06:27.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include "mozilla/Telemetry.h"
+ #include "mozilla/TimeStamp.h"
+ #include "mozilla/gfx/2D.h"
++#include "nsLanguageAtomService.h"
+ 
+ #include <locale.h>
+ 
+@@ -110,71 +111,8 @@
+ static_assert(MOZ_ARRAY_LENGTH(gPrefLangNames) == uint32_t(eFontPrefLang_Count),
+               "size of pref lang name array doesn't match pref lang enum size");
+ 
+-class gfxFontListPrefObserver final : public nsIObserver {
+-    ~gfxFontListPrefObserver() {}
+-public:
+-    NS_DECL_ISUPPORTS
+-    NS_DECL_NSIOBSERVER
+-};
+-
+-static gfxFontListPrefObserver* gFontListPrefObserver = nullptr;
+-
+-NS_IMPL_ISUPPORTS(gfxFontListPrefObserver, nsIObserver)
+-
+-NS_IMETHODIMP
+-gfxFontListPrefObserver::Observe(nsISupports     *aSubject,
+-                                 const char      *aTopic,
+-                                 const char16_t *aData)
+-{
+-    NS_ASSERTION(!strcmp(aTopic, NS_PREFBRANCH_PREFCHANGE_TOPIC_ID), "invalid topic");
+-    // XXX this could be made to only clear out the cache for the prefs that were changed
+-    // but it probably isn't that big a deal.
+-    gfxPlatformFontList::PlatformFontList()->ClearLangGroupPrefFonts();
+-    gfxFontCache::GetCache()->AgeAllGenerations();
+-    return NS_OK;
+-}
+-
+ MOZ_DEFINE_MALLOC_SIZE_OF(FontListMallocSizeOf)
+ 
+-NS_IMPL_ISUPPORTS(gfxPlatformFontList::MemoryReporter, nsIMemoryReporter)
+-
+-NS_IMETHODIMP
+-gfxPlatformFontList::MemoryReporter::CollectReports(
+-    nsIMemoryReporterCallback* aCb, nsISupports* aClosure, bool aAnonymize)
+-{
+-    FontListSizes sizes;
+-    sizes.mFontListSize = 0;
+-    sizes.mFontTableCacheSize = 0;
+-    sizes.mCharMapsSize = 0;
+-
+-    gfxPlatformFontList::PlatformFontList()->AddSizeOfIncludingThis(&FontListMallocSizeOf,
+-                                                                    &sizes);
+-
+-    nsresult rv;
+-    rv = aCb->Callback(EmptyCString(),
+-                       NS_LITERAL_CSTRING("explicit/gfx/font-list"),
+-                       KIND_HEAP, UNITS_BYTES, sizes.mFontListSize,
+-                       NS_LITERAL_CSTRING("Memory used to manage the list of font families and faces."),
+-                       aClosure);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    rv = aCb->Callback(EmptyCString(),
+-                       NS_LITERAL_CSTRING("explicit/gfx/font-charmaps"),
+-                       KIND_HEAP, UNITS_BYTES, sizes.mCharMapsSize,
+-                       NS_LITERAL_CSTRING("Memory used to record the character coverage of individual fonts."),
+-                       aClosure);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    if (sizes.mFontTableCacheSize) {
+-        aCb->Callback(EmptyCString(),
+-                      NS_LITERAL_CSTRING("explicit/gfx/font-tables"),
+-                      KIND_HEAP, UNITS_BYTES, sizes.mFontTableCacheSize,
+-                      NS_LITERAL_CSTRING("Memory used for cached font metrics and layout tables."),
+-                      aClosure);
+-    }
+-
+-    return NS_OK;
+-}
+ 
+ gfxPlatformFontList::gfxPlatformFontList(bool aNeedFullnamePostscriptNames)
+     : mFontFamilies(64), mOtherFamilyNames(16),
+@@ -189,24 +127,12 @@
+     mFaceNameListsInitialized = false;
+ 
+     LoadBadUnderlineList();
+-
+-    // pref changes notification setup
+-    NS_ASSERTION(!gFontListPrefObserver,
+-                 "There has been font list pref observer already");
+-    gFontListPrefObserver = new gfxFontListPrefObserver();
+-    NS_ADDREF(gFontListPrefObserver);
+-    Preferences::AddStrongObservers(gFontListPrefObserver, kObservedPrefs);
+-
+-    RegisterStrongMemoryReporter(new MemoryReporter());
+ }
+ 
+ gfxPlatformFontList::~gfxPlatformFontList()
+ {
+     mSharedCmaps.Clear();
+     ClearLangGroupPrefFonts();
+-    NS_ASSERTION(gFontListPrefObserver, "There is no font list pref observer");
+-    Preferences::RemoveObservers(gFontListPrefObserver, kObservedPrefs);
+-    NS_RELEASE(gFontListPrefObserver);
+ }
+ 
+ // number of CSS generic font families
+@@ -1166,7 +1092,7 @@
+ gfxPlatformFontList::GetLangService()
+ {
+     if (!mLangService) {
+-        mLangService = do_GetService(NS_LANGUAGEATOMSERVICE_CONTRACTID);
++        mLangService = new nsLanguageAtomService();
+     }
+     NS_ASSERTION(mLangService, "no language service!");
+     return mLangService;
+diff -Naur gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
+--- gfx/thebes/gfxPlatformGtk.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-05 15:00:15.000000000 +0200
+@@ -645,250 +645,10 @@
+     }
+ }
+ 
+-#ifdef GL_PROVIDER_GLX
+-
+-class GLXVsyncSource final : public VsyncSource
+-{
+-public:
+-  GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-    mGlobalDisplay = new GLXDisplay();
+-  }
+-
+-  virtual ~GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-  }
+-
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return *mGlobalDisplay;
+-  }
+-
+-  class GLXDisplay final : public VsyncSource::Display
+-  {
+-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(GLXDisplay)
+-
+-  public:
+-    GLXDisplay() : mGLContext(nullptr)
+-                 , mXDisplay(nullptr)
+-                 , mSetupLock("GLXVsyncSetupLock")
+-                 , mVsyncThread("GLXVsyncThread")
+-                 , mVsyncTask(nullptr)
+-                 , mVsyncEnabledLock("GLXVsyncEnabledLock")
+-                 , mVsyncEnabled(false)
+-    {
+-    }
+-
+-    // Sets up the display's GL context on a worker thread.
+-    // Required as GLContexts may only be used by the creating thread.
+-    // Returns true if setup was a success.
+-    bool Setup()
+-    {
+-      MonitorAutoLock lock(mSetupLock);
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (!mVsyncThread.Start())
+-        return false;
+-
+-      RefPtr<Runnable> vsyncSetup = NewRunnableMethod(this, &GLXDisplay::SetupGLContext);
+-      mVsyncThread.message_loop()->PostTask(vsyncSetup.forget());
+-      // Wait until the setup has completed.
+-      lock.Wait();
+-      return mGLContext != nullptr;
+-    }
+-
+-    // Called on the Vsync thread to setup the GL context.
+-    void SetupGLContext()
+-    {
+-        MonitorAutoLock lock(mSetupLock);
+-        MOZ_ASSERT(!NS_IsMainThread());
+-        MOZ_ASSERT(!mGLContext, "GLContext already setup!");
+-
+-        // Create video sync timer on a separate Display to prevent locking the
+-        // main thread X display.
+-        mXDisplay = XOpenDisplay(nullptr);
+-        if (!mXDisplay) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        // Most compositors wait for vsync events on the root window.
+-        Window root = DefaultRootWindow(mXDisplay);
+-        int screen = DefaultScreen(mXDisplay);
+-
+-        ScopedXFree<GLXFBConfig> cfgs;
+-        GLXFBConfig config;
+-        int visid;
+-        if (!gl::GLContextGLX::FindFBConfigForWindow(mXDisplay, screen, root,
+-                                                     &cfgs, &config, &visid)) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext = gl::GLContextGLX::CreateGLContext(
+-            gl::CreateContextFlags::NONE,
+-            gl::SurfaceCaps::Any(),
+-            nullptr,
+-            false,
+-            mXDisplay,
+-            root,
+-            config,
+-            false);
+-
+-        if (!mGLContext) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext->MakeCurrent();
+-
+-        // Test that SGI_video_sync lets us get the counter.
+-        unsigned int syncCounter = 0;
+-        if (gl::sGLXLibrary.xGetVideoSync(&syncCounter) != 0) {
+-          mGLContext = nullptr;
+-        }
+-
+-        lock.NotifyAll();
+-    }
+-
+-    virtual void EnableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      MOZ_ASSERT(mGLContext, "GLContext not setup!");
+-
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      if (mVsyncEnabled) {
+-        return;
+-      }
+-      mVsyncEnabled = true;
+-
+-      // If the task has not nulled itself out, it hasn't yet realized
+-      // that vsync was disabled earlier, so continue its execution.
+-      if (!mVsyncTask) {
+-        mVsyncTask = NewRunnableMethod(this, &GLXDisplay::RunVsync);
+-        RefPtr<Runnable> addrefedTask = mVsyncTask;
+-        mVsyncThread.message_loop()->PostTask(addrefedTask.forget());
+-      }
+-    }
+-
+-    virtual void DisableVsync() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      mVsyncEnabled = false;
+-    }
+-
+-    virtual bool IsVsyncEnabled() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      return mVsyncEnabled;
+-    }
+-
+-    virtual void Shutdown() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      DisableVsync();
+-
+-      // Cleanup thread-specific resources before shutting down.
+-      RefPtr<Runnable> shutdownTask = NewRunnableMethod(this, &GLXDisplay::Cleanup);
+-      mVsyncThread.message_loop()->PostTask(shutdownTask.forget());
+-
+-      // Stop, waiting for the cleanup task to finish execution.
+-      mVsyncThread.Stop();
+-    }
+-
+-  private:
+-    virtual ~GLXDisplay()
+-    {
+-    }
+-
+-    void RunVsync()
+-    {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext->MakeCurrent();
+-
+-      unsigned int syncCounter = 0;
+-      gl::sGLXLibrary.xGetVideoSync(&syncCounter);
+-      for (;;) {
+-        {
+-          MonitorAutoLock lock(mVsyncEnabledLock);
+-          if (!mVsyncEnabled) {
+-            mVsyncTask = nullptr;
+-            return;
+-          }
+-        }
+-
+-        TimeStamp lastVsync = TimeStamp::Now();
+-        bool useSoftware = false;
+-
+-        // Wait until the video sync counter reaches the next value by waiting
+-        // until the parity of the counter value changes.
+-        unsigned int nextSync = syncCounter + 1;
+-        int status;
+-        if ((status = gl::sGLXLibrary.xWaitVideoSync(2, nextSync % 2, &syncCounter)) != 0) {
+-          gfxWarningOnce() << "glXWaitVideoSync returned " << status;
+-          useSoftware = true;
+-        }
+-
+-        if (syncCounter == (nextSync - 1)) {
+-          gfxWarningOnce() << "glXWaitVideoSync failed to increment the sync counter.";
+-          useSoftware = true;
+-        }
+-
+-        if (useSoftware) {
+-          double remaining = (1000.f / 60.f) -
+-            (TimeStamp::Now() - lastVsync).ToMilliseconds();
+-          if (remaining > 0) {
+-            PlatformThread::Sleep(remaining);
+-          }
+-        }
+-
+-        lastVsync = TimeStamp::Now();
+-        NotifyVsync(lastVsync);
+-      }
+-    }
+-
+-    void Cleanup() {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext = nullptr;
+-      XCloseDisplay(mXDisplay);
+-    }
+-
+-    // Owned by the vsync thread.
+-    RefPtr<gl::GLContextGLX> mGLContext;
+-    _XDisplay* mXDisplay;
+-    Monitor mSetupLock;
+-    base::Thread mVsyncThread;
+-    RefPtr<Runnable> mVsyncTask;
+-    Monitor mVsyncEnabledLock;
+-    bool mVsyncEnabled;
+-  };
+-private:
+-  // We need a refcounted VsyncSource::Display to use chromium IPC runnables.
+-  RefPtr<GLXDisplay> mGlobalDisplay;
+-};
+-
+ already_AddRefed<gfx::VsyncSource>
+ gfxPlatformGtk::CreateHardwareVsyncSource()
+ {
+-  // Only use GLX vsync when the OpenGL compositor is being used.
+-  // The extra cost of initializing a GLX context while blocking the main
+-  // thread is not worth it when using basic composition.
+-  if (gfxConfig::IsEnabled(Feature::HW_COMPOSITING)) {
+-    if (gl::sGLXLibrary.SupportsVideoSync()) {
+-      RefPtr<VsyncSource> vsyncSource = new GLXVsyncSource();
+-      VsyncSource::Display& display = vsyncSource->GetGlobalDisplay();
+-      if (!static_cast<GLXVsyncSource::GLXDisplay&>(display).Setup()) {
+-        NS_WARNING("Failed to setup GLContext, falling back to software vsync.");
+-        return gfxPlatform::CreateHardwareVsyncSource();
+-      }
+-      return vsyncSource.forget();
+-    }
+-    NS_WARNING("SGI_video_sync unsupported. Falling back to software vsync.");
+-  }
+-  return gfxPlatform::CreateHardwareVsyncSource();
++  return nullptr;
+ }
+ 
+ bool
+diff -Naur gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
+--- gfx/thebes/gfxPlatformMac.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-05 14:55:46.000000000 +0200
+@@ -374,211 +374,10 @@
+   return true;
+ }
+ 
+-// This is the renderer output callback function, called on the vsync thread
+-static CVReturn VsyncCallback(CVDisplayLinkRef aDisplayLink,
+-                              const CVTimeStamp* aNow,
+-                              const CVTimeStamp* aOutputTime,
+-                              CVOptionFlags aFlagsIn,
+-                              CVOptionFlags* aFlagsOut,
+-                              void* aDisplayLinkContext);
+-
+-class OSXVsyncSource final : public VsyncSource
+-{
+-public:
+-  OSXVsyncSource()
+-  {
+-  }
+-
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return mGlobalDisplay;
+-  }
+-
+-  class OSXDisplay final : public VsyncSource::Display
+-  {
+-  public:
+-    OSXDisplay()
+-      : mDisplayLink(nullptr)
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      mTimer = do_CreateInstance(NS_TIMER_CONTRACTID);
+-    }
+-
+-    ~OSXDisplay()
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-    }
+-
+-    static void RetryEnableVsync(nsITimer* aTimer, void* aOsxDisplay)
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      OSXDisplay* osxDisplay = static_cast<OSXDisplay*>(aOsxDisplay);
+-      MOZ_ASSERT(osxDisplay);
+-      osxDisplay->EnableVsync();
+-    }
+-
+-    virtual void EnableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (IsVsyncEnabled()) {
+-        return;
+-      }
+-
+-      // Create a display link capable of being used with all active displays
+-      // TODO: See if we need to create an active DisplayLink for each monitor in multi-monitor
+-      // situations. According to the docs, it is compatible with all displays running on the computer
+-      // But if we have different monitors at different display rates, we may hit issues.
+-      if (CVDisplayLinkCreateWithActiveCGDisplays(&mDisplayLink) != kCVReturnSuccess) {
+-        NS_WARNING("Could not create a display link with all active displays. Retrying");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-
+-        // bug 1142708 - When coming back from sleep,
+-        // or when changing displays, active displays may not be ready yet,
+-        // even if listening for the kIOMessageSystemHasPoweredOn event
+-        // from OS X sleep notifications.
+-        // Active displays are those that are drawable.
+-        // bug 1144638 - When changing display configurations and getting
+-        // notifications from CGDisplayReconfigurationCallBack, the
+-        // callback gets called twice for each active display
+-        // so it's difficult to know when all displays are active.
+-        // Instead, try again soon. The delay is arbitrary. 100ms chosen
+-        // because on a late 2013 15" retina, it takes about that
+-        // long to come back up from sleep.
+-        uint32_t delay = 100;
+-        mTimer->InitWithFuncCallback(RetryEnableVsync, this, delay, nsITimer::TYPE_ONE_SHOT);
+-        return;
+-      }
+-
+-      if (CVDisplayLinkSetOutputCallback(mDisplayLink, &VsyncCallback, this) != kCVReturnSuccess) {
+-        NS_WARNING("Could not set displaylink output callback");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-        return;
+-      }
+-
+-      mPreviousTimestamp = TimeStamp::Now();
+-      if (CVDisplayLinkStart(mDisplayLink) != kCVReturnSuccess) {
+-        NS_WARNING("Could not activate the display link");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-      }
+-
+-      CVTime vsyncRate = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(mDisplayLink);
+-      if (vsyncRate.flags & kCVTimeIsIndefinite) {
+-        NS_WARNING("Could not get vsync rate, setting to 60.");
+-        mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-      } else {
+-        int64_t timeValue = vsyncRate.timeValue;
+-        int64_t timeScale = vsyncRate.timeScale;
+-        const int milliseconds = 1000;
+-        float rateInMs = ((double) timeValue / (double) timeScale) * milliseconds;
+-        mVsyncRate = TimeDuration::FromMilliseconds(rateInMs);
+-      }
+-    }
+-
+-    virtual void DisableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (!IsVsyncEnabled()) {
+-        return;
+-      }
+-
+-      // Release the display link
+-      if (mDisplayLink) {
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-      }
+-    }
+-
+-    virtual bool IsVsyncEnabled() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      return mDisplayLink != nullptr;
+-    }
+-
+-    virtual TimeDuration GetVsyncRate() override
+-    {
+-      return mVsyncRate;
+-    }
+-
+-    virtual void Shutdown() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      mTimer->Cancel();
+-      mTimer = nullptr;
+-      DisableVsync();
+-    }
+-
+-    // The vsync timestamps given by the CVDisplayLinkCallback are
+-    // in the future for the NEXT frame. Large parts of Gecko, such
+-    // as animations assume a timestamp at either now or in the past.
+-    // Normalize the timestamps given to the VsyncDispatchers to the vsync
+-    // that just occured, not the vsync that is upcoming.
+-    TimeStamp mPreviousTimestamp;
+-
+-  private:
+-    // Manages the display link render thread
+-    CVDisplayLinkRef   mDisplayLink;
+-    RefPtr<nsITimer> mTimer;
+-    TimeDuration mVsyncRate;
+-  }; // OSXDisplay
+-
+-private:
+-  virtual ~OSXVsyncSource()
+-  {
+-  }
+-
+-  OSXDisplay mGlobalDisplay;
+-}; // OSXVsyncSource
+-
+-static CVReturn VsyncCallback(CVDisplayLinkRef aDisplayLink,
+-                              const CVTimeStamp* aNow,
+-                              const CVTimeStamp* aOutputTime,
+-                              CVOptionFlags aFlagsIn,
+-                              CVOptionFlags* aFlagsOut,
+-                              void* aDisplayLinkContext)
+-{
+-  // Executed on OS X hardware vsync thread
+-  OSXVsyncSource::OSXDisplay* display = (OSXVsyncSource::OSXDisplay*) aDisplayLinkContext;
+-  int64_t nextVsyncTimestamp = aOutputTime->hostTime;
+-
+-  mozilla::TimeStamp nextVsync = mozilla::TimeStamp::FromSystemTime(nextVsyncTimestamp);
+-  mozilla::TimeStamp previousVsync = display->mPreviousTimestamp;
+-  mozilla::TimeStamp now = TimeStamp::Now();
+-
+-  // Snow leopard sometimes sends vsync timestamps very far in the past.
+-  // Normalize the vsync timestamps to now.
+-  if (nextVsync <= previousVsync) {
+-    nextVsync = now;
+-    previousVsync = now;
+-  } else if (now < previousVsync) {
+-    // Bug 1158321 - The VsyncCallback can sometimes execute before the reported
+-    // vsync time. In those cases, normalize the timestamp to Now() as sending
+-    // timestamps in the future has undefined behavior. See the comment above
+-    // OSXDisplay::mPreviousTimestamp
+-    previousVsync = now;
+-  }
+-
+-  display->mPreviousTimestamp = nextVsync;
+-
+-  display->NotifyVsync(previousVsync);
+-  return kCVReturnSuccess;
+-}
+-
+ already_AddRefed<mozilla::gfx::VsyncSource>
+ gfxPlatformMac::CreateHardwareVsyncSource()
+ {
+-  RefPtr<VsyncSource> osxVsyncSource = new OSXVsyncSource();
+-  VsyncSource::Display& primaryDisplay = osxVsyncSource->GetGlobalDisplay();
+-  primaryDisplay.EnableVsync();
+-  if (!primaryDisplay.IsVsyncEnabled()) {
+-    NS_WARNING("OS X Vsync source not enabled. Falling back to software vsync.");
+-    return gfxPlatform::CreateHardwareVsyncSource();
+-  }
+-
+-  primaryDisplay.DisableVsync();
+-  return osxVsyncSource.forget();
++  return nullptr;
+ }
+ 
+ void
+diff -Naur gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
+--- gfx/thebes/gfxPrefs.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxPrefs.cpp	2016-07-29 01:04:32.000000000 +0200
+@@ -38,14 +38,7 @@
+ 
+ gfxPrefs::gfxPrefs()
+ {
+-  // UI, content, and plugin processes use XPCOM and should have prefs
+-  // ready by the time we initialize gfxPrefs.
+-  MOZ_ASSERT_IF(XRE_IsContentProcess() ||
+-                XRE_IsParentProcess() ||
+-                XRE_GetProcessType() == GeckoProcessType_Plugin,
+-                Preferences::IsServiceAvailable());
+-
+-  gfxPrefs::AssertMainThread();
++  
+ }
+ 
+ void
+@@ -117,13 +110,13 @@
+ /* static */ bool
+ gfxPrefs::IsPrefsServiceAvailable()
+ {
+-  return Preferences::IsServiceAvailable();
++  return false;
+ }
+ 
+ /* static */ bool
+ gfxPrefs::IsParentProcess()
+ {
+-  return XRE_IsParentProcess();
++  return false;
+ }
+ 
+ void gfxPrefs::PrefAddVarCache(bool* aVariable,
+diff -Naur gfx/thebes/gfxTextRun.cpp gfx/thebes-patched/gfxTextRun.cpp
+--- gfx/thebes/gfxTextRun.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-05 15:05:26.000000000 +0200
+@@ -3244,7 +3244,6 @@
+         mMissingFonts[i] = 0;
+     }
+     if (!fontNeeded.IsEmpty()) {
+-        nsCOMPtr<nsIObserverService> service = GetObserverService();
+-        service->NotifyObservers(nullptr, "font-needed", fontNeeded.get());
++       
+     }
+ }
+diff -Naur gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
+--- gfx/thebes/gfxUserFontSet.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-05 15:09:23.000000000 +0200
+@@ -472,80 +472,6 @@
+                                                       &bypassCache);
+ 
+                 if (NS_SUCCEEDED(rv) && principal != nullptr) {
+-                    if (!bypassCache) {
+-                        // see if we have an existing entry for this source
+-                        gfxFontEntry* fe = gfxUserFontSet::
+-                            UserFontCache::GetFont(currSrc.mURI,
+-                                                   principal,
+-                                                   this,
+-                                                   mFontSet->GetPrivateBrowsing());
+-                        if (fe) {
+-                            mPlatformFontEntry = fe;
+-                            SetLoadState(STATUS_LOADED);
+-                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
+-                                LOG(("userfonts (%p) [src %d] "
+-                                     "loaded uri from cache: (%s) for (%s)\n",
+-                                     mFontSet, mSrcIndex, fontURI.get(),
+-                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
+-                            }
+-                            return;
+-                        }
+-                    }
+-
+-                    // record the principal returned by CheckFontLoad,
+-                    // for use when creating a channel
+-                    // and when caching the loaded entry
+-                    mPrincipal = principal;
+-
+-                    bool loadDoesntSpin = false;
+-                    rv = NS_URIChainHasFlags(currSrc.mURI,
+-                           nsIProtocolHandler::URI_SYNC_LOAD_IS_OK,
+-                           &loadDoesntSpin);
+-
+-                    if (NS_SUCCEEDED(rv) && loadDoesntSpin) {
+-                        uint8_t* buffer = nullptr;
+-                        uint32_t bufferLength = 0;
+-
+-                        // sync load font immediately
+-                        rv = mFontSet->SyncLoadFontData(this, &currSrc, buffer,
+-                                                        bufferLength);
+-
+-                        if (NS_SUCCEEDED(rv) &&
+-                            LoadPlatformFont(buffer, bufferLength)) {
+-                            SetLoadState(STATUS_LOADED);
+-                            Telemetry::Accumulate(Telemetry::WEBFONT_SRCTYPE,
+-                                                  currSrc.mSourceType + 1);
+-                            return;
+-                        } else {
+-                            mFontSet->LogMessage(this,
+-                                                 "font load failed",
+-                                                 nsIScriptError::errorFlag,
+-                                                 rv);
+-                        }
+-
+-                    } else {
+-                        // otherwise load font async
+-                        rv = mFontSet->StartLoad(this, &currSrc);
+-                        bool loadOK = NS_SUCCEEDED(rv);
+-
+-                        if (loadOK) {
+-                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
+-                                LOG(("userfonts (%p) [src %d] loading uri: (%s) for (%s)\n",
+-                                     mFontSet, mSrcIndex, fontURI.get(),
+-                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
+-                            }
+-                            return;
+-                        } else {
+-                            mFontSet->LogMessage(this,
+-                                                 "download failed",
+-                                                 nsIScriptError::errorFlag,
+-                                                 rv);
+-                        }
+-                    }
+                 } else {
+                     mFontSet->LogMessage(this, "download not allowed",
+                                          nsIScriptError::errorFlag, rv);
+@@ -1081,12 +1007,7 @@
+ static bool
+ IgnorePrincipal(nsIURI* aURI)
+ {
+-    nsresult rv;
+-    bool inherits = false;
+-    rv = NS_URIChainHasFlags(aURI,
+-                             nsIProtocolHandler::URI_INHERITS_SECURITY_CONTEXT,
+-                             &inherits);
+-    return NS_SUCCEEDED(rv) && inherits;
++   return true;
+ }
+ 
+ bool
+@@ -1136,68 +1057,6 @@
+ gfxUserFontSet::UserFontCache::CacheFont(gfxFontEntry* aFontEntry,
+                                          EntryPersistence aPersistence)
+ {
+-    NS_ASSERTION(aFontEntry->mFamilyName.Length() != 0,
+-                 "caching a font associated with no family yet");
+-
+-    // if caching is disabled, simply return
+-    if (Preferences::GetBool("gfx.downloadable_fonts.disable_cache")) {
+-        return;
+-    }
+-
+-    gfxUserFontData* data = aFontEntry->mUserFontData.get();
+-    if (data->mIsBuffer) {
+-#ifdef DEBUG_USERFONT_CACHE
+-        printf("userfontcache skipped fontentry with buffer source: %p\n",
+-               aFontEntry);
+-#endif
+-        return;
+-    }
+-
+-    if (!sUserFonts) {
+-        sUserFonts = new nsTHashtable<Entry>;
+-
+-        nsCOMPtr<nsIObserverService> obs =
+-            mozilla::services::GetObserverService();
+-        if (obs) {
+-            Flusher* flusher = new Flusher;
+-            obs->AddObserver(flusher, "cacheservice:empty-cache",
+-                             false);
+-            obs->AddObserver(flusher, "last-pb-context-exited", false);
+-            obs->AddObserver(flusher, "xpcom-shutdown", false);
+-        }
+-
+-        // Create and register a memory reporter for sUserFonts.
+-        // This reporter is never unregistered, but that's OK because
+-        // the reporter checks whether sUserFonts is null, so it would
+-        // be safe to call even after UserFontCache::Shutdown has deleted
+-        // the cache.
+-        RegisterStrongMemoryReporter(new MemoryReporter());
+-    }
+-
+-    if (data->mLength) {
+-        MOZ_ASSERT(aPersistence == kPersistent);
+-        MOZ_ASSERT(!data->mPrivate);
+-        sUserFonts->PutEntry(Key(data->mCRC32, data->mLength, aFontEntry,
+-                                 data->mPrivate, aPersistence));
+-    } else {
+-        MOZ_ASSERT(aPersistence == kDiscardable);
+-        // For data: URIs, the principal is ignored; anyone who has the same
+-        // data: URI is able to load it and get an equivalent font.
+-        // Otherwise, the principal is used as part of the cache key.
+-        nsIPrincipal* principal;
+-        if (IgnorePrincipal(data->mURI)) {
+-            principal = nullptr;
+-        } else {
+-            principal = data->mPrincipal;
+-        }
+-        sUserFonts->PutEntry(Key(data->mURI, principal, aFontEntry,
+-                                 data->mPrivate, aPersistence));
+-    }
+-
+-#ifdef DEBUG_USERFONT_CACHE
+-    printf("userfontcache added fontentry: %p\n", aFontEntry);
+-    Dump();
+-#endif
+ }
+ 
+ void
+@@ -1230,62 +1089,6 @@
+                                        gfxUserFontEntry* aUserFontEntry,
+                                        bool aPrivate)
+ {
+-    if (!sUserFonts ||
+-        Preferences::GetBool("gfx.downloadable_fonts.disable_cache")) {
+-        return nullptr;
+-    }
+-
+-    // We have to perform another content policy check here to prevent
+-    // cache poisoning. E.g. a.com loads a font into the cache but
+-    // b.com has a CSP not allowing any fonts to be loaded.
+-    if (!aUserFontEntry->mFontSet->IsFontLoadAllowed(aSrcURI, aPrincipal)) {
+-        return nullptr;
+-    }
+-
+-    // Ignore principal when looking up a data: URI.
+-    nsIPrincipal* principal;
+-    if (IgnorePrincipal(aSrcURI)) {
+-        principal = nullptr;
+-    } else {
+-        principal = aPrincipal;
+-    }
+-
+-    Entry* entry = sUserFonts->GetEntry(Key(aSrcURI, principal, aUserFontEntry,
+-                                            aPrivate));
+-    if (entry) {
+-        return entry->GetFontEntry();
+-    }
+-
+-    // The channel is never openend; to be conservative we use the most
+-    // restrictive security flag: SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS.
+-    nsCOMPtr<nsIChannel> chan;
+-    if (NS_FAILED(NS_NewChannel(getter_AddRefs(chan),
+-                                aSrcURI,
+-                                aPrincipal,
+-                                nsILoadInfo::SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+-                                nsIContentPolicy::TYPE_FONT))) {
+-        return nullptr;
+-    }
+-
+-    nsCOMPtr<nsIJARChannel> jarchan = do_QueryInterface(chan);
+-    if (!jarchan) {
+-        return nullptr;
+-    }
+-
+-    nsCOMPtr<nsIZipEntry> zipentry;
+-    if (NS_FAILED(jarchan->GetZipEntry(getter_AddRefs(zipentry)))) {
+-        return nullptr;
+-    }
+-
+-    uint32_t crc32, length;
+-    zipentry->GetCRC32(&crc32);
+-    zipentry->GetRealSize(&length);
+-
+-    entry = sUserFonts->GetEntry(Key(crc32, length, aUserFontEntry, aPrivate));
+-    if (entry) {
+-        return entry->GetFontEntry();
+-    }
+-
+     return nullptr;
+ }
+ 
+diff -Naur gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
+--- gfx/thebes/gfxUtils.cpp	2016-07-27 08:37:54.000000000 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-08-05 14:14:13.000000000 +0200
+@@ -1334,106 +1334,6 @@
+     return imageBuffer;
+ }
+ 
+-/* static */ nsresult
+-gfxUtils::GetInputStream(gfx::DataSourceSurface* aSurface,
+-                         bool aIsAlphaPremultiplied,
+-                         const char* aMimeType,
+-                         const char16_t* aEncoderOptions,
+-                         nsIInputStream** outStream)
+-{
+-    nsCString enccid("@mozilla.org/image/encoder;2?type=");
+-    enccid += aMimeType;
+-    nsCOMPtr<imgIEncoder> encoder = do_CreateInstance(enccid.get());
+-    if (!encoder)
+-        return NS_ERROR_FAILURE;
+-
+-    int32_t format = 0;
+-    UniquePtr<uint8_t[]> imageBuffer = GetImageBuffer(aSurface, aIsAlphaPremultiplied, &format);
+-    if (!imageBuffer)
+-        return NS_ERROR_FAILURE;
+-
+-    return dom::ImageEncoder::GetInputStream(aSurface->GetSize().width,
+-                                             aSurface->GetSize().height,
+-                                             imageBuffer.get(), format,
+-                                             encoder, aEncoderOptions, outStream);
+-}
+-
+-class GetFeatureStatusRunnable final : public dom::workers::WorkerMainThreadRunnable
+-{
+-public:
+-    GetFeatureStatusRunnable(dom::workers::WorkerPrivate* workerPrivate,
+-                             const nsCOMPtr<nsIGfxInfo>& gfxInfo,
+-                             int32_t feature,
+-                             nsACString& failureId,
+-                             int32_t* status)
+-      : WorkerMainThreadRunnable(workerPrivate,
+-                                 NS_LITERAL_CSTRING("GFX :: GetFeatureStatus"))
+-      , mGfxInfo(gfxInfo)
+-      , mFeature(feature)
+-      , mStatus(status)
+-      , mFailureId(failureId)
+-      , mNSResult(NS_OK)
+-    {
+-    }
+-
+-    bool MainThreadRun() override
+-    {
+-      if (mGfxInfo) {
+-        mNSResult = mGfxInfo->GetFeatureStatus(mFeature, mFailureId, mStatus);
+-      }
+-      return true;
+-    }
+-
+-    nsresult GetNSResult() const
+-    {
+-      return mNSResult;
+-    }
+-
+-protected:
+-    ~GetFeatureStatusRunnable() {}
+-
+-private:
+-    nsCOMPtr<nsIGfxInfo> mGfxInfo;
+-    int32_t mFeature;
+-    int32_t* mStatus;
+-    nsACString& mFailureId;
+-    nsresult mNSResult;
+-};
+-
+-/* static */ nsresult
+-gfxUtils::ThreadSafeGetFeatureStatus(const nsCOMPtr<nsIGfxInfo>& gfxInfo,
+-                                     int32_t feature, nsACString& failureId,
+-                                     int32_t* status)
+-{
+-  if (!NS_IsMainThread()) {
+-    dom::workers::WorkerPrivate* workerPrivate =
+-      dom::workers::GetCurrentThreadWorkerPrivate();
+-
+-    RefPtr<GetFeatureStatusRunnable> runnable =
+-      new GetFeatureStatusRunnable(workerPrivate, gfxInfo, feature, failureId,
+-                                   status);
+-
+-    ErrorResult rv;
+-    runnable->Dispatch(rv);
+-    if (rv.Failed()) {
+-        // XXXbz This is totally broken, since we're supposed to just abort
+-        // everything up the callstack but the callers basically eat the
+-        // exception.  Ah, well.
+-        return rv.StealNSResult();
+-    }
+-
+-    return runnable->GetNSResult();
+-  }
+-
+-  return gfxInfo->GetFeatureStatus(feature, failureId, status);
+-}
+-
+-/* static */ bool
+-gfxUtils::DumpDisplayList() {
+-  return gfxPrefs::LayoutDumpDisplayList() ||
+-         (gfxPrefs::LayoutDumpDisplayListContent() && XRE_IsContentProcess());
+-}
+-
+ FILE *gfxUtils::sDumpPaintFile = stderr;
+ 
+ namespace mozilla {

@@ -22,6 +22,8 @@ extern "C" {
 #endif
 
 DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
+DrawTarget* moz2d_draw_target_create_for_data(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized);
+
 void moz2d_draw_target_delete(DrawTarget *drawTarget);
 bool moz2d_draw_target_is_valid(DrawTarget *drawTarget);
 DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
