@@ -11,7 +11,7 @@ set (MOZ_TOP_OBJ_PATH ${MOZ_TOP_PATH}/obj-mozilla CACHE STRING "Path to object d
 
 enable_language(ASM)
 
-add_definitions(-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING)
+add_definitions(-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR)
 #set (CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--noexecstack -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
 set (CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -arch i386 -m32 -Wa,--noexecstack -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mssse3 -msse4.1 -include ${MOZ_TOP_OBJ_PATH}/mozilla-config.h")
@@ -22,6 +22,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments -Wall -Wc++11-compat
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
 
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl")
+# Plugin must not be compiled with dynamic lookup of undefined symbols, Pharo VM can not load plugin
 #set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
 set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore -framework IOKit")
 set (CMAKE_POSITION_INDEPENDENT_CODE TURE)
@@ -31,9 +32,12 @@ include_directories(${MOZ_TOP_OBJ_PATH}/dist/include/nspr)
 include_directories(${MOZ_TOP_PATH}/intl/locale)
 
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/2d)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/config)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/cairo/cairo/src)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/cairo/libpixman/src)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/gl)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/skia)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/src)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/graphite2/src)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/harfbuzz/src)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/gfx/ots/src)
@@ -49,7 +53,7 @@ include_directories(${MOZ_TOP_PATH}/intl/locale)
 
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/dom/encoding)
 	
-	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/glue/standalone)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/glue)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/xpcom/string)
 		
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/nspr/libc)
@@ -62,7 +66,7 @@ include_directories(${MOZ_TOP_PATH}/intl/locale)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/locale)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util/internal)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mozglue/misc)
-	
+		
 	add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
 file(GLOB LIBRARIES "libs/mac/*.dylib")
@@ -70,9 +74,12 @@ file(GLOB LIBRARIES "libs/mac/*.dylib")
 add_library(${PROJECT_NAME} SHARED
 
 	$<TARGET_OBJECTS:gfx_2d>
+	$<TARGET_OBJECTS:gfx_config>
+	$<TARGET_OBJECTS:gfx_gl>
 	$<TARGET_OBJECTS:gfx_cairo_cairo_src>
 	$<TARGET_OBJECTS:gfx_cairo_libpixman_src>
 	$<TARGET_OBJECTS:gfx_skia>
+	$<TARGET_OBJECTS:gfx_src>
 
 	# Harfbuzz is needed to work with Glyphs and Text	
 	$<TARGET_OBJECTS:gfx_harfbuzz_src>
@@ -97,7 +104,7 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:mfbt>
 
 	# xpcom glue provides hash tables and various ns* stuff for thebes
-	$<TARGET_OBJECTS:xpcomglue>
+	$<TARGET_OBJECTS:xpcomglue_s>
 	# For nsString and friends needed by thebes
 	$<TARGET_OBJECTS:xpcom_string>
 	# For PR_strtod and PR_vsxprintf needed by xpcom_string
@@ -133,11 +140,14 @@ add_library(${PROJECT_NAME} SHARED
 	$<TARGET_OBJECTS:undefined>	
 )
 
+set_source_files_properties(${MOZ_TOP_PATH}/xpcom/glue/nsThreadUtils.cpp PROPERTIES COMPILE_FLAGS "-DMOZILLA_INTERNAL_API")
+
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 # Uncomment to experiment with api without Pharo
-#add_definitions(-DMOZILLA_INTERNAL_API)
+add_definitions(-DMOZILLA_INTERNAL_API)
+include_directories(${MOZ_TOP_PATH}/gfx)
 # Add executable called "main" that is built from the source files 
-#add_executable (main src/main.cpp) 
+add_executable (main src/main.cpp) 
 # Link the executable to the lib library. 
-#target_link_libraries (main ${PROJECT_NAME}) 
+target_link_libraries (main ${PROJECT_NAME}) 

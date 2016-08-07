@@ -1,0 +1,49 @@
+diff -Naur --exclude '.*' gfx/src/DriverCrashGuard.cpp gfx/src-patched/DriverCrashGuard.cpp
+--- gfx/src/DriverCrashGuard.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/src-patched/DriverCrashGuard.cpp	2016-08-07 18:37:45.000000000 +0200
+@@ -101,8 +101,7 @@
+   if (XRE_IsContentProcess()) {
+     // Ask the parent whether or not activating the guard is okay. The parent
+     // won't bother if it detected a crash.
+-    dom::ContentChild* cc = dom::ContentChild::GetSingleton();
+-    cc->SendBeginDriverCrashGuard(uint32_t(mType), &mCrashDetected);
++    mCrashDetected = false;
+     if (mCrashDetected) {
+       LogFeatureDisabled();
+       return;
+@@ -157,7 +156,6 @@
+       SetStatus(DriverInitStatus::Okay);
+     }
+   } else {
+-    dom::ContentChild::GetSingleton()->SendEndDriverCrashGuard(uint32_t(mType));
+   }
+ 
+ #ifdef MOZ_CRASHREPORTER
+diff -Naur --exclude '.*' gfx/src/nsScriptableRegion.cpp gfx/src-patched/nsScriptableRegion.cpp
+--- gfx/src/nsScriptableRegion.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/src-patched/nsScriptableRegion.cpp	2016-08-06 19:26:24.000000000 +0200
+@@ -136,24 +136,5 @@
+     return NS_OK;
+   }
+ 
+-  JS::Rooted<JSObject*> destArray(aCx, JS_NewArrayObject(aCx, numRects * 4));
+-  if (!destArray) {
+-    return NS_ERROR_OUT_OF_MEMORY;
+-  }
+-
+-  aRects.setObject(*destArray);
+-
+-  uint32_t n = 0;
+-  for (auto iter = mRegion.RectIter(); !iter.Done(); iter.Next()) {
+-    const mozilla::gfx::IntRect& rect = iter.Get();
+-    if (!JS_DefineElement(aCx, destArray, n, rect.x, JSPROP_ENUMERATE) ||
+-        !JS_DefineElement(aCx, destArray, n + 1, rect.y, JSPROP_ENUMERATE) ||
+-        !JS_DefineElement(aCx, destArray, n + 2, rect.width, JSPROP_ENUMERATE) ||
+-        !JS_DefineElement(aCx, destArray, n + 3, rect.height, JSPROP_ENUMERATE)) {
+-      return NS_ERROR_FAILURE;
+-    }
+-    n += 4;
+-  }
+-
+   return NS_OK;
+ }

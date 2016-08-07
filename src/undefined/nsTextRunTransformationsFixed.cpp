@@ -15,4 +15,9 @@
  */
 using namespace mozilla::gfx;
 
+/*
+ * UniquePtr is also used without namespace
+ */
+using namespace mozilla;
+
 #include "layout/generic/nsTextRunTransformations.cpp"

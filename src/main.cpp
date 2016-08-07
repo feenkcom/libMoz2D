@@ -30,6 +30,7 @@
 #include "font_group.h"
 #include "font_style.h"
 #include "draw_target.h"
+#include "SkiaGLGlue.h"
 
 void NS_ABORT_OOM(unsigned long error){
 
@@ -45,7 +46,14 @@ NS_DebugBreak(uint32_t aSeverity, const char* aStr, const char* aExpr,
 
 int main () {
 	moz2d_services_init();
-	DrawTarget* drawTarget = moz2d_draw_target_create(BackendType::COREGRAPHICS, 300, 350, SurfaceFormat::B8G8R8A8);
+	gfxPrefs::SetCanvasAzureAccelerated(true);
+
+	DrawTarget* skiaTarget = moz2d_draw_target_create(BackendType::SKIA, 300, 350, SurfaceFormat::B8G8R8A8);
+	DrawTargetType skiaType = skiaTarget->GetType();
+	std::cout << "skia type: " << ((skiaType == DrawTargetType::SOFTWARE_RASTER) ? "Software" : "Hardware") << "\n";
+
+
+	DrawTarget* drawTarget = skiaTarget;//moz2d_draw_target_create(BackendType::COREGRAPHICS, 300, 350, SurfaceFormat::B8G8R8A8);
 
 	gfxFontStyle* style = moz2d_font_style_create_default();
 	FontFamilyList* list = moz2d_font_family_list_create_named_ascii("Apple Color Emoji", false);

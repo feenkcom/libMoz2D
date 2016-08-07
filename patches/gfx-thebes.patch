@@ -1,0 +1,3966 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
+--- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-06 18:57:28.000000000 +0200
+@@ -13,138 +13,8 @@
+ 
+ SoftwareVsyncSource::SoftwareVsyncSource()
+ {
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mGlobalDisplay = new SoftwareDisplay();
+ }
+ 
+ SoftwareVsyncSource::~SoftwareVsyncSource()
+ {
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mGlobalDisplay = nullptr;
+-}
+-
+-SoftwareDisplay::SoftwareDisplay()
+-  : mVsyncEnabled(false)
+-{
+-  // Mimic 60 fps
+-  MOZ_ASSERT(NS_IsMainThread());
+-  const double rate = 1000.0 / (double) gfxPlatform::GetSoftwareVsyncRate();
+-  mVsyncRate = mozilla::TimeDuration::FromMilliseconds(rate);
+-  mVsyncThread = new base::Thread("SoftwareVsyncThread");
+-  MOZ_RELEASE_ASSERT(mVsyncThread->Start(), "GFX: Could not start software vsync thread");
+-}
+-
+-SoftwareDisplay::~SoftwareDisplay() {}
+-
+-void
+-SoftwareDisplay::EnableVsync()
+-{
+-  MOZ_ASSERT(mVsyncThread->IsRunning());
+-  if (NS_IsMainThread()) {
+-    if (mVsyncEnabled) {
+-      return;
+-    }
+-    mVsyncEnabled = true;
+-
+-    mVsyncThread->message_loop()->PostTask(
+-      NewRunnableMethod(this, &SoftwareDisplay::EnableVsync));
+-    return;
+-  }
+-
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  NotifyVsync(mozilla::TimeStamp::Now());
+-}
+-
+-void
+-SoftwareDisplay::DisableVsync()
+-{
+-  MOZ_ASSERT(mVsyncThread->IsRunning());
+-  if (NS_IsMainThread()) {
+-    if (!mVsyncEnabled) {
+-      return;
+-    }
+-    mVsyncEnabled = false;
+-
+-    mVsyncThread->message_loop()->PostTask(
+-      NewRunnableMethod(this, &SoftwareDisplay::DisableVsync));
+-    return;
+-  }
+-
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  if (mCurrentVsyncTask) {
+-    mCurrentVsyncTask->Cancel();
+-    mCurrentVsyncTask = nullptr;
+-  }
+-}
+-
+-bool
+-SoftwareDisplay::IsVsyncEnabled()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  return mVsyncEnabled;
+-}
+-
+-bool
+-SoftwareDisplay::IsInSoftwareVsyncThread()
+-{
+-  return mVsyncThread->thread_id() == PlatformThread::CurrentId();
+-}
+-
+-void
+-SoftwareDisplay::NotifyVsync(mozilla::TimeStamp aVsyncTimestamp)
+-{
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-
+-  mozilla::TimeStamp displayVsyncTime = aVsyncTimestamp;
+-  mozilla::TimeStamp now = mozilla::TimeStamp::Now();
+-  // Posted tasks can only have integer millisecond delays
+-  // whereas TimeDurations can have floating point delays.
+-  // Thus the vsync timestamp can be in the future, which large parts
+-  // of the system can't handle, including animations. Force the timestamp to be now.
+-  if (aVsyncTimestamp > now) {
+-    displayVsyncTime = now;
+-  }
+-
+-  Display::NotifyVsync(displayVsyncTime);
+-
+-  // Prevent skew by still scheduling based on the original
+-  // vsync timestamp
+-  ScheduleNextVsync(aVsyncTimestamp);
+-}
+-
+-mozilla::TimeDuration
+-SoftwareDisplay::GetVsyncRate()
+-{
+-  return mVsyncRate;
+-}
+-
+-void
+-SoftwareDisplay::ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp)
+-{
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  mozilla::TimeStamp nextVsync = aVsyncTimestamp + mVsyncRate;
+-  mozilla::TimeDuration delay = nextVsync - mozilla::TimeStamp::Now();
+-  if (delay.ToMilliseconds() < 0) {
+-    delay = mozilla::TimeDuration::FromMilliseconds(0);
+-    nextVsync = mozilla::TimeStamp::Now();
+-  }
+-
+-  mCurrentVsyncTask =
+-    NewCancelableRunnableMethod<mozilla::TimeStamp>(this,
+-                                                    &SoftwareDisplay::NotifyVsync,
+-                                                    nextVsync);
+-
+-  RefPtr<Runnable> addrefedTask = mCurrentVsyncTask;
+-  mVsyncThread->message_loop()->PostDelayedTask(
+-    addrefedTask.forget(),
+-    delay.ToMilliseconds());
+-}
+-
+-void
+-SoftwareDisplay::Shutdown()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  DisableVsync();
+-  mVsyncThread->Stop();
+-  delete mVsyncThread;
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
+--- gfx/thebes/SoftwareVsyncSource.h	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-06 18:57:28.000000000 +0200
+@@ -14,32 +14,6 @@
+ #include "nsISupportsImpl.h"
+ #include "VsyncSource.h"
+ 
+-class SoftwareDisplay final : public mozilla::gfx::VsyncSource::Display
+-{
+-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(SoftwareDisplay)
+-
+-public:
+-  SoftwareDisplay();
+-  virtual void EnableVsync() override;
+-  virtual void DisableVsync() override;
+-  virtual bool IsVsyncEnabled() override;
+-  bool IsInSoftwareVsyncThread();
+-  virtual void NotifyVsync(mozilla::TimeStamp aVsyncTimestamp) override;
+-  virtual mozilla::TimeDuration GetVsyncRate() override;
+-  void ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp);
+-  void Shutdown() override;
+-
+-protected:
+-  ~SoftwareDisplay();
+-
+-private:
+-  mozilla::TimeDuration mVsyncRate;
+-  // Use a chromium thread because nsITimers* fire on the main thread
+-  base::Thread* mVsyncThread;
+-  RefPtr<mozilla::CancelableRunnable> mCurrentVsyncTask; // only access on vsync thread
+-  bool mVsyncEnabled; // Only access on main thread
+-}; // SoftwareDisplay
+-
+ // Fallback option to use a software timer to mimic vsync. Useful for gtests
+ // To mimic a hardware vsync thread, we create a dedicated software timer
+ // vsync thread.
+@@ -49,14 +23,6 @@
+   SoftwareVsyncSource();
+   ~SoftwareVsyncSource();
+ 
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    MOZ_ASSERT(mGlobalDisplay != nullptr);
+-    return *mGlobalDisplay;
+-  }
+-
+-private:
+-  RefPtr<SoftwareDisplay> mGlobalDisplay;
+ };
+ 
+ #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
+--- gfx/thebes/VsyncSource.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.cpp	2016-08-06 18:57:28.000000000 +0200
+@@ -8,146 +8,3 @@
+ #include "nsXULAppAPI.h"
+ #include "mozilla/VsyncDispatcher.h"
+ #include "MainThreadUtils.h"
+-
+-namespace mozilla {
+-namespace gfx {
+-
+-void
+-VsyncSource::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // Just use the global display until we have enough information to get the
+-  // corresponding display for compositor.
+-  GetGlobalDisplay().AddCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
+-}
+-
+-void
+-VsyncSource::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // See also AddCompositorVsyncDispatcher().
+-  GetGlobalDisplay().RemoveCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
+-}
+-
+-RefPtr<RefreshTimerVsyncDispatcher>
+-VsyncSource::GetRefreshTimerVsyncDispatcher()
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  // See also AddCompositorVsyncDispatcher().
+-  return GetGlobalDisplay().GetRefreshTimerVsyncDispatcher();
+-}
+-
+-VsyncSource::Display::Display()
+-  : mDispatcherLock("display dispatcher lock")
+-  , mRefreshTimerNeedsVsync(false)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mRefreshTimerVsyncDispatcher = new RefreshTimerVsyncDispatcher();
+-}
+-
+-VsyncSource::Display::~Display()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MutexAutoLock lock(mDispatcherLock);
+-  mRefreshTimerVsyncDispatcher = nullptr;
+-  mCompositorVsyncDispatchers.Clear();
+-}
+-
+-void
+-VsyncSource::Display::NotifyVsync(TimeStamp aVsyncTimestamp)
+-{
+-  // Called on the vsync thread
+-  MutexAutoLock lock(mDispatcherLock);
+-
+-  for (size_t i = 0; i < mCompositorVsyncDispatchers.Length(); i++) {
+-    mCompositorVsyncDispatchers[i]->NotifyVsync(aVsyncTimestamp);
+-  }
+-
+-  mRefreshTimerVsyncDispatcher->NotifyVsync(aVsyncTimestamp);
+-}
+-
+-TimeDuration
+-VsyncSource::Display::GetVsyncRate()
+-{
+-  // If hardware queries fail / are unsupported, we have to just guess.
+-  return TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-}
+-
+-void
+-VsyncSource::Display::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MOZ_ASSERT(aCompositorVsyncDispatcher);
+-  { // scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    if (!mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
+-      mCompositorVsyncDispatchers.AppendElement(aCompositorVsyncDispatcher);
+-    }
+-  }
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MOZ_ASSERT(aCompositorVsyncDispatcher);
+-  { // Scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    if (mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
+-      mCompositorVsyncDispatchers.RemoveElement(aCompositorVsyncDispatcher);
+-    }
+-  }
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::NotifyRefreshTimerVsyncStatus(bool aEnable)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mRefreshTimerNeedsVsync = aEnable;
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::UpdateVsyncStatus()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // WARNING: This function SHOULD NOT BE CALLED WHILE HOLDING LOCKS
+-  // NotifyVsync grabs a lock to dispatch vsync events
+-  // When disabling vsync, we wait for the underlying thread to stop on some platforms
+-  // We can deadlock if we wait for the underlying vsync thread to stop
+-  // while the vsync thread is in NotifyVsync.
+-  bool enableVsync = false;
+-  { // scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    enableVsync = !mCompositorVsyncDispatchers.IsEmpty() || mRefreshTimerNeedsVsync;
+-  }
+-
+-  if (enableVsync) {
+-    EnableVsync();
+-  } else {
+-    DisableVsync();
+-  }
+-
+-  if (IsVsyncEnabled() != enableVsync) {
+-    NS_WARNING("Vsync status did not change.");
+-  }
+-}
+-
+-RefPtr<RefreshTimerVsyncDispatcher>
+-VsyncSource::Display::GetRefreshTimerVsyncDispatcher()
+-{
+-  return mRefreshTimerVsyncDispatcher;
+-}
+-
+-void
+-VsyncSource::Shutdown()
+-{
+-  GetGlobalDisplay().Shutdown();
+-}
+-
+-} //namespace gfx
+-} //namespace mozilla
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
+--- gfx/thebes/VsyncSource.h	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.h	2016-08-06 18:57:28.000000000 +0200
+@@ -13,8 +13,6 @@
+ #include "nsISupportsImpl.h"
+ 
+ namespace mozilla {
+-class RefreshTimerVsyncDispatcher;
+-class CompositorVsyncDispatcher;
+ 
+ namespace gfx {
+ 
+@@ -24,56 +22,6 @@
+ {
+   NS_INLINE_DECL_THREADSAFE_REFCOUNTING(VsyncSource)
+ 
+-  typedef mozilla::RefreshTimerVsyncDispatcher RefreshTimerVsyncDispatcher;
+-  typedef mozilla::CompositorVsyncDispatcher CompositorVsyncDispatcher;
+-
+-public:
+-  // Controls vsync unique to each display and unique on each platform
+-  class Display {
+-    public:
+-      Display();
+-      virtual ~Display();
+-
+-      // Notified when this display's vsync occurs, on the vsync thread
+-      // The aVsyncTimestamp should normalize to the Vsync time that just occured
+-      // However, different platforms give different vsync notification times.
+-      // b2g - The vsync timestamp of the previous frame that was just displayed
+-      // OSX - The vsync timestamp of the upcoming frame, in the future
+-      // Windows: It's messy, see gfxWindowsPlatform.
+-      // Android: TODO
+-      // All platforms should normalize to the vsync that just occured.
+-      // Large parts of Gecko assume TimeStamps should not be in the future such as animations
+-      virtual void NotifyVsync(TimeStamp aVsyncTimestamp);
+-
+-      RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
+-
+-      void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-      void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-      void NotifyRefreshTimerVsyncStatus(bool aEnable);
+-      virtual TimeDuration GetVsyncRate();
+-
+-      // These should all only be called on the main thread
+-      virtual void EnableVsync() = 0;
+-      virtual void DisableVsync() = 0;
+-      virtual bool IsVsyncEnabled() = 0;
+-      virtual void Shutdown() = 0;
+-
+-    private:
+-      void UpdateVsyncStatus();
+-
+-      Mutex mDispatcherLock;
+-      bool mRefreshTimerNeedsVsync;
+-      nsTArray<RefPtr<CompositorVsyncDispatcher>> mCompositorVsyncDispatchers;
+-      RefPtr<RefreshTimerVsyncDispatcher> mRefreshTimerVsyncDispatcher;
+-  };
+-
+-  void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-  void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-
+-  RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
+-  virtual Display& GetGlobalDisplay() = 0; // Works across all displays
+-  void Shutdown();
+-
+ protected:
+   virtual ~VsyncSource() {}
+ };
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxBlur.cpp gfx/thebes-patched/gfxBlur.cpp
+--- gfx/thebes/gfxBlur.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxBlur.cpp	2016-08-07 18:28:17.000000000 +0200
+@@ -5,1085 +5,7 @@
+ 
+ #include "gfxBlur.h"
+ 
+-#include "gfx2DGlue.h"
+-#include "gfxContext.h"
+-#include "gfxPlatform.h"
+-#include "mozilla/gfx/2D.h"
+-#include "mozilla/gfx/Blur.h"
+-#include "mozilla/gfx/PathHelpers.h"
+-#include "mozilla/UniquePtr.h"
+-#include "mozilla/UniquePtrExtensions.h"
+-#include "nsExpirationTracker.h"
+-#include "nsClassHashtable.h"
+-#include "gfxUtils.h"
++/* static */
++void gfxAlphaBoxBlur::ShutdownBlurCache() {
+ 
+-using namespace mozilla;
+-using namespace mozilla::gfx;
+-
+-gfxAlphaBoxBlur::gfxAlphaBoxBlur()
+-{
+-}
+-
+-gfxAlphaBoxBlur::~gfxAlphaBoxBlur()
+-{
+-  mContext = nullptr;
+-}
+-
+-gfxContext*
+-gfxAlphaBoxBlur::Init(const gfxRect& aRect,
+-                      const IntSize& aSpreadRadius,
+-                      const IntSize& aBlurRadius,
+-                      const gfxRect* aDirtyRect,
+-                      const gfxRect* aSkipRect)
+-{
+-    mozilla::gfx::Rect rect(Float(aRect.x), Float(aRect.y),
+-                            Float(aRect.width), Float(aRect.height));
+-    IntSize spreadRadius(aSpreadRadius.width, aSpreadRadius.height);
+-    IntSize blurRadius(aBlurRadius.width, aBlurRadius.height);
+-    UniquePtr<Rect> dirtyRect;
+-    if (aDirtyRect) {
+-      dirtyRect = MakeUnique<Rect>(Float(aDirtyRect->x),
+-                                   Float(aDirtyRect->y),
+-                                   Float(aDirtyRect->width),
+-                                   Float(aDirtyRect->height));
+-    }
+-    UniquePtr<Rect> skipRect;
+-    if (aSkipRect) {
+-      skipRect = MakeUnique<Rect>(Float(aSkipRect->x),
+-                                  Float(aSkipRect->y),
+-                                  Float(aSkipRect->width),
+-                                  Float(aSkipRect->height));
+-    }
+-
+-    mBlur = MakeUnique<AlphaBoxBlur>(rect, spreadRadius, blurRadius, dirtyRect.get(), skipRect.get());
+-    size_t blurDataSize = mBlur->GetSurfaceAllocationSize();
+-    if (blurDataSize == 0)
+-        return nullptr;
+-
+-    IntSize size = mBlur->GetSize();
+-
+-    // Make an alpha-only surface to draw on. We will play with the data after
+-    // everything is drawn to create a blur effect.
+-    mData = MakeUniqueFallible<unsigned char[]>(blurDataSize);
+-    if (!mData) {
+-        return nullptr;
+-    }
+-    memset(mData.get(), 0, blurDataSize);
+-
+-    RefPtr<DrawTarget> dt =
+-        gfxPlatform::GetPlatform()->CreateDrawTargetForData(mData.get(), size,
+-                                                            mBlur->GetStride(),
+-                                                            SurfaceFormat::A8);
+-    if (!dt || !dt->IsValid()) {
+-        return nullptr;
+-    }
+-
+-    IntRect irect = mBlur->GetRect();
+-    gfxPoint topleft(irect.TopLeft().x, irect.TopLeft().y);
+-
+-    mContext = gfxContext::CreateOrNull(dt);
+-    MOZ_ASSERT(mContext); // already checked for target above
+-    mContext->SetMatrix(gfxMatrix::Translation(-topleft));
+-
+-    return mContext;
+-}
+-
+-void
+-DrawBlur(gfxContext* aDestinationCtx,
+-         SourceSurface* aBlur,
+-         const IntPoint& aTopLeft,
+-         const Rect* aDirtyRect)
+-{
+-    DrawTarget *dest = aDestinationCtx->GetDrawTarget();
+-
+-    RefPtr<gfxPattern> thebesPat = aDestinationCtx->GetPattern();
+-    Pattern* pat = thebesPat->GetPattern(dest, nullptr);
+-
+-    Matrix oldTransform = dest->GetTransform();
+-    Matrix newTransform = oldTransform;
+-    newTransform.PreTranslate(aTopLeft.x, aTopLeft.y);
+-
+-    // Avoid a semi-expensive clip operation if we can, otherwise
+-    // clip to the dirty rect
+-    if (aDirtyRect) {
+-        dest->PushClipRect(*aDirtyRect);
+-    }
+-
+-    dest->SetTransform(newTransform);
+-    dest->MaskSurface(*pat, aBlur, Point(0, 0));
+-    dest->SetTransform(oldTransform);
+-
+-    if (aDirtyRect) {
+-        dest->PopClip();
+-    }
+-}
+-
+-already_AddRefed<SourceSurface>
+-gfxAlphaBoxBlur::DoBlur(DrawTarget* aDT, IntPoint* aTopLeft)
+-{
+-    mBlur->Blur(mData.get());
+-
+-    *aTopLeft = mBlur->GetRect().TopLeft();
+-
+-    return aDT->CreateSourceSurfaceFromData(mData.get(),
+-                                            mBlur->GetSize(),
+-                                            mBlur->GetStride(),
+-                                            SurfaceFormat::A8);
+-}
+-
+-void
+-gfxAlphaBoxBlur::Paint(gfxContext* aDestinationCtx)
+-{
+-    if (!mContext)
+-        return;
+-
+-    DrawTarget *dest = aDestinationCtx->GetDrawTarget();
+-    if (!dest) {
+-      NS_WARNING("Blurring not supported for Thebes contexts!");
+-      return;
+-    }
+-
+-    Rect* dirtyRect = mBlur->GetDirtyRect();
+-
+-    IntPoint topLeft;
+-    RefPtr<SourceSurface> mask = DoBlur(dest, &topLeft);
+-    if (!mask) {
+-      NS_ERROR("Failed to create mask!");
+-      return;
+-    }
+-
+-    DrawBlur(aDestinationCtx, mask, topLeft, dirtyRect);
+-}
+-
+-IntSize gfxAlphaBoxBlur::CalculateBlurRadius(const gfxPoint& aStd)
+-{
+-    mozilla::gfx::Point std(Float(aStd.x), Float(aStd.y));
+-    IntSize size = AlphaBoxBlur::CalculateBlurRadius(std);
+-    return IntSize(size.width, size.height);
+-}
+-
+-struct BlurCacheKey : public PLDHashEntryHdr {
+-  typedef const BlurCacheKey& KeyType;
+-  typedef const BlurCacheKey* KeyTypePointer;
+-  enum { ALLOW_MEMMOVE = true };
+-
+-  IntSize mMinSize;
+-  IntSize mBlurRadius;
+-  Color mShadowColor;
+-  BackendType mBackend;
+-  RectCornerRadii mCornerRadii;
+-  bool mIsInset;
+-
+-  // Only used for inset blurs
+-  bool mHasBorderRadius;
+-  IntSize mInnerMinSize;
+-
+-  BlurCacheKey(IntSize aMinSize, IntSize aBlurRadius,
+-               RectCornerRadii* aCornerRadii, const Color& aShadowColor,
+-               BackendType aBackendType)
+-    : BlurCacheKey(aMinSize, IntSize(0, 0),
+-                   aBlurRadius, aCornerRadii,
+-                   aShadowColor, false,
+-                   false, aBackendType)
+-  {}
+-
+-  explicit BlurCacheKey(const BlurCacheKey* aOther)
+-    : mMinSize(aOther->mMinSize)
+-    , mBlurRadius(aOther->mBlurRadius)
+-    , mShadowColor(aOther->mShadowColor)
+-    , mBackend(aOther->mBackend)
+-    , mCornerRadii(aOther->mCornerRadii)
+-    , mIsInset(aOther->mIsInset)
+-    , mHasBorderRadius(aOther->mHasBorderRadius)
+-    , mInnerMinSize(aOther->mInnerMinSize)
+-  { }
+-
+-  explicit BlurCacheKey(IntSize aOuterMinSize, IntSize aInnerMinSize,
+-                        IntSize aBlurRadius,
+-                        const RectCornerRadii* aCornerRadii,
+-                        const Color& aShadowColor, bool aIsInset,
+-                        bool aHasBorderRadius, BackendType aBackendType)
+-    : mMinSize(aOuterMinSize)
+-    , mBlurRadius(aBlurRadius)
+-    , mShadowColor(aShadowColor)
+-    , mBackend(aBackendType)
+-    , mCornerRadii(aCornerRadii ? *aCornerRadii : RectCornerRadii())
+-    , mIsInset(aIsInset)
+-    , mHasBorderRadius(aHasBorderRadius)
+-    , mInnerMinSize(aInnerMinSize)
+-  { }
+-
+-  static PLDHashNumber
+-  HashKey(const KeyTypePointer aKey)
+-  {
+-    PLDHashNumber hash = 0;
+-    hash = AddToHash(hash, aKey->mMinSize.width, aKey->mMinSize.height);
+-    hash = AddToHash(hash, aKey->mBlurRadius.width, aKey->mBlurRadius.height);
+-
+-    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.r,
+-                                     sizeof(aKey->mShadowColor.r)));
+-    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.g,
+-                                     sizeof(aKey->mShadowColor.g)));
+-    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.b,
+-                                     sizeof(aKey->mShadowColor.b)));
+-    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.a,
+-                                     sizeof(aKey->mShadowColor.a)));
+-
+-    for (int i = 0; i < 4; i++) {
+-      hash = AddToHash(hash, aKey->mCornerRadii[i].width, aKey->mCornerRadii[i].height);
+-    }
+-
+-    hash = AddToHash(hash, (uint32_t)aKey->mBackend);
+-
+-    if (aKey->mIsInset) {
+-      hash = AddToHash(hash, aKey->mInnerMinSize.width, aKey->mInnerMinSize.height);
+-      hash = AddToHash(hash, HashBytes(&aKey->mHasBorderRadius, sizeof(bool)));
+-    }
+-    return hash;
+-  }
+-
+-  bool
+-  KeyEquals(KeyTypePointer aKey) const
+-  {
+-    if (aKey->mMinSize == mMinSize &&
+-        aKey->mBlurRadius == mBlurRadius &&
+-        aKey->mCornerRadii == mCornerRadii &&
+-        aKey->mShadowColor == mShadowColor &&
+-        aKey->mBackend == mBackend) {
+-
+-      if (mIsInset) {
+-        return (mHasBorderRadius == aKey->mHasBorderRadius) &&
+-                (mInnerMinSize == aKey->mInnerMinSize);
+-      }
+-
+-      return true;
+-     }
+-
+-     return false;
+-  }
+-
+-  static KeyTypePointer
+-  KeyToPointer(KeyType aKey)
+-  {
+-    return &aKey;
+-  }
+-};
+-
+-/**
+- * This class is what is cached. It need to be allocated in an object separated
+- * to the cache entry to be able to be tracked by the nsExpirationTracker.
+- * */
+-struct BlurCacheData {
+-  BlurCacheData(SourceSurface* aBlur, IntMargin aExtendDestBy, const BlurCacheKey& aKey)
+-    : mBlur(aBlur)
+-    , mExtendDest(aExtendDestBy)
+-    , mKey(aKey)
+-  {}
+-
+-  BlurCacheData(const BlurCacheData& aOther)
+-    : mBlur(aOther.mBlur)
+-    , mExtendDest(aOther.mExtendDest)
+-    , mKey(aOther.mKey)
+-  { }
+-
+-  nsExpirationState *GetExpirationState() {
+-    return &mExpirationState;
+-  }
+-
+-  nsExpirationState mExpirationState;
+-  RefPtr<SourceSurface> mBlur;
+-  IntMargin mExtendDest;
+-  BlurCacheKey mKey;
+-};
+-
+-/**
+- * This class implements a cache with no maximum size, that retains the
+- * SourceSurfaces used to draw the blurs.
+- *
+- * An entry stays in the cache as long as it is used often.
+- */
+-class BlurCache final : public nsExpirationTracker<BlurCacheData,4>
+-{
+-  public:
+-    BlurCache()
+-      : nsExpirationTracker<BlurCacheData, 4>(GENERATION_MS, "BlurCache")
+-    {
+-    }
+-
+-    virtual void NotifyExpired(BlurCacheData* aObject)
+-    {
+-      RemoveObject(aObject);
+-      mHashEntries.Remove(aObject->mKey);
+-    }
+-
+-    BlurCacheData* Lookup(const IntSize aMinSize,
+-                          const IntSize& aBlurRadius,
+-                          RectCornerRadii* aCornerRadii,
+-                          const Color& aShadowColor,
+-                          BackendType aBackendType)
+-    {
+-      BlurCacheData* blur =
+-        mHashEntries.Get(BlurCacheKey(aMinSize, aBlurRadius,
+-                                      aCornerRadii, aShadowColor,
+-                                      aBackendType));
+-      if (blur) {
+-        MarkUsed(blur);
+-      }
+-
+-      return blur;
+-    }
+-
+-    BlurCacheData* LookupInsetBoxShadow(const IntSize aOuterMinSize,
+-                                        const IntSize aInnerMinSize,
+-                                        const IntSize& aBlurRadius,
+-                                        const RectCornerRadii* aCornerRadii,
+-                                        const Color& aShadowColor,
+-                                        const bool& aHasBorderRadius,
+-                                        BackendType aBackendType)
+-    {
+-      bool insetBoxShadow = true;
+-      BlurCacheKey key(aOuterMinSize, aInnerMinSize,
+-                       aBlurRadius, aCornerRadii,
+-                       aShadowColor, insetBoxShadow,
+-                       aHasBorderRadius, aBackendType);
+-      BlurCacheData* blur = mHashEntries.Get(key);
+-      if (blur) {
+-        MarkUsed(blur);
+-      }
+-
+-      return blur;
+-    }
+-
+-    // Returns true if we successfully register the blur in the cache, false
+-    // otherwise.
+-    bool RegisterEntry(BlurCacheData* aValue)
+-    {
+-      nsresult rv = AddObject(aValue);
+-      if (NS_FAILED(rv)) {
+-        // We are OOM, and we cannot track this object. We don't want stall
+-        // entries in the hash table (since the expiration tracker is responsible
+-        // for removing the cache entries), so we avoid putting that entry in the
+-        // table, which is a good things considering we are short on memory
+-        // anyway, we probably don't want to retain things.
+-        return false;
+-      }
+-      mHashEntries.Put(aValue->mKey, aValue);
+-      return true;
+-    }
+-
+-  protected:
+-    static const uint32_t GENERATION_MS = 1000;
+-    /**
+-     * FIXME use nsTHashtable to avoid duplicating the BlurCacheKey.
+-     * https://bugzilla.mozilla.org/show_bug.cgi?id=761393#c47
+-     */
+-    nsClassHashtable<BlurCacheKey, BlurCacheData> mHashEntries;
+-};
+-
+-static BlurCache* gBlurCache = nullptr;
+-
+-static IntSize
+-ComputeMinSizeForShadowShape(RectCornerRadii* aCornerRadii,
+-                             IntSize aBlurRadius,
+-                             IntMargin& aSlice,
+-                             const IntSize& aRectSize)
+-{
+-  float cornerWidth = 0;
+-  float cornerHeight = 0;
+-  if (aCornerRadii) {
+-    RectCornerRadii corners = *aCornerRadii;
+-    for (size_t i = 0; i < 4; i++) {
+-      cornerWidth = std::max(cornerWidth, corners[i].width);
+-      cornerHeight = std::max(cornerHeight, corners[i].height);
+-    }
+-  }
+-
+-  aSlice = IntMargin(ceil(cornerHeight) + aBlurRadius.height,
+-                     ceil(cornerWidth) + aBlurRadius.width,
+-                     ceil(cornerHeight) + aBlurRadius.height,
+-                     ceil(cornerWidth) + aBlurRadius.width);
+-
+-  IntSize minSize(aSlice.LeftRight() + 1,
+-                      aSlice.TopBottom() + 1);
+-
+-  // If aRectSize is smaller than minSize, the border-image approach won't
+-  // work; there's no way to squeeze parts of the min box-shadow source
+-  // image such that the result looks correct. So we need to adjust minSize
+-  // in such a way that we can later draw it without stretching in the affected
+-  // dimension. We also need to adjust "slice" to ensure that we're not trying
+-  // to slice away more than we have.
+-  if (aRectSize.width < minSize.width) {
+-    minSize.width = aRectSize.width;
+-    aSlice.left = 0;
+-    aSlice.right = 0;
+-  }
+-  if (aRectSize.height < minSize.height) {
+-    minSize.height = aRectSize.height;
+-    aSlice.top = 0;
+-    aSlice.bottom = 0;
+-  }
+-
+-  MOZ_ASSERT(aSlice.LeftRight() <= minSize.width);
+-  MOZ_ASSERT(aSlice.TopBottom() <= minSize.height);
+-  return minSize;
+-}
+-
+-void
+-CacheBlur(DrawTarget& aDT,
+-          const IntSize& aMinSize,
+-          const IntSize& aBlurRadius,
+-          RectCornerRadii* aCornerRadii,
+-          const Color& aShadowColor,
+-          IntMargin aExtendDest,
+-          SourceSurface* aBoxShadow)
+-{
+-  BlurCacheKey key(aMinSize, aBlurRadius, aCornerRadii, aShadowColor, aDT.GetBackendType());
+-  BlurCacheData* data = new BlurCacheData(aBoxShadow, aExtendDest, key);
+-  if (!gBlurCache->RegisterEntry(data)) {
+-    delete data;
+-  }
+-}
+-
+-// Blurs a small surface and creates the mask.
+-static already_AddRefed<SourceSurface>
+-CreateBlurMask(const IntSize& aMinSize,
+-               RectCornerRadii* aCornerRadii,
+-               IntSize aBlurRadius,
+-               IntMargin& aExtendDestBy,
+-               IntMargin& aSliceBorder,
+-               DrawTarget& aDestDrawTarget)
+-{
+-  gfxAlphaBoxBlur blur;
+-  IntRect minRect(IntPoint(), aMinSize);
+-
+-  gfxContext* blurCtx = blur.Init(ThebesRect(Rect(minRect)), IntSize(),
+-                                  aBlurRadius, nullptr, nullptr);
+-
+-  if (!blurCtx) {
+-    return nullptr;
+-  }
+-
+-  DrawTarget* blurDT = blurCtx->GetDrawTarget();
+-  ColorPattern black(Color(0.f, 0.f, 0.f, 1.f));
+-
+-  if (aCornerRadii) {
+-    RefPtr<Path> roundedRect =
+-      MakePathForRoundedRect(*blurDT, Rect(minRect), *aCornerRadii);
+-    blurDT->Fill(roundedRect, black);
+-  } else {
+-    blurDT->FillRect(Rect(minRect), black);
+-  }
+-
+-  IntPoint topLeft;
+-  RefPtr<SourceSurface> result = blur.DoBlur(&aDestDrawTarget, &topLeft);
+-  if (!result) {
+-    return nullptr;
+-  }
+-
+-  IntRect expandedMinRect(topLeft, result->GetSize());
+-  aExtendDestBy = expandedMinRect - minRect;
+-  aSliceBorder += aExtendDestBy;
+-
+-  MOZ_ASSERT(aSliceBorder.LeftRight() <= expandedMinRect.width);
+-  MOZ_ASSERT(aSliceBorder.TopBottom() <= expandedMinRect.height);
+-
+-  return result.forget();
+-}
+-
+-static already_AddRefed<SourceSurface>
+-CreateBoxShadow(SourceSurface* aBlurMask, const Color& aShadowColor)
+-{
+-  IntSize blurredSize = aBlurMask->GetSize();
+-  gfxPlatform* platform = gfxPlatform::GetPlatform();
+-  RefPtr<DrawTarget> boxShadowDT =
+-    platform->CreateOffscreenContentDrawTarget(blurredSize, SurfaceFormat::B8G8R8A8);
+-
+-  if (!boxShadowDT) {
+-    return nullptr;
+-  }
+-
+-  ColorPattern shadowColor(ToDeviceColor(aShadowColor));
+-  boxShadowDT->MaskSurface(shadowColor, aBlurMask, Point(0, 0));
+-  return boxShadowDT->Snapshot();
+-}
+-
+-static already_AddRefed<SourceSurface>
+-GetBlur(gfxContext* aDestinationCtx,
+-        const IntSize& aRectSize,
+-        const IntSize& aBlurRadius,
+-        RectCornerRadii* aCornerRadii,
+-        const Color& aShadowColor,
+-        IntMargin& aExtendDestBy,
+-        IntMargin& aSlice)
+-{
+-  if (!gBlurCache) {
+-    gBlurCache = new BlurCache();
+-  }
+-
+-  IntSize minSize =
+-    ComputeMinSizeForShadowShape(aCornerRadii, aBlurRadius, aSlice, aRectSize);
+-
+-  // We can get seams using the min size rect when drawing to the destination rect
+-  // if we have a non-pixel aligned destination transformation. In those cases,
+-  // fallback to just rendering the destination rect.
+-  Matrix destMatrix = ToMatrix(aDestinationCtx->CurrentMatrix());
+-  bool useDestRect = !destMatrix.IsRectilinear() || destMatrix.HasNonIntegerTranslation();
+-  if (useDestRect) {
+-    minSize = aRectSize;
+-  }
+-
+-  DrawTarget& destDT = *aDestinationCtx->GetDrawTarget();
+-
+-  BlurCacheData* cached = gBlurCache->Lookup(minSize, aBlurRadius,
+-                                             aCornerRadii, aShadowColor,
+-                                             destDT.GetBackendType());
+-  if (cached && !useDestRect) {
+-    // See CreateBlurMask() for these values
+-    aExtendDestBy = cached->mExtendDest;
+-    aSlice = aSlice + aExtendDestBy;
+-    RefPtr<SourceSurface> blur = cached->mBlur;
+-    return blur.forget();
+-  }
+-
+-  RefPtr<SourceSurface> blurMask =
+-    CreateBlurMask(minSize, aCornerRadii, aBlurRadius, aExtendDestBy, aSlice,
+-                   destDT);
+-
+-  if (!blurMask) {
+-    return nullptr;
+-  }
+-
+-  RefPtr<SourceSurface> boxShadow = CreateBoxShadow(blurMask, aShadowColor);
+-  if (!boxShadow) {
+-    return nullptr;
+-  }
+-
+-  if (useDestRect) {
+-    // Since we're just going to paint the actual rect to the destination
+-    aSlice.SizeTo(0, 0, 0, 0);
+-  } else {
+-    CacheBlur(destDT, minSize, aBlurRadius, aCornerRadii, aShadowColor,
+-              aExtendDestBy, boxShadow);
+-  }
+-  return boxShadow.forget();
+-}
+-
+-void
+-gfxAlphaBoxBlur::ShutdownBlurCache()
+-{
+-  delete gBlurCache;
+-  gBlurCache = nullptr;
+-}
+-
+-static Rect
+-RectWithEdgesTRBL(Float aTop, Float aRight, Float aBottom, Float aLeft)
+-{
+-  return Rect(aLeft, aTop, aRight - aLeft, aBottom - aTop);
+-}
+-
+-static void
+-RepeatOrStretchSurface(DrawTarget& aDT, SourceSurface* aSurface,
+-                       const Rect& aDest, const Rect& aSrc, Rect& aSkipRect)
+-{
+-  if (aSkipRect.Contains(aDest)) {
+-    return;
+-  }
+-
+-  if ((!aDT.GetTransform().IsRectilinear() &&
+-       aDT.GetBackendType() != BackendType::CAIRO) ||
+-      (aDT.GetBackendType() == BackendType::DIRECT2D1_1)) {
+-    // Use stretching if possible, since it leads to less seams when the
+-    // destination is transformed. However, don't do this if we're using cairo,
+-    // because if cairo is using pixman it won't render anything for large
+-    // stretch factors because pixman's internal fixed point precision is not
+-    // high enough to handle those scale factors.
+-    // Calling FillRect on a D2D backend with a repeating pattern is much slower
+-    // than DrawSurface, so special case the D2D backend here.
+-    aDT.DrawSurface(aSurface, aDest, aSrc);
+-    return;
+-  }
+-
+-  SurfacePattern pattern(aSurface, ExtendMode::REPEAT,
+-                         Matrix::Translation(aDest.TopLeft() - aSrc.TopLeft()),
+-                         SamplingFilter::GOOD, RoundedToInt(aSrc));
+-  aDT.FillRect(aDest, pattern);
+-}
+-
+-static void
+-DrawCorner(DrawTarget& aDT, SourceSurface* aSurface,
+-           const Rect& aDest, const Rect& aSrc, Rect& aSkipRect)
+-{
+-  if (aSkipRect.Contains(aDest)) {
+-    return;
+-  }
+-
+-  aDT.DrawSurface(aSurface, aDest, aSrc);
+-}
+-
+-static void
+-DrawBoxShadows(DrawTarget& aDestDrawTarget, SourceSurface* aSourceBlur,
+-               Rect aDstOuter, Rect aDstInner, Rect aSrcOuter, Rect aSrcInner,
+-               Rect aSkipRect)
+-{
+-  // Corners: top left, top right, bottom left, bottom right
+-  DrawCorner(aDestDrawTarget, aSourceBlur,
+-             RectWithEdgesTRBL(aDstOuter.Y(), aDstInner.X(),
+-                               aDstInner.Y(), aDstOuter.X()),
+-             RectWithEdgesTRBL(aSrcOuter.Y(), aSrcInner.X(),
+-                               aSrcInner.Y(), aSrcOuter.X()),
+-                               aSkipRect);
+-
+-  DrawCorner(aDestDrawTarget, aSourceBlur,
+-             RectWithEdgesTRBL(aDstOuter.Y(), aDstOuter.XMost(),
+-                               aDstInner.Y(), aDstInner.XMost()),
+-             RectWithEdgesTRBL(aSrcOuter.Y(), aSrcOuter.XMost(),
+-                               aSrcInner.Y(), aSrcInner.XMost()),
+-             aSkipRect);
+-
+-  DrawCorner(aDestDrawTarget, aSourceBlur,
+-             RectWithEdgesTRBL(aDstInner.YMost(), aDstInner.X(),
+-                               aDstOuter.YMost(), aDstOuter.X()),
+-             RectWithEdgesTRBL(aSrcInner.YMost(), aSrcInner.X(),
+-                               aSrcOuter.YMost(), aSrcOuter.X()),
+-             aSkipRect);
+-
+-  DrawCorner(aDestDrawTarget, aSourceBlur,
+-             RectWithEdgesTRBL(aDstInner.YMost(), aDstOuter.XMost(),
+-                               aDstOuter.YMost(), aDstInner.XMost()),
+-             RectWithEdgesTRBL(aSrcInner.YMost(), aSrcOuter.XMost(),
+-                               aSrcOuter.YMost(), aSrcInner.XMost()),
+-             aSkipRect);
+-
+-  // Edges: top, left, right, bottom
+-  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
+-                         RectWithEdgesTRBL(aDstOuter.Y(), aDstInner.XMost(),
+-                                           aDstInner.Y(), aDstInner.X()),
+-                         RectWithEdgesTRBL(aSrcOuter.Y(), aSrcInner.XMost(),
+-                                           aSrcInner.Y(), aSrcInner.X()),
+-                         aSkipRect);
+-  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
+-                         RectWithEdgesTRBL(aDstInner.Y(), aDstInner.X(),
+-                                           aDstInner.YMost(), aDstOuter.X()),
+-                         RectWithEdgesTRBL(aSrcInner.Y(), aSrcInner.X(),
+-                                           aSrcInner.YMost(), aSrcOuter.X()),
+-                         aSkipRect);
+-
+-  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
+-                         RectWithEdgesTRBL(aDstInner.Y(), aDstOuter.XMost(),
+-                                           aDstInner.YMost(), aDstInner.XMost()),
+-                         RectWithEdgesTRBL(aSrcInner.Y(), aSrcOuter.XMost(),
+-                                           aSrcInner.YMost(), aSrcInner.XMost()),
+-                         aSkipRect);
+-  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
+-                         RectWithEdgesTRBL(aDstInner.YMost(), aDstInner.XMost(),
+-                                           aDstOuter.YMost(), aDstInner.X()),
+-                         RectWithEdgesTRBL(aSrcInner.YMost(), aSrcInner.XMost(),
+-                                           aSrcOuter.YMost(), aSrcInner.X()),
+-                         aSkipRect);
+-}
+-
+-/***
+- * We draw a blurred a rectangle by only blurring a smaller rectangle and
+- * splitting the rectangle into 9 parts.
+- * First, a small minimum source rect is calculated and used to create a blur
+- * mask since the actual blurring itself is expensive. Next, we use the mask
+- * with the given shadow color to create a minimally-sized box shadow of the
+- * right color. Finally, we cut out the 9 parts from the box-shadow source and
+- * paint each part in the right place, stretching the non-corner parts to fill
+- * the space between the corners.
+- */
+-
+-/* static */ void
+-gfxAlphaBoxBlur::BlurRectangle(gfxContext* aDestinationCtx,
+-                               const gfxRect& aRect,
+-                               RectCornerRadii* aCornerRadii,
+-                               const gfxPoint& aBlurStdDev,
+-                               const Color& aShadowColor,
+-                               const gfxRect& aDirtyRect,
+-                               const gfxRect& aSkipRect)
+-{
+-  IntSize blurRadius = CalculateBlurRadius(aBlurStdDev);
+-
+-  IntRect rect = RoundedToInt(ToRect(aRect));
+-  IntMargin extendDestBy;
+-  IntMargin slice;
+-
+-  RefPtr<SourceSurface> boxShadow = GetBlur(aDestinationCtx,
+-                                            rect.Size(), blurRadius,
+-                                            aCornerRadii, aShadowColor,
+-                                            extendDestBy, slice);
+-  if (!boxShadow) {
+-    return;
+-  }
+-
+-  DrawTarget& destDrawTarget = *aDestinationCtx->GetDrawTarget();
+-  destDrawTarget.PushClipRect(ToRect(aDirtyRect));
+-
+-  // Copy the right parts from boxShadow into destDrawTarget. The middle parts
+-  // will be stretched, border-image style.
+-
+-  Rect srcOuter(Point(), Size(boxShadow->GetSize()));
+-  Rect srcInner = srcOuter;
+-  srcInner.Deflate(Margin(slice));
+-
+-  rect.Inflate(extendDestBy);
+-  Rect dstOuter(rect);
+-  Rect dstInner(rect);
+-  dstInner.Deflate(Margin(slice));
+-
+-  Rect skipRect = ToRect(aSkipRect);
+-
+-  if (srcInner.IsEqualInterior(srcOuter)) {
+-    MOZ_ASSERT(dstInner.IsEqualInterior(dstOuter));
+-    // The target rect is smaller than the minimal size so just draw the surface
+-    destDrawTarget.DrawSurface(boxShadow, dstInner, srcInner);
+-  } else {
+-    DrawBoxShadows(destDrawTarget, boxShadow, dstOuter, dstInner,
+-                   srcOuter, srcInner, skipRect);
+-
+-    // Middle part
+-    RepeatOrStretchSurface(destDrawTarget, boxShadow,
+-                           RectWithEdgesTRBL(dstInner.Y(), dstInner.XMost(),
+-                                             dstInner.YMost(), dstInner.X()),
+-                           RectWithEdgesTRBL(srcInner.Y(), srcInner.XMost(),
+-                                             srcInner.YMost(), srcInner.X()),
+-                           skipRect);
+-  }
+-
+-  // A note about anti-aliasing and seems between adjacent parts:
+-  // We don't explicitly disable anti-aliasing in the DrawSurface calls above,
+-  // so if there's a transform on destDrawTarget that is not pixel-aligned,
+-  // there will be seams between adjacent parts of the box-shadow. It's hard to
+-  // avoid those without the use of an intermediate surface.
+-  // You might think that we could avoid those by just turning of AA, but there
+-  // is a problem with that: Box-shadow rendering needs to clip out the
+-  // element's border box, and we'd like that clip to have anti-aliasing -
+-  // especially if the element has rounded corners! So we can't do that unless
+-  // we have a way to say "Please anti-alias the clip, but don't antialias the
+-  // destination rect of the DrawSurface call".
+-  // On OS X there is an additional problem with turning off AA: CoreGraphics
+-  // will not just fill the pixels that have their pixel center inside the
+-  // filled shape. Instead, it will fill all the pixels which are partially
+-  // covered by the shape. So for pixels on the edge between two adjacent parts,
+-  // all those pixels will be painted to by both parts, which looks very bad.
+-
+-  destDrawTarget.PopClip();
+-}
+-
+-static already_AddRefed<Path>
+-GetBoxShadowInsetPath(DrawTarget* aDrawTarget,
+-                      const Rect aOuterRect, const Rect aInnerRect,
+-                      const bool aHasBorderRadius, const RectCornerRadii& aInnerClipRadii)
+-{
+-  /***
+-   * We create an inset path by having two rects.
+-   *
+-   *  -----------------------
+-   *  |  ________________   |
+-   *  | |                |  |
+-   *  | |                |  |
+-   *  | ------------------  |
+-   *  |_____________________|
+-   *
+-   * The outer rect and the inside rect. The path
+-   * creates a frame around the content where we draw the inset shadow.
+-   */
+-  RefPtr<PathBuilder> builder =
+-    aDrawTarget->CreatePathBuilder(FillRule::FILL_EVEN_ODD);
+-  AppendRectToPath(builder, aOuterRect, true);
+-
+-  if (aHasBorderRadius) {
+-    AppendRoundedRectToPath(builder, aInnerRect, aInnerClipRadii, false);
+-  } else {
+-    AppendRectToPath(builder, aInnerRect, false);
+-  }
+-  return builder->Finish();
+-}
+-
+-static void
+-FillDestinationPath(gfxContext* aDestinationCtx,
+-                    const Rect aDestinationRect,
+-                    const Rect aShadowClipRect,
+-                    const Color& aShadowColor,
+-                    const bool aHasBorderRadius,
+-                    const RectCornerRadii& aInnerClipRadii)
+-{
+-  // When there is no blur radius, fill the path onto the destination
+-  // surface.
+-  aDestinationCtx->SetColor(aShadowColor);
+-  DrawTarget* destDrawTarget = aDestinationCtx->GetDrawTarget();
+-  RefPtr<Path> shadowPath = GetBoxShadowInsetPath(destDrawTarget, aDestinationRect,
+-                                                  aShadowClipRect, aHasBorderRadius,
+-                                                  aInnerClipRadii);
+-
+-  aDestinationCtx->SetPath(shadowPath);
+-  aDestinationCtx->Fill();
+-}
+-
+-static void
+-CacheInsetBlur(const IntSize aMinOuterSize,
+-               const IntSize aMinInnerSize,
+-               const IntSize& aBlurRadius,
+-               const RectCornerRadii* aCornerRadii,
+-               const Color& aShadowColor,
+-               const bool& aHasBorderRadius,
+-               BackendType aBackendType,
+-               SourceSurface* aBoxShadow)
+-{
+-  bool isInsetBlur = true;
+-  BlurCacheKey key(aMinOuterSize, aMinInnerSize,
+-                   aBlurRadius, aCornerRadii,
+-                   aShadowColor, isInsetBlur,
+-                   aHasBorderRadius, aBackendType);
+-  IntMargin extendDestBy(0, 0, 0, 0);
+-  BlurCacheData* data = new BlurCacheData(aBoxShadow, extendDestBy, key);
+-  if (!gBlurCache->RegisterEntry(data)) {
+-    delete data;
+-  }
+-}
+-
+-already_AddRefed<mozilla::gfx::SourceSurface>
+-gfxAlphaBoxBlur::GetInsetBlur(const mozilla::gfx::Rect aOuterRect,
+-                              const mozilla::gfx::Rect aWhitespaceRect,
+-                              const bool aIsDestRect,
+-                              const mozilla::gfx::Color& aShadowColor,
+-                              const mozilla::gfx::IntSize& aBlurRadius,
+-                              const bool aHasBorderRadius,
+-                              const RectCornerRadii& aInnerClipRadii,
+-                              DrawTarget* aDestDrawTarget)
+-{
+-  if (!gBlurCache) {
+-    gBlurCache = new BlurCache();
+-  }
+-
+-  IntSize outerSize((int)aOuterRect.width, (int)aOuterRect.height);
+-  IntSize whitespaceSize((int)aWhitespaceRect.width, (int)aWhitespaceRect.height);
+-  BlurCacheData* cached =
+-      gBlurCache->LookupInsetBoxShadow(outerSize, whitespaceSize,
+-                                       aBlurRadius, &aInnerClipRadii,
+-                                       aShadowColor, aHasBorderRadius,
+-                                       aDestDrawTarget->GetBackendType());
+-
+-  if (cached && !aIsDestRect) {
+-    // So we don't forget the actual cached blur
+-    RefPtr<SourceSurface> cachedBlur = cached->mBlur;
+-    return cachedBlur.forget();
+-  }
+-
+-  // If we can do a min rect, the whitespace rect will be expanded in Init to
+-  // aOuterRect.
+-  Rect blurRect = aIsDestRect ? aOuterRect : aWhitespaceRect;
+-  IntSize zeroSpread(0, 0);
+-  gfxContext* minGfxContext = Init(ThebesRect(blurRect),
+-                                   zeroSpread, aBlurRadius,
+-                                   nullptr, nullptr);
+-  if (!minGfxContext) {
+-    return nullptr;
+-  }
+-
+-  // This is really annoying. When we create the AlphaBoxBlur, the gfxContext
+-  // has a translation applied to it that is the topLeft point. This is actually
+-  // the rect we gave it plus the blur radius. The rects we give this for the outer
+-  // and whitespace rects are based at (0, 0). We could either translate those rects
+-  // when we don't have a destination rect or ignore the translation when using
+-  // the dest rect. The dest rects layout gives us expect this translation.
+-  if (!aIsDestRect) {
+-    minGfxContext->SetMatrix(gfxMatrix());
+-  }
+-
+-  DrawTarget* minDrawTarget = minGfxContext->GetDrawTarget();
+-
+-  // Fill in the path between the inside white space / outer rects
+-  // NOT the inner frame
+-  RefPtr<Path> maskPath =
+-    GetBoxShadowInsetPath(minDrawTarget, aOuterRect,
+-                          aWhitespaceRect, aHasBorderRadius,
+-                          aInnerClipRadii);
+-
+-  Color black(0.f, 0.f, 0.f, 1.f);
+-  minGfxContext->SetColor(black);
+-  minGfxContext->SetPath(maskPath);
+-  minGfxContext->Fill();
+-
+-  // Create the A8 mask
+-  IntPoint topLeft;
+-  RefPtr<SourceSurface> minMask = DoBlur(minDrawTarget, &topLeft);
+-  if (!minMask) {
+-    return nullptr;
+-  }
+-
+-  // Fill in with the color we actually wanted
+-  RefPtr<SourceSurface> minInsetBlur = CreateBoxShadow(minMask, aShadowColor);
+-  if (!minInsetBlur) {
+-    return nullptr;
+-  }
+-
+-  if (!aIsDestRect) {
+-    CacheInsetBlur(outerSize, whitespaceSize,
+-                   aBlurRadius, &aInnerClipRadii,
+-                   aShadowColor, aHasBorderRadius,
+-                   aDestDrawTarget->GetBackendType(),
+-                   minInsetBlur);
+-  }
+-
+-  return minInsetBlur.forget();
+-}
+-
+-/***
+- * We create our minimal rect with 2 rects.
+- * The first is the inside whitespace rect, that is "cut out"
+- * from the box. This is (1). This must be the size
+- * of the blur radius + corner radius so we can have a big enough
+- * inside cut.
+- *
+- * The second (2) is one blur radius surrounding the inner
+- * frame of (1). This is the amount of blur space required
+- * to get a proper blend.
+- *
+- * B = one blur size
+- * W = one blur + corner radii - known as inner margin
+- * ___________________________________
+- * |                                |
+- * |          |             |       |
+- * |      (2) |    (1)      |  (2)  |
+- * |       B  |     W       |   B   |
+- * |          |             |       |
+- * |          |             |       |
+- * |          |                     |
+- * |________________________________|
+- */
+-static void GetBlurMargins(const bool aHasBorderRadius,
+-                           const RectCornerRadii& aInnerClipRadii,
+-                           const IntSize aBlurRadius,
+-                           Margin& aOutBlurMargin,
+-                           Margin& aOutInnerMargin)
+-{
+-  float cornerWidth = 0;
+-  float cornerHeight = 0;
+-  if (aHasBorderRadius) {
+-    for (size_t i = 0; i < 4; i++) {
+-      cornerWidth = std::max(cornerWidth, aInnerClipRadii[i].width);
+-      cornerHeight = std::max(cornerHeight, aInnerClipRadii[i].height);
+-    }
+-  }
+-
+-  // Only the inside whitespace size cares about the border radius size.
+-  // Outer sizes only care about blur.
+-  int width = cornerWidth + aBlurRadius.width;
+-  int height = cornerHeight + aBlurRadius.height;
+-
+-  aOutInnerMargin.SizeTo(height, width, height, width);
+-  aOutBlurMargin.SizeTo(aBlurRadius.height, aBlurRadius.width,
+-                        aBlurRadius.height, aBlurRadius.width);
+-}
+-
+-static bool
+-GetInsetBoxShadowRects(const Margin aBlurMargin,
+-                       const Margin aInnerMargin,
+-                       const Rect aShadowClipRect,
+-                       const Rect aDestinationRect,
+-                       Rect& aOutWhitespaceRect,
+-                       Rect& aOutOuterRect)
+-{
+-  // We always copy (2 * blur radius) + corner radius worth of data to the destination rect
+-  // This covers the blend of the path + the actual blur
+-  // Need +1 so that we copy the edges correctly as we'll copy
+-  // over the min box shadow corners then the +1 for the edges between
+-  // Note, the (x,y) coordinates are from the blur margin
+-  // since the frame outside the whitespace rect is 1 blur radius extra space.
+-  Rect insideWhiteSpace(aBlurMargin.left,
+-                        aBlurMargin.top,
+-                        aInnerMargin.LeftRight() + 1,
+-                        aInnerMargin.TopBottom() + 1);
+-
+-  // If the inner white space rect is larger than the shadow clip rect
+-  // our approach does not work as we'll just copy one corner
+-  // and cover the destination. In those cases, fallback to the destination rect
+-  bool useDestRect = (aShadowClipRect.width <= aInnerMargin.LeftRight()) ||
+-                     (aShadowClipRect.height <= aInnerMargin.TopBottom());
+-
+-  if (useDestRect) {
+-    aOutWhitespaceRect = aShadowClipRect;
+-    aOutOuterRect = aDestinationRect;
+-  } else {
+-    aOutWhitespaceRect = insideWhiteSpace;
+-    aOutOuterRect = aOutWhitespaceRect;
+-    aOutOuterRect.Inflate(aBlurMargin);
+-  }
+-
+-  return useDestRect;
+-}
+-
+-void
+-gfxAlphaBoxBlur::BlurInsetBox(gfxContext* aDestinationCtx,
+-                              const Rect aDestinationRect,
+-                              const Rect aShadowClipRect,
+-                              const IntSize aBlurRadius,
+-                              const IntSize aSpreadRadius,
+-                              const Color& aShadowColor,
+-                              bool aHasBorderRadius,
+-                              const RectCornerRadii& aInnerClipRadii,
+-                              const Rect aSkipRect,
+-                              const Point aShadowOffset)
+-{
+-  if ((aBlurRadius.width == 0 && aBlurRadius.height == 0)
+-      || aShadowClipRect.IsEmpty()) {
+-    FillDestinationPath(aDestinationCtx, aDestinationRect, aShadowClipRect,
+-        aShadowColor, aHasBorderRadius, aInnerClipRadii);
+-    return;
+-  }
+-
+-  DrawTarget* destDrawTarget = aDestinationCtx->GetDrawTarget();
+-
+-  Margin innerMargin;
+-  Margin blurMargin;
+-  GetBlurMargins(aHasBorderRadius, aInnerClipRadii, aBlurRadius,
+-                 blurMargin, innerMargin);
+-
+-  Rect whitespaceRect;
+-  Rect outerRect;
+-  bool useDestRect = GetInsetBoxShadowRects(blurMargin, innerMargin, aShadowClipRect,
+-                                            aDestinationRect, whitespaceRect, outerRect);
+-
+-  RefPtr<SourceSurface> minBlur = GetInsetBlur(outerRect, whitespaceRect, useDestRect, aShadowColor,
+-                                               aBlurRadius, aHasBorderRadius, aInnerClipRadii,
+-                                               destDrawTarget);
+-  if (!minBlur) {
+-    return;
+-  }
+-
+-  if (useDestRect) {
+-    IntSize blurSize = minBlur->GetSize();
+-    Rect srcBlur(0, 0, blurSize.width, blurSize.height);
+-    Rect destBlur = aDestinationRect;
+-
+-    // The blur itself expands the rect by the blur margin, so we
+-    // have to mimic that here.
+-    destBlur.Inflate(blurMargin);
+-    MOZ_ASSERT(srcBlur.Size() == destBlur.Size());
+-    destDrawTarget->DrawSurface(minBlur, destBlur, srcBlur);
+-  } else {
+-    Rect srcOuter(outerRect);
+-    Rect srcInner(srcOuter);
+-    srcInner.Deflate(blurMargin);   // The outer color fill
+-    srcInner.Deflate(innerMargin);  // The inner whitespace
+-
+-    // The shadow clip rect already takes into account the spread radius
+-    Rect outerFillRect(aShadowClipRect);
+-    outerFillRect.Inflate(blurMargin);
+-    FillDestinationPath(aDestinationCtx, aDestinationRect, outerFillRect, aShadowColor, false, RectCornerRadii());
+-
+-    // Inflate once for the frame around the whitespace
+-    Rect destRect(aShadowClipRect);
+-    destRect.Inflate(blurMargin);
+-
+-    // Deflate for the blurred in white space
+-    Rect destInnerRect(aShadowClipRect);
+-    destInnerRect.Deflate(innerMargin);
+-
+-    DrawBoxShadows(*destDrawTarget, minBlur,
+-                   destRect, destInnerRect,
+-                   srcOuter, srcInner,
+-                   aSkipRect);
+-  }
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
+--- gfx/thebes/gfxFont.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-08-07 18:16:32.000000000 +0200
+@@ -168,25 +168,8 @@
+ }
+ 
+ gfxFontCache::gfxFontCache()
+-    : nsExpirationTracker<gfxFont,3>(FONT_TIMEOUT_SECONDS * 1000,
+-                                     "gfxFontCache")
+ {
+-    nsCOMPtr<nsIObserverService> obs = GetObserverService();
+-    if (obs) {
+-        obs->AddObserver(new Observer, "memory-pressure", false);
+-    }
+ 
+-#ifndef RELEASE_BUILD
+-    // Currently disabled for release builds, due to unexplained crashes
+-    // during expiration; see bug 717175 & 894798.
+-    mWordCacheExpirationTimer = do_CreateInstance("@mozilla.org/timer;1");
+-    if (mWordCacheExpirationTimer) {
+-        mWordCacheExpirationTimer->
+-            InitWithFuncCallback(WordCacheExpirationTimerCallback, this,
+-                                 SHAPED_WORD_TIMEOUT_SECONDS * 1000,
+-                                 nsITimer::TYPE_REPEATING_SLACK);
+-    }
+-#endif
+ }
+ 
+ gfxFontCache::~gfxFontCache()
+@@ -261,6 +244,24 @@
+     }
+ }
+ 
++nsresult
++gfxFontCache::AddObject(gfxFont* aFont)
++{
++	return NS_OK;
++}
++
++void
++gfxFontCache::RemoveObject(gfxFont* aFont)
++{
++
++}
++
++void
++gfxFontCache::AgeAllGenerations()
++{
++
++}
++
+ void
+ gfxFontCache::NotifyReleased(gfxFont *aFont)
+ {
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
+--- gfx/thebes/gfxFont.h	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-08-07 18:16:26.000000000 +0200
+@@ -276,7 +276,7 @@
+     size_t mShapedWords; // memory used by the per-font shapedWord caches
+ };
+ 
+-class gfxFontCache final : public nsExpirationTracker<gfxFont,3> {
++class gfxFontCache final {
+ public:
+     enum {
+         FONT_TIMEOUT_SECONDS = 10,
+@@ -318,7 +318,7 @@
+ 
+     // This gets called when the timeout has expired on a zero-refcount
+     // font; we just delete it.
+-    virtual void NotifyExpired(gfxFont *aFont) override;
++    virtual void NotifyExpired(gfxFont *aFont);
+ 
+     // Cleans out the hashtable and removes expired fonts waiting for cleanup.
+     // Other gfxFont objects may be still in use but they will be pushed
+@@ -328,6 +328,12 @@
+         AgeAllGenerations();
+     }
+ 
++    void AgeAllGenerations();
++
++    nsresult AddObject(gfxFont* aFont);
++
++    void RemoveObject(gfxFont* aFont);
++
+     void FlushShapedWordCaches();
+ 
+     void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
+--- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-05 16:16:14.000000000 +0200
+@@ -71,6 +71,8 @@
+ #include <time.h>
+ #include <dlfcn.h>
+ 
++#include "../../widget/cocoa/nsCocoaFeatures.mm"
++
+ using namespace mozilla;
+ 
+ // indexes into the NSArray objects that the Cocoa font manager returns
+@@ -102,6 +104,23 @@
+     9  // 14
+ };
+ 
++// static
++void
++nsCocoaUtils::GetStringForNSString(const NSString *aSrc, nsAString& aDist)
++{
++  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
++
++  if (!aSrc) {
++    aDist.Truncate();
++    return;
++  }
++
++  aDist.SetLength([aSrc length]);
++  [aSrc getCharacters: reinterpret_cast<unichar*>(aDist.BeginWriting())];
++
++  NS_OBJC_END_TRY_ABORT_BLOCK;
++}
++
+ // cache Cocoa's "shared font manager" for performance
+ static NSFontManager *sFontManager;
+ 
+@@ -699,8 +718,8 @@
+         sizeHint = 128.0;
+     }
+ 
+-    nsAutoString key;
+-    ToLowerCase(familyName, key);
++    nsAutoString key = familyName;
++    ToLowerCase(key);
+ 
+     gfxFontFamily* familyEntry = new gfxMacFontFamily(familyName, sizeHint);
+     table.Put(key, familyEntry);
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
+--- gfx/thebes/gfxPlatform.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-06 20:56:09.000000000 +0200
+@@ -185,218 +185,6 @@
+ #include "mozilla/gfx/SourceSurfaceCairo.h"
+ using namespace mozilla::gfx;
+ 
+-/* Class to listen for pref changes so that chrome code can dynamically
+-   force sRGB as an output profile. See Bug #452125. */
+-class SRGBOverrideObserver final : public nsIObserver,
+-                                   public nsSupportsWeakReference
+-{
+-    ~SRGBOverrideObserver() {}
+-public:
+-    NS_DECL_ISUPPORTS
+-    NS_DECL_NSIOBSERVER
+-};
+-
+-/// This override of the LogForwarder, initially used for the critical graphics
+-/// errors, is sending the log to the crash annotations as well, but only
+-/// if the capacity set with the method below is >= 2.  We always retain the
+-/// very first critical message, and the latest capacity-1 messages are
+-/// rotated through. Note that we don't expect the total number of times
+-/// this gets called to be large - it is meant for critical errors only.
+-
+-class CrashStatsLogForwarder: public mozilla::gfx::LogForwarder
+-{
+-public:
+-  explicit CrashStatsLogForwarder(const char* aKey);
+-  virtual void Log(const std::string& aString) override;
+-  virtual void CrashAction(LogReason aReason) override;
+-  virtual bool UpdateStringsVector(const std::string& aString) override;
+-
+-  virtual LoggingRecord LoggingRecordCopy() override;
+-
+-  void SetCircularBufferSize(uint32_t aCapacity);
+-
+-private:
+-  // Helper for the Log()
+-  void UpdateCrashReport();
+-
+-private:
+-  LoggingRecord mBuffer;
+-  nsCString mCrashCriticalKey;
+-  uint32_t mMaxCapacity;
+-  int32_t mIndex;
+-  Mutex mMutex;
+-};
+-
+-CrashStatsLogForwarder::CrashStatsLogForwarder(const char* aKey)
+-  : mBuffer()
+-  , mCrashCriticalKey(aKey)
+-  , mMaxCapacity(0)
+-  , mIndex(-1)
+-  , mMutex("CrashStatsLogForwarder")
+-{
+-}
+-
+-void CrashStatsLogForwarder::SetCircularBufferSize(uint32_t aCapacity)
+-{
+-  MutexAutoLock lock(mMutex);
+-
+-  mMaxCapacity = aCapacity;
+-  mBuffer.reserve(static_cast<size_t>(aCapacity));
+-}
+-
+-LoggingRecord
+-CrashStatsLogForwarder::LoggingRecordCopy()
+-{
+-  MutexAutoLock lock(mMutex);
+-  return mBuffer;
+-}
+-
+-bool
+-CrashStatsLogForwarder::UpdateStringsVector(const std::string& aString)
+-{
+-  // We want at least the first one and the last one.  Otherwise, no point.
+-  if (mMaxCapacity < 2) {
+-    return false;
+-  }
+-
+-  mIndex += 1;
+-  MOZ_ASSERT(mIndex >= 0);
+-
+-  // index will count 0, 1, 2, ..., max-1, 1, 2, ..., max-1, 1, 2, ...
+-  int32_t index = mIndex ? (mIndex-1) % (mMaxCapacity-1) + 1 : 0;
+-  MOZ_ASSERT(index >= 0 && index < (int32_t)mMaxCapacity);
+-  MOZ_ASSERT(index <= mIndex && index <= (int32_t)mBuffer.size());
+-
+-  bool ignored;
+-  double tStamp = (TimeStamp::NowLoRes()-TimeStamp::ProcessCreation(ignored)).ToSecondsSigDigits();
+-
+-  // Checking for index >= mBuffer.size(), rather than index == mBuffer.size()
+-  // just out of paranoia, but we know index <= mBuffer.size().
+-  LoggingRecordEntry newEntry(mIndex,aString,tStamp);
+-  if (index >= static_cast<int32_t>(mBuffer.size())) {
+-    mBuffer.push_back(newEntry);
+-  } else {
+-    mBuffer[index] = newEntry;
+-  }
+-  return true;
+-}
+-
+-void CrashStatsLogForwarder::UpdateCrashReport()
+-{
+-  std::stringstream message;
+-  if (XRE_IsParentProcess()) {
+-    for(LoggingRecord::iterator it = mBuffer.begin(); it != mBuffer.end(); ++it) {
+-      message << "|[" << Get<0>(*it) << "]" << Get<1>(*it) << " (t=" << Get<2>(*it) << ") ";
+-    }
+-  } else {
+-    for(LoggingRecord::iterator it = mBuffer.begin(); it != mBuffer.end(); ++it) {
+-      message << "|[C" << Get<0>(*it) << "]" << Get<1>(*it) << " (t=" << Get<2>(*it) << ") ";
+-    }
+-  }
+-
+-#ifdef MOZ_CRASHREPORTER
+-  nsCString reportString(message.str().c_str());
+-  nsresult annotated = CrashReporter::AnnotateCrashReport(mCrashCriticalKey, reportString);
+-#else
+-  nsresult annotated = NS_ERROR_NOT_IMPLEMENTED;
+-#endif
+-  if (annotated != NS_OK) {
+-    printf("Crash Annotation %s: %s",
+-           mCrashCriticalKey.get(), message.str().c_str());
+-  }
+-}
+-
+-class LogForwarderEvent : public Runnable
+-{
+-  virtual ~LogForwarderEvent() {}
+-
+-  NS_DECL_ISUPPORTS_INHERITED
+-
+-  explicit LogForwarderEvent(const nsCString& aMessage) : mMessage(aMessage) {}
+-
+-  NS_IMETHOD Run() override {
+-    MOZ_ASSERT(NS_IsMainThread() && XRE_IsContentProcess());
+-    dom::ContentChild* cc = dom::ContentChild::GetSingleton();
+-    cc->SendGraphicsError(mMessage);
+-    return NS_OK;
+-  }
+-
+-protected:
+-  nsCString mMessage;
+-};
+-
+-NS_IMPL_ISUPPORTS_INHERITED0(LogForwarderEvent, Runnable);
+-
+-void CrashStatsLogForwarder::Log(const std::string& aString)
+-{
+-  MutexAutoLock lock(mMutex);
+-
+-  if (UpdateStringsVector(aString)) {
+-    UpdateCrashReport();
+-  }
+-
+-  // Add it to the parent strings
+-  if (!XRE_IsParentProcess()) {
+-    nsCString stringToSend(aString.c_str());
+-    if (NS_IsMainThread()) {
+-      dom::ContentChild* cc = dom::ContentChild::GetSingleton();
+-      cc->SendGraphicsError(stringToSend);
+-    } else {
+-      nsCOMPtr<nsIRunnable> r1 = new LogForwarderEvent(stringToSend);
+-      NS_DispatchToMainThread(r1);
+-    }
+-  }
+-}
+-
+-class CrashTelemetryEvent : public Runnable
+-{
+-  virtual ~CrashTelemetryEvent() {}
+-
+-  NS_DECL_ISUPPORTS_INHERITED
+-
+-  explicit CrashTelemetryEvent(uint32_t aReason) : mReason(aReason) {}
+-
+-  NS_IMETHOD Run() override {
+-    MOZ_ASSERT(NS_IsMainThread());
+-    Telemetry::Accumulate(Telemetry::GFX_CRASH, mReason);
+-    return NS_OK;
+-  }
+-
+-protected:
+-  uint32_t mReason;
+-};
+-
+-NS_IMPL_ISUPPORTS_INHERITED0(CrashTelemetryEvent, Runnable);
+-
+-void
+-CrashStatsLogForwarder::CrashAction(LogReason aReason)
+-{
+-#ifndef RELEASE_BUILD
+-  // Non-release builds crash by default, but will use telemetry
+-  // if this environment variable is present.
+-  static bool useTelemetry = gfxEnv::GfxDevCrashTelemetry();
+-#else
+-  // Release builds use telemetry by default, but will crash instead
+-  // if this environment variable is present.
+-  static bool useTelemetry = !gfxEnv::GfxDevCrashMozCrash();
+-#endif
+-
+-  if (useTelemetry) {
+-    // The callers need to assure that aReason is in the range
+-    // that the telemetry call below supports.
+-    if (NS_IsMainThread()) {
+-      Telemetry::Accumulate(Telemetry::GFX_CRASH, (uint32_t)aReason);
+-    } else {
+-      nsCOMPtr<nsIRunnable> r1 = new CrashTelemetryEvent((uint32_t)aReason);
+-      NS_DispatchToMainThread(r1);
+-    }
+-  } else {
+-    // ignoring aReason, we can get the information we need from the stack
+-    MOZ_CRASH("GFX_CRASH");
+-  }
+-}
+-
+-NS_IMPL_ISUPPORTS(SRGBOverrideObserver, nsIObserver, nsISupportsWeakReference)
+ 
+ #define GFX_DOWNLOADABLE_FONTS_ENABLED "gfx.downloadable_fonts.enabled"
+ 
+@@ -413,81 +201,8 @@
+ 
+ #define GFX_PREF_CMS_FORCE_SRGB "gfx.color_management.force_srgb"
+ 
+-NS_IMETHODIMP
+-SRGBOverrideObserver::Observe(nsISupports *aSubject,
+-                              const char *aTopic,
+-                              const char16_t* someData)
+-{
+-    NS_ASSERTION(NS_strcmp(someData,
+-                           (u"" GFX_PREF_CMS_FORCE_SRGB)) == 0,
+-                 "Restarting CMS on wrong pref!");
+-    ShutdownCMS();
+-    // Update current cms profile.
+-    gfxPlatform::CreateCMSOutputProfile();
+-    return NS_OK;
+-}
+-
+-static const char* kObservedPrefs[] = {
+-    "gfx.downloadable_fonts.",
+-    "gfx.font_rendering.",
+-    BIDI_NUMERAL_PREF,
+-    nullptr
+-};
+-
+-class FontPrefsObserver final : public nsIObserver
+-{
+-    ~FontPrefsObserver() {}
+-public:
+-    NS_DECL_ISUPPORTS
+-    NS_DECL_NSIOBSERVER
+-};
+-
+-NS_IMPL_ISUPPORTS(FontPrefsObserver, nsIObserver)
+-
+-NS_IMETHODIMP
+-FontPrefsObserver::Observe(nsISupports *aSubject,
+-                           const char *aTopic,
+-                           const char16_t *someData)
+-{
+-    if (!someData) {
+-        NS_ERROR("font pref observer code broken");
+-        return NS_ERROR_UNEXPECTED;
+-    }
+-    NS_ASSERTION(gfxPlatform::GetPlatform(), "the singleton instance has gone");
+-    gfxPlatform::GetPlatform()->FontsPrefsChanged(NS_ConvertUTF16toUTF8(someData).get());
+-
+-    return NS_OK;
+-}
+-
+-class MemoryPressureObserver final : public nsIObserver
+-{
+-    ~MemoryPressureObserver() {}
+-public:
+-    NS_DECL_ISUPPORTS
+-    NS_DECL_NSIOBSERVER
+-};
+-
+-NS_IMPL_ISUPPORTS(MemoryPressureObserver, nsIObserver)
+-
+-NS_IMETHODIMP
+-MemoryPressureObserver::Observe(nsISupports *aSubject,
+-                                const char *aTopic,
+-                                const char16_t *someData)
+-{
+-    NS_ASSERTION(strcmp(aTopic, "memory-pressure") == 0, "unexpected event topic");
+-    Factory::PurgeAllCaches();
+-    gfxGradientCache::PurgeAllCaches();
+-
+-    gfxPlatform::PurgeSkiaFontCache();
+-    gfxPlatform::GetPlatform()->PurgeSkiaGPUCache();
+-    return NS_OK;
+-}
+-
+ gfxPlatform::gfxPlatform()
+-  : mAzureCanvasBackendCollector(this, &gfxPlatform::GetAzureBackendInfo)
+-  , mApzSupportCollector(this, &gfxPlatform::GetApzSupportInfo)
+-  , mTilesInfoCollector(this, &gfxPlatform::GetTilesSupportInfo)
+-  , mCompositorBackend(layers::LayersBackend::LAYERS_NONE)
++  : mCompositorBackend(layers::LayersBackend::LAYERS_NONE)
+   , mScreenDepth(0)
+   , mDeviceCounter(0)
+ {
+@@ -506,7 +221,6 @@
+     uint32_t contentMask = BackendTypeBit(BackendType::CAIRO);
+     InitBackendPrefs(canvasMask, BackendType::CAIRO,
+                      contentMask, BackendType::CAIRO);
+-    mTotalSystemMemory = mozilla::hal::GetTotalSystemMemory();
+ 
+     VRManager::ManagerInit();
+ }
+@@ -529,30 +243,6 @@
+ void RecordingPrefChanged(const char *aPrefName, void *aClosure)
+ {
+   if (Preferences::GetBool("gfx.2d.recording", false)) {
+-    nsAutoCString fileName;
+-    nsAdoptingString prefFileName = Preferences::GetString("gfx.2d.recordingfile");
+-
+-    if (prefFileName) {
+-      fileName.Append(NS_ConvertUTF16toUTF8(prefFileName));
+-    } else {
+-      nsCOMPtr<nsIFile> tmpFile;
+-      if (NS_FAILED(NS_GetSpecialDirectory(NS_OS_TEMP_DIR, getter_AddRefs(tmpFile)))) {
+-        return;
+-      }
+-      fileName.AppendPrintf("moz2drec_%i_%i.aer", XRE_GetProcessType(), getpid());
+-
+-      nsresult rv = tmpFile->AppendNative(fileName);
+-      if (NS_FAILED(rv))
+-        return;
+-
+-      rv = tmpFile->GetNativePath(fileName);
+-      if (NS_FAILED(rv))
+-        return;
+-    }
+-
+-    gPlatform->mRecorder = Factory::CreateEventRecorderForFile(fileName.BeginReading());
+-    printf_stderr("Recording to %s\n", fileName.get());
+-    Factory::SetGlobalEventRecorder(gPlatform->mRecorder);
+   } else {
+     Factory::SetGlobalEventRecorder(nullptr);
+   }
+@@ -591,57 +281,11 @@
+ 
+     // Initialize the preferences by creating the singleton.
+     gfxPrefs::GetSingleton();
+-    MediaPrefs::GetSingleton();
+-    gfxVars::Initialize();
+-
+-    gfxConfig::Init();
+ 
+-    if (XRE_IsParentProcess()) {
+-      GPUProcessManager::Initialize();
+-    }
+-
+-    auto fwd = new CrashStatsLogForwarder("GraphicsCriticalError");
+-    fwd->SetCircularBufferSize(gfxPrefs::GfxLoggingCrashLength());
+-
+-    // Drop a note in the crash report if we end up forcing an option that could
+-    // destabilize things.  New items should be appended at the end (of an existing
+-    // or in a new section), so that we don't have to know the version to interpret
+-    // these cryptic strings.
+-    {
+-      nsAutoCString forcedPrefs;
+-      // D2D prefs
+-      forcedPrefs.AppendPrintf("FP(D%d%d%d",
+-                               gfxPrefs::Direct2DDisabled(),
+-                               gfxPrefs::Direct2DForceEnabled(),
+-                               gfxPrefs::DirectWriteFontRenderingForceEnabled());
+-      // Layers prefs
+-      forcedPrefs.AppendPrintf("-L%d%d%d%d%d",
+-                               gfxPrefs::LayersAMDSwitchableGfxEnabled(),
+-                               gfxPrefs::LayersAccelerationDisabledDoNotUseDirectly(),
+-                               gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly(),
+-                               gfxPrefs::LayersD3D11DisableWARP(),
+-                               gfxPrefs::LayersD3D11ForceWARP());
+-      // WebGL prefs
+-      forcedPrefs.AppendPrintf("-W%d%d%d%d%d%d%d%d",
+-                               gfxPrefs::WebGLANGLEForceD3D11(),
+-                               gfxPrefs::WebGLANGLEForceWARP(),
+-                               gfxPrefs::WebGLDisabled(),
+-                               gfxPrefs::WebGLDisableANGLE(),
+-                               gfxPrefs::WebGLDXGLEnabled(),
+-                               gfxPrefs::WebGLForceEnabled(),
+-                               gfxPrefs::WebGLForceLayersReadback(),
+-                               gfxPrefs::WebGLForceMSAA());
+-      // Prefs that don't fit into any of the other sections
+-      forcedPrefs.AppendPrintf("-T%d%d%d%d) ",
+-                               gfxPrefs::AndroidRGB16Force(),
+-                               gfxPrefs::CanvasAzureAccelerated(),
+-                               gfxPrefs::DisableGralloc(),
+-                               gfxPrefs::ForceShmemTiles());
+-      ScopedGfxFeatureReporter::AppNote(forcedPrefs);
+-    }
++    gfxVars::Initialize();
+ 
+     mozilla::gfx::Config cfg;
+-    cfg.mLogForwarder = fwd;
++
+     cfg.mMaxTextureSize = gfxPrefs::MaxTextureSize();
+     cfg.mMaxAllocSize = gfxPrefs::MaxAllocSize();
+ 
+@@ -649,17 +293,6 @@
+ 
+     gGfxPlatformPrefsLock = new Mutex("gfxPlatform::gGfxPlatformPrefsLock");
+ 
+-    /* Initialize the GfxInfo service.
+-     * Note: we can't call functions on GfxInfo that depend
+-     * on gPlatform until after it has been initialized
+-     * below. GfxInfo initialization annotates our
+-     * crash reports so we want to do it before
+-     * we try to load any drivers and do device detection
+-     * incase that code crashes. See bug #591561. */
+-    nsCOMPtr<nsIGfxInfo> gfxInfo;
+-    /* this currently will only succeed on Windows */
+-    gfxInfo = services::GetGfxInfo();
+-
+ #if defined(XP_WIN)
+     gPlatform = new gfxWindowsPlatform;
+ #elif defined(XP_MACOSX)
+@@ -723,15 +356,6 @@
+         NS_RUNTIMEABORT("Could not initialize gfxFontCache");
+     }
+ 
+-    /* Create and register our CMS Override observer. */
+-    gPlatform->mSRGBOverrideObserver = new SRGBOverrideObserver();
+-    Preferences::AddWeakObserver(gPlatform->mSRGBOverrideObserver, GFX_PREF_CMS_FORCE_SRGB);
+-
+-    gPlatform->mFontPrefsObserver = new FontPrefsObserver();
+-    Preferences::AddStrongObservers(gPlatform->mFontPrefsObserver, kObservedPrefs);
+-
+-    GLContext::PlatformStartup();
+-
+ #ifdef MOZ_WIDGET_ANDROID
+     // Texture pool init
+     TexturePoolOGL::Init();
+@@ -745,28 +369,6 @@
+ 
+     CreateCMSOutputProfile();
+ 
+-    // Listen to memory pressure event so we can purge DrawTarget caches
+-    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+-    if (obs) {
+-        gPlatform->mMemoryPressureObserver = new MemoryPressureObserver();
+-        obs->AddObserver(gPlatform->mMemoryPressureObserver, "memory-pressure", false);
+-    }
+-
+-    // Request the imgITools service, implicitly initializing ImageLib.
+-    nsCOMPtr<imgITools> imgTools = do_GetService("@mozilla.org/image/tools;1");
+-    if (!imgTools) {
+-      NS_RUNTIMEABORT("Could not initialize ImageLib");
+-    }
+-
+-    RegisterStrongMemoryReporter(new GfxMemoryImageReporter());
+-
+-    if (XRE_IsParentProcess()) {
+-      if (gfxPlatform::ForceSoftwareVsync()) {
+-        gPlatform->mVsyncSource = (gPlatform)->gfxPlatform::CreateHardwareVsyncSource();
+-      } else {
+-        gPlatform->mVsyncSource = gPlatform->CreateHardwareVsyncSource();
+-      }
+-    }
+ 
+ #ifdef USE_SKIA
+     uint32_t skiaCacheSize = GetSkiaGlyphCacheSize();
+@@ -778,9 +380,6 @@
+     InitNullMetadata();
+     InitOpenGLConfig();
+ 
+-    if (obs) {
+-      obs->NotifyObservers(nullptr, "gfx-features-ready", nullptr);
+-    }
+ }
+ 
+ static bool sLayersIPCIsUp = false;
+@@ -788,8 +387,6 @@
+ /* static */ void
+ gfxPlatform::InitNullMetadata()
+ {
+-  ScrollMetadata::sNullMetadata = new ScrollMetadata();
+-  ClearOnShutdown(&ScrollMetadata::sNullMetadata);
+ }
+ 
+ void
+@@ -816,38 +413,13 @@
+     // Free the various non-null transforms and loaded profiles
+     ShutdownCMS();
+ 
+-    /* Unregister our CMS Override callback. */
+-    NS_ASSERTION(gPlatform->mSRGBOverrideObserver, "mSRGBOverrideObserver has alreay gone");
+-    Preferences::RemoveObserver(gPlatform->mSRGBOverrideObserver, GFX_PREF_CMS_FORCE_SRGB);
+-    gPlatform->mSRGBOverrideObserver = nullptr;
+-
+-    NS_ASSERTION(gPlatform->mFontPrefsObserver, "mFontPrefsObserver has alreay gone");
+-    Preferences::RemoveObservers(gPlatform->mFontPrefsObserver, kObservedPrefs);
+-    gPlatform->mFontPrefsObserver = nullptr;
+-
+-    NS_ASSERTION(gPlatform->mMemoryPressureObserver, "mMemoryPressureObserver has already gone");
+-    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+-    if (obs) {
+-        obs->RemoveObserver(gPlatform->mMemoryPressureObserver, "memory-pressure");
+-    }
+-
+-    gPlatform->mMemoryPressureObserver = nullptr;
+     gPlatform->mSkiaGlue = nullptr;
+ 
+-    if (XRE_IsParentProcess()) {
+-      gPlatform->mVsyncSource->Shutdown();
+-    }
+-
+-    gPlatform->mVsyncSource = nullptr;
+-
+ #ifdef MOZ_WIDGET_ANDROID
+     // Shut down the texture pool
+     TexturePoolOGL::Shutdown();
+ #endif
+ 
+-    // Shut down the default GL context provider.
+-    GLContextProvider::Shutdown();
+-
+ #if defined(XP_WIN)
+     // The above shutdown calls operate on the available context providers on
+     // most platforms.  Windows is a "special snowflake", though, and has three
+@@ -858,9 +430,6 @@
+     GLContextProviderEGL::Shutdown();
+ #endif
+ 
+-    if (XRE_IsParentProcess()) {
+-      GPUProcessManager::Shutdown();
+-    }
+ 
+     // This is a bit iffy - we're assuming that we were the ones that set the
+     // log forwarder in the Factory, so that it's our responsibility to
+@@ -889,14 +458,6 @@
+       return;
+     }
+     sLayersIPCIsUp = true;
+-
+-    if (XRE_IsParentProcess())
+-    {
+-        layers::CompositorThreadHolder::Start();
+-#ifdef MOZ_WIDGET_GONK
+-        SharedBufferManagerChild::StartUp();
+-#endif
+-    }
+ }
+ 
+ /* static */ void
+@@ -906,29 +467,6 @@
+       return;
+     }
+     sLayersIPCIsUp = false;
+-
+-    if (XRE_IsContentProcess()) {
+-        gfx::VRManagerChild::ShutDown();
+-        // cf bug 1215265.
+-        if (gfxPrefs::ChildProcessShutdown()) {
+-          layers::CompositorBridgeChild::ShutDown();
+-          layers::ImageBridgeChild::ShutDown();
+-        }
+-    } else if (XRE_IsParentProcess()) {
+-        gfx::VRManagerChild::ShutDown();
+-        layers::CompositorBridgeChild::ShutDown();
+-        layers::ImageBridgeChild::ShutDown();
+-
+-#ifdef MOZ_WIDGET_GONK
+-        layers::SharedBufferManagerChild::ShutDown();
+-#endif
+-
+-        // This has to happen after shutting down the child protocols.
+-        layers::CompositorThreadHolder::Shutdown();
+-    } else {
+-      // TODO: There are other kind of processes and we should make sure gfx
+-      // stuff is either not created there or shut down properly.
+-    }
+ }
+ 
+ gfxPlatform::~gfxPlatform()
+@@ -1204,20 +742,6 @@
+ void
+ gfxPlatform::PopulateScreenInfo()
+ {
+-  nsCOMPtr<nsIScreenManager> manager = do_GetService("@mozilla.org/gfx/screenmanager;1");
+-  MOZ_ASSERT(manager, "failed to get nsIScreenManager");
+-
+-  nsCOMPtr<nsIScreen> screen;
+-  manager->GetPrimaryScreen(getter_AddRefs(screen));
+-  if (!screen) {
+-    // This can happen in xpcshell, for instance
+-    return;
+-  }
+-
+-  screen->GetColorDepth(&mScreenDepth);
+-
+-  int left, top;
+-  screen->GetRect(&left, &top, &mScreenSize.width, &mScreenSize.height);
+ }
+ 
+ bool
+@@ -1243,17 +767,7 @@
+ bool gfxPlatform::UseAcceleratedCanvas()
+ {
+   // Allow acceleration on Skia if the preference is set, unless it's blocked
+-  if (mPreferredCanvasBackend == BackendType::SKIA && gfxPrefs::CanvasAzureAccelerated()) {
+-    nsCOMPtr<nsIGfxInfo> gfxInfo = do_GetService("@mozilla.org/gfx/info;1");
+-    int32_t status;
+-    nsCString discardFailureId;
+-    return !gfxInfo ||
+-      (NS_SUCCEEDED(gfxInfo->GetFeatureStatus(nsIGfxInfo::FEATURE_CANVAS2D_ACCELERATION,
+-                                              discardFailureId,
+-                                              &status)) &&
+-       status == nsIGfxInfo::FEATURE_STATUS_OK);
+-  }
+-  return false;
++  return mPreferredCanvasBackend == BackendType::SKIA;
+ }
+ 
+ void
+@@ -2000,30 +1514,6 @@
+ mozilla::LogModule*
+ gfxPlatform::GetLog(eGfxLog aWhichLog)
+ {
+-    // logs shared across gfx
+-    static LazyLogModule sFontlistLog("fontlist");
+-    static LazyLogModule sFontInitLog("fontinit");
+-    static LazyLogModule sTextrunLog("textrun");
+-    static LazyLogModule sTextrunuiLog("textrunui");
+-    static LazyLogModule sCmapDataLog("cmapdata");
+-    static LazyLogModule sTextPerfLog("textperf");
+-
+-    switch (aWhichLog) {
+-    case eGfxLog_fontlist:
+-        return sFontlistLog;
+-    case eGfxLog_fontinit:
+-        return sFontInitLog;
+-    case eGfxLog_textrun:
+-        return sTextrunLog;
+-    case eGfxLog_textrunui:
+-        return sTextrunuiLog;
+-    case eGfxLog_cmapdata:
+-        return sCmapDataLog;
+-    case eGfxLog_textperf:
+-        return sTextPerfLog;
+-    }
+-
+-    MOZ_ASSERT_UNREACHABLE("Unexpected log type");
+     return nullptr;
+ }
+ 
+@@ -2085,98 +1575,11 @@
+ void
+ gfxPlatform::InitAcceleration()
+ {
+-  if (sLayersAccelerationPrefsInitialized) {
+-    return;
+-  }
+-
+-  InitCompositorAccelerationPrefs();
+-
+-  // If this is called for the first time on a non-main thread, we're screwed.
+-  // At the moment there's no explicit guarantee that the main thread calls
+-  // this before the compositor thread, but let's at least make the assumption
+-  // explicit.
+-  MOZ_ASSERT(NS_IsMainThread(), "can only initialize prefs on the main thread");
+-
+-  gfxPrefs::GetSingleton();
+-
+-  if (XRE_IsParentProcess()) {
+-    gfxVars::SetBrowserTabsRemoteAutostart(BrowserTabsRemoteAutostart());
+-  }
+-
+-  nsCOMPtr<nsIGfxInfo> gfxInfo = services::GetGfxInfo();
+-  nsCString discardFailureId;
+-  int32_t status;
+-
+-  if (Preferences::GetBool("media.hardware-video-decoding.enabled", false) &&
+-#ifdef XP_WIN
+-    Preferences::GetBool("media.windows-media-foundation.use-dxva", true) &&
+-#endif
+-      NS_SUCCEEDED(gfxInfo->GetFeatureStatus(nsIGfxInfo::FEATURE_HARDWARE_VIDEO_DECODING,
+-                                               discardFailureId, &status))) {
+-      if (status == nsIGfxInfo::FEATURE_STATUS_OK || gfxPrefs::HardwareVideoDecodingForceEnabled()) {
+-         sLayersSupportsHardwareVideoDecoding = true;
+-    }
+-  }
+-
+-  Preferences::AddBoolVarCache(&sLayersHardwareVideoDecodingFailed,
+-                               "media.hardware-video-decoding.failed",
+-                               false);
+-
+-  if (XRE_IsParentProcess()) {
+-    if (gfxPrefs::GPUProcessDevEnabled()) {
+-      // We want to hide this from about:support, so only set a default if the
+-      // pref is known to be true.
+-      gfxConfig::SetDefaultFromPref(
+-        Feature::GPU_PROCESS,
+-        gfxPrefs::GetGPUProcessDevEnabledPrefName(),
+-        true,
+-        gfxPrefs::GetGPUProcessDevEnabledPrefDefault());
+-    }
+-
+-    if (gfxConfig::IsEnabled(Feature::GPU_PROCESS)) {
+-      GPUProcessManager* gpu = GPUProcessManager::Get();
+-      gpu->EnableGPUProcess();
+-    }
+-  }
+-
+-  sLayersAccelerationPrefsInitialized = true;
+ }
+ 
+ void
+ gfxPlatform::InitCompositorAccelerationPrefs()
+ {
+-  const char *acceleratedEnv = PR_GetEnv("MOZ_ACCELERATED");
+-
+-  FeatureState& feature = gfxConfig::GetFeature(Feature::HW_COMPOSITING);
+-
+-  // Base value - does the platform allow acceleration?
+-  if (feature.SetDefault(AccelerateLayersByDefault(),
+-                         FeatureStatus::Blocked,
+-                         "Acceleration blocked by platform"))
+-  {
+-    if (gfxPrefs::LayersAccelerationDisabledDoNotUseDirectly()) {
+-      feature.UserDisable("Disabled by pref",
+-                          NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_PREF"));
+-    } else if (acceleratedEnv && *acceleratedEnv == '0') {
+-      feature.UserDisable("Disabled by envvar",
+-                          NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_ENV"));
+-    }
+-  } else {
+-    if (acceleratedEnv && *acceleratedEnv == '1') {
+-      feature.UserEnable("Enabled by envvar");
+-    }
+-  }
+-
+-  // This has specific meaning elsewhere, so we always record it.
+-  if (gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly()) {
+-    feature.UserForceEnable("Force-enabled by pref");
+-  }
+-
+-  // Safe mode trumps everything.
+-  if (InSafeMode()) {
+-    feature.ForceDisable(FeatureStatus::Blocked, "Acceleration blocked by safe-mode",
+-                         NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_SAFEMODE"));
+-  }
+ }
+ 
+ bool
+@@ -2306,33 +1709,11 @@
+ void
+ gfxPlatform::GetApzSupportInfo(mozilla::widget::InfoObject& aObj)
+ {
+-  if (!gfxPlatform::AsyncPanZoomEnabled()) {
+-    return;
+-  }
+-
+-  if (SupportsApzWheelInput()) {
+-    aObj.DefineProperty("ApzWheelInput", 1);
+-  }
+-
+-  if (SupportsApzTouchInput()) {
+-    aObj.DefineProperty("ApzTouchInput", 1);
+-  }
+-
+-  if (SupportsApzDragInput()) {
+-    aObj.DefineProperty("ApzDragInput", 1);
+-  }
+ }
+ 
+ void
+ gfxPlatform::GetTilesSupportInfo(mozilla::widget::InfoObject& aObj)
+ {
+-  if (!gfxPrefs::LayersTilesEnabled()) {
+-    return;
+-  }
+-
+-  IntSize tileSize = gfxVars::TileSize();
+-  aObj.DefineProperty("TileHeight", tileSize.height);
+-  aObj.DefineProperty("TileWidth", tileSize.width);
+ }
+ 
+ /*static*/ bool
+@@ -2369,80 +1750,26 @@
+ void
+ gfxPlatform::GetAcceleratedCompositorBackends(nsTArray<LayersBackend>& aBackends)
+ {
+-  if (gfxConfig::IsEnabled(Feature::OPENGL_COMPOSITING)) {
+-    aBackends.AppendElement(LayersBackend::LAYERS_OPENGL);
+-  }
+-  else {
+-    static int tell_me_once = 0;
+-    if (!tell_me_once) {
+-      NS_WARNING("OpenGL-accelerated layers are not supported on this system");
+-      tell_me_once = 1;
+-    }
+-#ifdef MOZ_WIDGET_ANDROID
+-    NS_RUNTIMEABORT("OpenGL-accelerated layers are a hard requirement on this platform. "
+-                    "Cannot continue without support for them");
+-#endif
+-  }
+ }
+ 
+ void
+ gfxPlatform::GetCompositorBackends(bool useAcceleration, nsTArray<mozilla::layers::LayersBackend>& aBackends)
+ {
+-  if (useAcceleration) {
+-    GetAcceleratedCompositorBackends(aBackends);
+-  }
+-  aBackends.AppendElement(LayersBackend::LAYERS_BASIC);
+ }
+ 
+ void
+ gfxPlatform::NotifyCompositorCreated(LayersBackend aBackend)
+ {
+-  if (mCompositorBackend == aBackend) {
+-    return;
+-  }
+-
+-  if (mCompositorBackend != LayersBackend::LAYERS_NONE) {
+-    gfxCriticalNote << "Compositors might be mixed ("
+-      << int(mCompositorBackend) << "," << int(aBackend) << ")";
+-  }
+-
+-  // Set the backend before we notify so it's available immediately.
+-  mCompositorBackend = aBackend;
+-
+-  // Notify that we created a compositor, so telemetry can update.
+-  NS_DispatchToMainThread(NS_NewRunnableFunction([] {
+-    if (nsCOMPtr<nsIObserverService> obsvc = services::GetObserverService()) {
+-      obsvc->NotifyObservers(nullptr, "compositor:created", nullptr);
+-    }
+-  }));
+ }
+ 
+ void
+ gfxPlatform::GetDeviceInitData(mozilla::gfx::DeviceInitData* aOut)
+ {
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  aOut->useHwCompositing() = gfxConfig::IsEnabled(Feature::HW_COMPOSITING);
+ }
+ 
+ bool
+ gfxPlatform::UpdateDeviceInitData()
+ {
+-  if (XRE_IsParentProcess()) {
+-    // The parent process figures out device initialization on its own.
+-    return false;
+-  }
+-
+-  mozilla::gfx::DeviceInitData data;
+-  mozilla::dom::ContentChild::GetSingleton()->SendGetGraphicsDeviceInitData(&data);
+-
+-  sDeviceInitDataDoNotUseDirectly = data;
+-
+-  // Ensure that child processes have inherited the HW_COMPOSITING pref.
+-  gfxConfig::InitOrUpdate(
+-    Feature::HW_COMPOSITING,
+-    GetParentDevicePrefs().useHwCompositing(),
+-    FeatureStatus::Blocked,
+-    "Hardware-accelerated compositing disabled in parent process");
+   return true;
+ }
+ 
+@@ -2461,61 +1788,11 @@
+ void
+ gfxPlatform::InitOpenGLConfig()
+ {
+-  #ifdef XP_WIN
+-  // Don't enable by default on Windows, since it could show up in about:support even
+-  // though it'll never get used. Only attempt if user enables the pref
+-  if (!Preferences::GetBool("layers.prefer-opengl")){
+-    return;
+-  }
+-  #endif
+-
+-  FeatureState& openGLFeature = gfxConfig::GetFeature(Feature::OPENGL_COMPOSITING);
+-
+-  // Check to see hw comp supported
+-  if (!gfxConfig::IsEnabled(Feature::HW_COMPOSITING)) {
+-    openGLFeature.DisableByDefault(FeatureStatus::Unavailable, "Hardware compositing is disabled",
+-                           NS_LITERAL_CSTRING("FEATURE_FAILURE_OPENGL_NEED_HWCOMP"));
+-    return;
+-  }
+-
+-  #ifdef XP_WIN
+-  openGLFeature.SetDefaultFromPref(
+-    gfxPrefs::GetLayersPreferOpenGLPrefName(),
+-    true,
+-    gfxPrefs::GetLayersPreferOpenGLPrefDefault());
+-  #else
+-    openGLFeature.EnableByDefault();
+-  #endif
+-
+-  nsCString message;
+-  nsCString failureId;
+-  if (!IsGfxInfoStatusOkay(nsIGfxInfo::FEATURE_OPENGL_LAYERS, &message, failureId)) {
+-    openGLFeature.Disable(FeatureStatus::Blacklisted, message.get(), failureId);
+-  }
+-
+-  // Ensure that an accelerated compositor backend is available when layers
+-  // acceleration is force-enabled.
+-  if (gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly()) {
+-    openGLFeature.UserForceEnable("Force-enabled by pref");
+-  }
+ }
+ 
+ bool
+ gfxPlatform::IsGfxInfoStatusOkay(int32_t aFeature, nsCString* aOutMessage, nsCString& aFailureId)
+ {
+-  nsCOMPtr<nsIGfxInfo> gfxInfo = services::GetGfxInfo();
+-  if (!gfxInfo) {
+-    return true;
+-  }
+-
+-  int32_t status;
+-  if (NS_SUCCEEDED(gfxInfo->GetFeatureStatus(aFeature, aFailureId, &status)) &&
+-      status != nsIGfxInfo::FEATURE_STATUS_OK)
+-  {
+-    aOutMessage->AssignLiteral("#BLOCKLIST_");
+-    aOutMessage->AppendASCII(aFailureId.get());
+-    return false;
+-  }
+ 
+   return true;
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
+--- gfx/thebes/gfxPlatform.h	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-08-06 19:06:37.000000000 +0200
+@@ -274,10 +274,6 @@
+     static bool AsyncPanZoomEnabled();
+ 
+     virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
+-      aObj.DefineProperty("AzureCanvasBackend", GetBackendName(mPreferredCanvasBackend));
+-      aObj.DefineProperty("AzureCanvasAccelerated", UseAcceleratedCanvas());
+-      aObj.DefineProperty("AzureFallbackCanvasBackend", GetBackendName(mFallbackCanvasBackend));
+-      aObj.DefineProperty("AzureContentBackend", GetBackendName(mContentBackend));
+     }
+     void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
+     void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
+@@ -804,10 +800,6 @@
+     // Bitmask of backend types we can use to render content
+     uint32_t mContentBackendBitmask;
+ 
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mAzureCanvasBackendCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mApzSupportCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mTilesInfoCollector;
+-
+     RefPtr<mozilla::gfx::DrawEventRecorder> mRecorder;
+     RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
+ 
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
+--- gfx/thebes/gfxPlatformFontList.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-05 16:16:14.000000000 +0200
+@@ -24,6 +24,7 @@
+ #include "mozilla/Telemetry.h"
+ #include "mozilla/TimeStamp.h"
+ #include "mozilla/gfx/2D.h"
++#include "nsLanguageAtomService.h"
+ 
+ #include <locale.h>
+ 
+@@ -110,71 +111,8 @@
+ static_assert(MOZ_ARRAY_LENGTH(gPrefLangNames) == uint32_t(eFontPrefLang_Count),
+               "size of pref lang name array doesn't match pref lang enum size");
+ 
+-class gfxFontListPrefObserver final : public nsIObserver {
+-    ~gfxFontListPrefObserver() {}
+-public:
+-    NS_DECL_ISUPPORTS
+-    NS_DECL_NSIOBSERVER
+-};
+-
+-static gfxFontListPrefObserver* gFontListPrefObserver = nullptr;
+-
+-NS_IMPL_ISUPPORTS(gfxFontListPrefObserver, nsIObserver)
+-
+-NS_IMETHODIMP
+-gfxFontListPrefObserver::Observe(nsISupports     *aSubject,
+-                                 const char      *aTopic,
+-                                 const char16_t *aData)
+-{
+-    NS_ASSERTION(!strcmp(aTopic, NS_PREFBRANCH_PREFCHANGE_TOPIC_ID), "invalid topic");
+-    // XXX this could be made to only clear out the cache for the prefs that were changed
+-    // but it probably isn't that big a deal.
+-    gfxPlatformFontList::PlatformFontList()->ClearLangGroupPrefFonts();
+-    gfxFontCache::GetCache()->AgeAllGenerations();
+-    return NS_OK;
+-}
+-
+ MOZ_DEFINE_MALLOC_SIZE_OF(FontListMallocSizeOf)
+ 
+-NS_IMPL_ISUPPORTS(gfxPlatformFontList::MemoryReporter, nsIMemoryReporter)
+-
+-NS_IMETHODIMP
+-gfxPlatformFontList::MemoryReporter::CollectReports(
+-    nsIMemoryReporterCallback* aCb, nsISupports* aClosure, bool aAnonymize)
+-{
+-    FontListSizes sizes;
+-    sizes.mFontListSize = 0;
+-    sizes.mFontTableCacheSize = 0;
+-    sizes.mCharMapsSize = 0;
+-
+-    gfxPlatformFontList::PlatformFontList()->AddSizeOfIncludingThis(&FontListMallocSizeOf,
+-                                                                    &sizes);
+-
+-    nsresult rv;
+-    rv = aCb->Callback(EmptyCString(),
+-                       NS_LITERAL_CSTRING("explicit/gfx/font-list"),
+-                       KIND_HEAP, UNITS_BYTES, sizes.mFontListSize,
+-                       NS_LITERAL_CSTRING("Memory used to manage the list of font families and faces."),
+-                       aClosure);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    rv = aCb->Callback(EmptyCString(),
+-                       NS_LITERAL_CSTRING("explicit/gfx/font-charmaps"),
+-                       KIND_HEAP, UNITS_BYTES, sizes.mCharMapsSize,
+-                       NS_LITERAL_CSTRING("Memory used to record the character coverage of individual fonts."),
+-                       aClosure);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    if (sizes.mFontTableCacheSize) {
+-        aCb->Callback(EmptyCString(),
+-                      NS_LITERAL_CSTRING("explicit/gfx/font-tables"),
+-                      KIND_HEAP, UNITS_BYTES, sizes.mFontTableCacheSize,
+-                      NS_LITERAL_CSTRING("Memory used for cached font metrics and layout tables."),
+-                      aClosure);
+-    }
+-
+-    return NS_OK;
+-}
+ 
+ gfxPlatformFontList::gfxPlatformFontList(bool aNeedFullnamePostscriptNames)
+     : mFontFamilies(64), mOtherFamilyNames(16),
+@@ -189,24 +127,12 @@
+     mFaceNameListsInitialized = false;
+ 
+     LoadBadUnderlineList();
+-
+-    // pref changes notification setup
+-    NS_ASSERTION(!gFontListPrefObserver,
+-                 "There has been font list pref observer already");
+-    gFontListPrefObserver = new gfxFontListPrefObserver();
+-    NS_ADDREF(gFontListPrefObserver);
+-    Preferences::AddStrongObservers(gFontListPrefObserver, kObservedPrefs);
+-
+-    RegisterStrongMemoryReporter(new MemoryReporter());
+ }
+ 
+ gfxPlatformFontList::~gfxPlatformFontList()
+ {
+     mSharedCmaps.Clear();
+     ClearLangGroupPrefFonts();
+-    NS_ASSERTION(gFontListPrefObserver, "There is no font list pref observer");
+-    Preferences::RemoveObservers(gFontListPrefObserver, kObservedPrefs);
+-    NS_RELEASE(gFontListPrefObserver);
+ }
+ 
+ // number of CSS generic font families
+@@ -1166,7 +1092,7 @@
+ gfxPlatformFontList::GetLangService()
+ {
+     if (!mLangService) {
+-        mLangService = do_GetService(NS_LANGUAGEATOMSERVICE_CONTRACTID);
++        mLangService = new nsLanguageAtomService();
+     }
+     NS_ASSERTION(mLangService, "no language service!");
+     return mLangService;
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
+--- gfx/thebes/gfxPlatformGtk.cpp	2016-08-05 16:16:14.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-07 18:27:17.000000000 +0200
+@@ -648,238 +648,11 @@
+ 
+ #ifdef GL_PROVIDER_GLX
+ 
+-class GLXVsyncSource final : public VsyncSource
+-{
+-public:
+-  GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-    mGlobalDisplay = new GLXDisplay();
+-  }
+-
+-  virtual ~GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-  }
+-
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return *mGlobalDisplay;
+-  }
+-
+-  class GLXDisplay final : public VsyncSource::Display
+-  {
+-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(GLXDisplay)
+-
+-  public:
+-    GLXDisplay() : mGLContext(nullptr)
+-                 , mSetupLock("GLXVsyncSetupLock")
+-                 , mVsyncThread("GLXVsyncThread")
+-                 , mVsyncTask(nullptr)
+-                 , mVsyncEnabledLock("GLXVsyncEnabledLock")
+-                 , mVsyncEnabled(false)
+-    {
+-    }
+-
+-    // Sets up the display's GL context on a worker thread.
+-    // Required as GLContexts may only be used by the creating thread.
+-    // Returns true if setup was a success.
+-    bool Setup()
+-    {
+-      MonitorAutoLock lock(mSetupLock);
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (!mVsyncThread.Start())
+-        return false;
+-
+-      RefPtr<Runnable> vsyncSetup = NewRunnableMethod(this, &GLXDisplay::SetupGLContext);
+-      mVsyncThread.message_loop()->PostTask(vsyncSetup.forget());
+-      // Wait until the setup has completed.
+-      lock.Wait();
+-      return mGLContext != nullptr;
+-    }
+-
+-    // Called on the Vsync thread to setup the GL context.
+-    void SetupGLContext()
+-    {
+-        MonitorAutoLock lock(mSetupLock);
+-        MOZ_ASSERT(!NS_IsMainThread());
+-        MOZ_ASSERT(!mGLContext, "GLContext already setup!");
+-
+-        _XDisplay* display = gfxPlatformGtk::GetPlatform()->GetCompositorDisplay();
+-        // Most compositors wait for vsync events on the root window.
+-        Window root = DefaultRootWindow(display);
+-        int screen = DefaultScreen(display);
+-
+-        ScopedXFree<GLXFBConfig> cfgs;
+-        GLXFBConfig config;
+-        int visid;
+-        if (!gl::GLContextGLX::FindFBConfigForWindow(display, screen, root,
+-                                                     &cfgs, &config, &visid)) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext = gl::GLContextGLX::CreateGLContext(
+-            gl::CreateContextFlags::NONE,
+-            gl::SurfaceCaps::Any(),
+-            nullptr,
+-            false,
+-            display,
+-            root,
+-            config,
+-            false);
+-
+-        if (!mGLContext) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext->MakeCurrent();
+-
+-        // Test that SGI_video_sync lets us get the counter.
+-        unsigned int syncCounter = 0;
+-        if (gl::sGLXLibrary.xGetVideoSync(&syncCounter) != 0) {
+-          mGLContext = nullptr;
+-        }
+-
+-        lock.NotifyAll();
+-    }
+-
+-    virtual void EnableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      MOZ_ASSERT(mGLContext, "GLContext not setup!");
+-
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      if (mVsyncEnabled) {
+-        return;
+-      }
+-      mVsyncEnabled = true;
+-
+-      // If the task has not nulled itself out, it hasn't yet realized
+-      // that vsync was disabled earlier, so continue its execution.
+-      if (!mVsyncTask) {
+-        mVsyncTask = NewRunnableMethod(this, &GLXDisplay::RunVsync);
+-        RefPtr<Runnable> addrefedTask = mVsyncTask;
+-        mVsyncThread.message_loop()->PostTask(addrefedTask.forget());
+-      }
+-    }
+-
+-    virtual void DisableVsync() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      mVsyncEnabled = false;
+-    }
+-
+-    virtual bool IsVsyncEnabled() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      return mVsyncEnabled;
+-    }
+-
+-    virtual void Shutdown() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      DisableVsync();
+-
+-      // Cleanup thread-specific resources before shutting down.
+-      RefPtr<Runnable> shutdownTask = NewRunnableMethod(this, &GLXDisplay::Cleanup);
+-      mVsyncThread.message_loop()->PostTask(shutdownTask.forget());
+-
+-      // Stop, waiting for the cleanup task to finish execution.
+-      mVsyncThread.Stop();
+-    }
+-
+-  private:
+-    virtual ~GLXDisplay()
+-    {
+-    }
+-
+-    void RunVsync()
+-    {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext->MakeCurrent();
+-
+-      unsigned int syncCounter = 0;
+-      gl::sGLXLibrary.xGetVideoSync(&syncCounter);
+-      for (;;) {
+-        {
+-          MonitorAutoLock lock(mVsyncEnabledLock);
+-          if (!mVsyncEnabled) {
+-            mVsyncTask = nullptr;
+-            return;
+-          }
+-        }
+-
+-        TimeStamp lastVsync = TimeStamp::Now();
+-        bool useSoftware = false;
+-
+-        // Wait until the video sync counter reaches the next value by waiting
+-        // until the parity of the counter value changes.
+-        unsigned int nextSync = syncCounter + 1;
+-        int status;
+-        if ((status = gl::sGLXLibrary.xWaitVideoSync(2, nextSync % 2, &syncCounter)) != 0) {
+-          gfxWarningOnce() << "glXWaitVideoSync returned " << status;
+-          useSoftware = true;
+-        }
+-
+-        if (syncCounter == (nextSync - 1)) {
+-          gfxWarningOnce() << "glXWaitVideoSync failed to increment the sync counter.";
+-          useSoftware = true;
+-        }
+-
+-        if (useSoftware) {
+-          double remaining = (1000.f / 60.f) -
+-            (TimeStamp::Now() - lastVsync).ToMilliseconds();
+-          if (remaining > 0) {
+-            PlatformThread::Sleep(remaining);
+-          }
+-        }
+-
+-        lastVsync = TimeStamp::Now();
+-        NotifyVsync(lastVsync);
+-      }
+-    }
+-
+-    void Cleanup() {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext = nullptr;
+-    }
+-
+-    // Owned by the vsync thread.
+-    RefPtr<gl::GLContextGLX> mGLContext;
+-    Monitor mSetupLock;
+-    base::Thread mVsyncThread;
+-    RefPtr<Runnable> mVsyncTask;
+-    Monitor mVsyncEnabledLock;
+-    bool mVsyncEnabled;
+-  };
+-private:
+-  // We need a refcounted VsyncSource::Display to use chromium IPC runnables.
+-  RefPtr<GLXDisplay> mGlobalDisplay;
+-};
+ 
+ already_AddRefed<gfx::VsyncSource>
+ gfxPlatformGtk::CreateHardwareVsyncSource()
+ {
+-  // Only use GLX vsync when the OpenGL compositor is being used.
+-  // The extra cost of initializing a GLX context while blocking the main
+-  // thread is not worth it when using basic composition.
+-  if (gfxConfig::IsEnabled(Feature::HW_COMPOSITING)) {
+-    if (gl::sGLXLibrary.SupportsVideoSync()) {
+-      RefPtr<VsyncSource> vsyncSource = new GLXVsyncSource();
+-      VsyncSource::Display& display = vsyncSource->GetGlobalDisplay();
+-      if (!static_cast<GLXVsyncSource::GLXDisplay&>(display).Setup()) {
+-        NS_WARNING("Failed to setup GLContext, falling back to software vsync.");
+-        return gfxPlatform::CreateHardwareVsyncSource();
+-      }
+-      return vsyncSource.forget();
+-    }
+-    NS_WARNING("SGI_video_sync unsupported. Falling back to software vsync.");
+-  }
+-  return gfxPlatform::CreateHardwareVsyncSource();
++	return nullptr;
+ }
+ 
+ bool
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
+--- gfx/thebes/gfxPlatformMac.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-05 16:16:14.000000000 +0200
+@@ -374,211 +374,10 @@
+   return true;
+ }
+ 
+-// This is the renderer output callback function, called on the vsync thread
+-static CVReturn VsyncCallback(CVDisplayLinkRef aDisplayLink,
+-                              const CVTimeStamp* aNow,
+-                              const CVTimeStamp* aOutputTime,
+-                              CVOptionFlags aFlagsIn,
+-                              CVOptionFlags* aFlagsOut,
+-                              void* aDisplayLinkContext);
+-
+-class OSXVsyncSource final : public VsyncSource
+-{
+-public:
+-  OSXVsyncSource()
+-  {
+-  }
+-
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return mGlobalDisplay;
+-  }
+-
+-  class OSXDisplay final : public VsyncSource::Display
+-  {
+-  public:
+-    OSXDisplay()
+-      : mDisplayLink(nullptr)
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      mTimer = do_CreateInstance(NS_TIMER_CONTRACTID);
+-    }
+-
+-    ~OSXDisplay()
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-    }
+-
+-    static void RetryEnableVsync(nsITimer* aTimer, void* aOsxDisplay)
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      OSXDisplay* osxDisplay = static_cast<OSXDisplay*>(aOsxDisplay);
+-      MOZ_ASSERT(osxDisplay);
+-      osxDisplay->EnableVsync();
+-    }
+-
+-    virtual void EnableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (IsVsyncEnabled()) {
+-        return;
+-      }
+-
+-      // Create a display link capable of being used with all active displays
+-      // TODO: See if we need to create an active DisplayLink for each monitor in multi-monitor
+-      // situations. According to the docs, it is compatible with all displays running on the computer
+-      // But if we have different monitors at different display rates, we may hit issues.
+-      if (CVDisplayLinkCreateWithActiveCGDisplays(&mDisplayLink) != kCVReturnSuccess) {
+-        NS_WARNING("Could not create a display link with all active displays. Retrying");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-
+-        // bug 1142708 - When coming back from sleep,
+-        // or when changing displays, active displays may not be ready yet,
+-        // even if listening for the kIOMessageSystemHasPoweredOn event
+-        // from OS X sleep notifications.
+-        // Active displays are those that are drawable.
+-        // bug 1144638 - When changing display configurations and getting
+-        // notifications from CGDisplayReconfigurationCallBack, the
+-        // callback gets called twice for each active display
+-        // so it's difficult to know when all displays are active.
+-        // Instead, try again soon. The delay is arbitrary. 100ms chosen
+-        // because on a late 2013 15" retina, it takes about that
+-        // long to come back up from sleep.
+-        uint32_t delay = 100;
+-        mTimer->InitWithFuncCallback(RetryEnableVsync, this, delay, nsITimer::TYPE_ONE_SHOT);
+-        return;
+-      }
+-
+-      if (CVDisplayLinkSetOutputCallback(mDisplayLink, &VsyncCallback, this) != kCVReturnSuccess) {
+-        NS_WARNING("Could not set displaylink output callback");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-        return;
+-      }
+-
+-      mPreviousTimestamp = TimeStamp::Now();
+-      if (CVDisplayLinkStart(mDisplayLink) != kCVReturnSuccess) {
+-        NS_WARNING("Could not activate the display link");
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-      }
+-
+-      CVTime vsyncRate = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(mDisplayLink);
+-      if (vsyncRate.flags & kCVTimeIsIndefinite) {
+-        NS_WARNING("Could not get vsync rate, setting to 60.");
+-        mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-      } else {
+-        int64_t timeValue = vsyncRate.timeValue;
+-        int64_t timeScale = vsyncRate.timeScale;
+-        const int milliseconds = 1000;
+-        float rateInMs = ((double) timeValue / (double) timeScale) * milliseconds;
+-        mVsyncRate = TimeDuration::FromMilliseconds(rateInMs);
+-      }
+-    }
+-
+-    virtual void DisableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (!IsVsyncEnabled()) {
+-        return;
+-      }
+-
+-      // Release the display link
+-      if (mDisplayLink) {
+-        CVDisplayLinkRelease(mDisplayLink);
+-        mDisplayLink = nullptr;
+-      }
+-    }
+-
+-    virtual bool IsVsyncEnabled() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      return mDisplayLink != nullptr;
+-    }
+-
+-    virtual TimeDuration GetVsyncRate() override
+-    {
+-      return mVsyncRate;
+-    }
+-
+-    virtual void Shutdown() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      mTimer->Cancel();
+-      mTimer = nullptr;
+-      DisableVsync();
+-    }
+-
+-    // The vsync timestamps given by the CVDisplayLinkCallback are
+-    // in the future for the NEXT frame. Large parts of Gecko, such
+-    // as animations assume a timestamp at either now or in the past.
+-    // Normalize the timestamps given to the VsyncDispatchers to the vsync
+-    // that just occured, not the vsync that is upcoming.
+-    TimeStamp mPreviousTimestamp;
+-
+-  private:
+-    // Manages the display link render thread
+-    CVDisplayLinkRef   mDisplayLink;
+-    RefPtr<nsITimer> mTimer;
+-    TimeDuration mVsyncRate;
+-  }; // OSXDisplay
+-
+-private:
+-  virtual ~OSXVsyncSource()
+-  {
+-  }
+-
+-  OSXDisplay mGlobalDisplay;
+-}; // OSXVsyncSource
+-
+-static CVReturn VsyncCallback(CVDisplayLinkRef aDisplayLink,
+-                              const CVTimeStamp* aNow,
+-                              const CVTimeStamp* aOutputTime,
+-                              CVOptionFlags aFlagsIn,
+-                              CVOptionFlags* aFlagsOut,
+-                              void* aDisplayLinkContext)
+-{
+-  // Executed on OS X hardware vsync thread
+-  OSXVsyncSource::OSXDisplay* display = (OSXVsyncSource::OSXDisplay*) aDisplayLinkContext;
+-  int64_t nextVsyncTimestamp = aOutputTime->hostTime;
+-
+-  mozilla::TimeStamp nextVsync = mozilla::TimeStamp::FromSystemTime(nextVsyncTimestamp);
+-  mozilla::TimeStamp previousVsync = display->mPreviousTimestamp;
+-  mozilla::TimeStamp now = TimeStamp::Now();
+-
+-  // Snow leopard sometimes sends vsync timestamps very far in the past.
+-  // Normalize the vsync timestamps to now.
+-  if (nextVsync <= previousVsync) {
+-    nextVsync = now;
+-    previousVsync = now;
+-  } else if (now < previousVsync) {
+-    // Bug 1158321 - The VsyncCallback can sometimes execute before the reported
+-    // vsync time. In those cases, normalize the timestamp to Now() as sending
+-    // timestamps in the future has undefined behavior. See the comment above
+-    // OSXDisplay::mPreviousTimestamp
+-    previousVsync = now;
+-  }
+-
+-  display->mPreviousTimestamp = nextVsync;
+-
+-  display->NotifyVsync(previousVsync);
+-  return kCVReturnSuccess;
+-}
+-
+ already_AddRefed<mozilla::gfx::VsyncSource>
+ gfxPlatformMac::CreateHardwareVsyncSource()
+ {
+-  RefPtr<VsyncSource> osxVsyncSource = new OSXVsyncSource();
+-  VsyncSource::Display& primaryDisplay = osxVsyncSource->GetGlobalDisplay();
+-  primaryDisplay.EnableVsync();
+-  if (!primaryDisplay.IsVsyncEnabled()) {
+-    NS_WARNING("OS X Vsync source not enabled. Falling back to software vsync.");
+-    return gfxPlatform::CreateHardwareVsyncSource();
+-  }
+-
+-  primaryDisplay.DisableVsync();
+-  return osxVsyncSource.forget();
++  return nullptr;
+ }
+ 
+ void
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
+--- gfx/thebes/gfxPrefs.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-05 16:16:15.000000000 +0200
+@@ -38,14 +38,7 @@
+ 
+ gfxPrefs::gfxPrefs()
+ {
+-  // UI, content, and plugin processes use XPCOM and should have prefs
+-  // ready by the time we initialize gfxPrefs.
+-  MOZ_ASSERT_IF(XRE_IsContentProcess() ||
+-                XRE_IsParentProcess() ||
+-                XRE_GetProcessType() == GeckoProcessType_Plugin,
+-                Preferences::IsServiceAvailable());
+-
+-  gfxPrefs::AssertMainThread();
++  
+ }
+ 
+ void
+@@ -117,13 +110,13 @@
+ /* static */ bool
+ gfxPrefs::IsPrefsServiceAvailable()
+ {
+-  return Preferences::IsServiceAvailable();
++  return false;
+ }
+ 
+ /* static */ bool
+ gfxPrefs::IsParentProcess()
+ {
+-  return XRE_IsParentProcess();
++  return false;
+ }
+ 
+ void gfxPrefs::PrefAddVarCache(bool* aVariable,
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
+--- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-05 17:47:24.000000000 +0200
+@@ -39,38 +39,28 @@
+ 
+ typedef mozilla::dom::Element Element;
+ 
++#include <string.h>
++#include <stdexcept>
++#include "nsString.h"
++#define STUB(X) throw std::runtime_error (ToNewUTF8String(NS_LITERAL_STRING("[") + NS_LITERAL_STRING(X) + NS_LITERAL_STRING("] Stub method! Must not be called during runtime.")));
++using namespace mozilla::gfx;
++
+ /* static */ const Color SimpleTextContextPaint::sZero = Color();
+ 
+ gfxSVGGlyphs::gfxSVGGlyphs(hb_blob_t *aSVGTable, gfxFontEntry *aFontEntry)
+-    : mSVGData(aSVGTable)
+-    , mFontEntry(aFontEntry)
+ {
+-    unsigned int length;
+-    const char* svgData = hb_blob_get_data(mSVGData, &length);
+-    mHeader = reinterpret_cast<const Header*>(svgData);
+-    mDocIndex = nullptr;
+-
+-    if (sizeof(Header) <= length && uint16_t(mHeader->mVersion) == 0 &&
+-        uint64_t(mHeader->mDocIndexOffset) + 2 <= length) {
+-        const DocIndex* docIndex = reinterpret_cast<const DocIndex*>
+-            (svgData + mHeader->mDocIndexOffset);
+-        // Limit the number of documents to avoid overflow
+-        if (uint64_t(mHeader->mDocIndexOffset) + 2 +
+-                uint16_t(docIndex->mNumEntries) * sizeof(IndexEntry) <= length) {
+-            mDocIndex = docIndex;
+-        }
+-    }
++    STUB("gfxSVGGlyphs::gfxSVGGlyphs");
+ }
+ 
+ gfxSVGGlyphs::~gfxSVGGlyphs()
+ {
+-    hb_blob_destroy(mSVGData);
++    STUB("gfxSVGGlyphs::~gfxSVGGlyphs");
+ }
+ 
+ void
+ gfxSVGGlyphs::DidRefresh()
+ {
+-    mFontEntry->NotifyGlyphsChanged();
++    STUB("gfxSVGGlyphs::DidRefresh");
+ }
+ 
+ /*
+@@ -87,102 +77,25 @@
+ /* static */ int
+ gfxSVGGlyphs::CompareIndexEntries(const void *aKey, const void *aEntry)
+ {
+-    const uint32_t key = *(uint32_t*)aKey;
+-    const IndexEntry *entry = (const IndexEntry*)aEntry;
+-
+-    if (key < uint16_t(entry->mStartGlyph)) {
+-        return -1;
+-    }
+-    if (key > uint16_t(entry->mEndGlyph)) {
+-        return 1;
+-    }
+-    return 0;
++    STUB("gfxSVGGlyphs::CompareIndexEntries");
+ }
+ 
+ gfxSVGGlyphsDocument *
+ gfxSVGGlyphs::FindOrCreateGlyphsDocument(uint32_t aGlyphId)
+ {
+-    if (!mDocIndex) {
+-        // Invalid table
+-        return nullptr;
+-    }
+-
+-    IndexEntry *entry = (IndexEntry*)bsearch(&aGlyphId, mDocIndex->mEntries,
+-                                             uint16_t(mDocIndex->mNumEntries),
+-                                             sizeof(IndexEntry),
+-                                             CompareIndexEntries);
+-    if (!entry) {
+-        return nullptr;
+-    }
+-
+-    gfxSVGGlyphsDocument *result = mGlyphDocs.Get(entry->mDocOffset);
+-
+-    if (!result) {
+-        unsigned int length;
+-        const uint8_t *data = (const uint8_t*)hb_blob_get_data(mSVGData, &length);
+-        if (entry->mDocOffset > 0 &&
+-            uint64_t(mHeader->mDocIndexOffset) + entry->mDocOffset + entry->mDocLength <= length) {
+-            result = new gfxSVGGlyphsDocument(data + mHeader->mDocIndexOffset + entry->mDocOffset,
+-                                              entry->mDocLength, this);
+-            mGlyphDocs.Put(entry->mDocOffset, result);
+-        }
+-    }
+-
+-    return result;
++    STUB("gfxSVGGlyphs::FindOrCreateGlyphsDocument");
+ }
+ 
+ nsresult
+ gfxSVGGlyphsDocument::SetupPresentation()
+ {
+-    nsCOMPtr<nsICategoryManager> catMan = do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
+-    nsXPIDLCString contractId;
+-    nsresult rv = catMan->GetCategoryEntry("Gecko-Content-Viewers", "image/svg+xml", getter_Copies(contractId));
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    nsCOMPtr<nsIDocumentLoaderFactory> docLoaderFactory = do_GetService(contractId);
+-    NS_ASSERTION(docLoaderFactory, "Couldn't get DocumentLoaderFactory");
+-
+-    nsCOMPtr<nsIContentViewer> viewer;
+-    rv = docLoaderFactory->CreateInstanceForDocument(nullptr, mDocument, nullptr, getter_AddRefs(viewer));
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    rv = viewer->Init(nullptr, gfx::IntRect(0, 0, 1000, 1000));
+-    if (NS_SUCCEEDED(rv)) {
+-        rv = viewer->Open(nullptr, nullptr);
+-        NS_ENSURE_SUCCESS(rv, rv);
+-    }
+-
+-    nsCOMPtr<nsIPresShell> presShell;
+-    rv = viewer->GetPresShell(getter_AddRefs(presShell));
+-    NS_ENSURE_SUCCESS(rv, rv);
+-    nsPresContext* presContext = presShell->GetPresContext();
+-    presContext->SetIsGlyph(true);
+-
+-    if (!presShell->DidInitialize()) {
+-        nsRect rect = presContext->GetVisibleArea();
+-        rv = presShell->Initialize(rect.width, rect.height);
+-        NS_ENSURE_SUCCESS(rv, rv);
+-    }
+-
+-    mDocument->FlushPendingNotifications(Flush_Layout);
+-
+-    nsSMILAnimationController* controller = mDocument->GetAnimationController();
+-    if (controller) {
+-      controller->Resume(nsSMILTimeContainer::PAUSE_IMAGE);
+-    }
+-    mDocument->SetImagesNeedAnimating(true);
+-
+-    mViewer = viewer;
+-    mPresShell = presShell;
+-    mPresShell->AddPostRefreshObserver(this);
+-
+-    return NS_OK;
++    STUB("gfxSVGGlyphsDocument::SetupPresentation");
+ }
+ 
+ void
+ gfxSVGGlyphsDocument::DidRefresh()
+ {
+-    mOwner->DidRefresh();
++    STUB("gfxSVGGlyphsDocument::DidRefresh");
+ }
+ 
+ /**
+@@ -193,15 +106,7 @@
+ void
+ gfxSVGGlyphsDocument::FindGlyphElements(Element *aElem)
+ {
+-    for (nsIContent *child = aElem->GetLastChild(); child;
+-            child = child->GetPreviousSibling()) {
+-        if (!child->IsElement()) {
+-            continue;
+-        }
+-        FindGlyphElements(child->AsElement());
+-    }
+-
+-    InsertGlyphId(aElem);
++    STUB("gfxSVGGlyphsDocument::FindGlyphElements");
+ }
+ 
+ /**
+@@ -215,46 +120,26 @@
+ gfxSVGGlyphs::RenderGlyph(gfxContext *aContext, uint32_t aGlyphId,
+                           SVGContextPaint* aContextPaint)
+ {
+-    gfxContextAutoSaveRestore aContextRestorer(aContext);
+-
+-    Element *glyph = mGlyphIdMap.Get(aGlyphId);
+-    NS_ASSERTION(glyph, "No glyph element. Should check with HasSVGGlyph() first!");
+-
+-    AutoSetRestoreSVGContextPaint autoSetRestore(aContextPaint, glyph->OwnerDoc());
+-
+-    return nsSVGUtils::PaintSVGGlyph(glyph, aContext);
++    STUB("gfxSVGGlyphs::RenderGlyph");
+ }
+ 
+ bool
+ gfxSVGGlyphs::GetGlyphExtents(uint32_t aGlyphId, const gfxMatrix& aSVGToAppSpace,
+                               gfxRect *aResult)
+ {
+-    Element *glyph = mGlyphIdMap.Get(aGlyphId);
+-    NS_ASSERTION(glyph, "No glyph element. Should check with HasSVGGlyph() first!");
+-
+-    return nsSVGUtils::GetSVGGlyphExtents(glyph, aSVGToAppSpace, aResult);
++    STUB("gfxSVGGlyphs::GetGlyphExtents");
+ }
+ 
+ Element *
+ gfxSVGGlyphs::GetGlyphElement(uint32_t aGlyphId)
+ {
+-    Element *elem;
+-
+-    if (!mGlyphIdMap.Get(aGlyphId, &elem)) {
+-        elem = nullptr;
+-        if (gfxSVGGlyphsDocument *set = FindOrCreateGlyphsDocument(aGlyphId)) {
+-            elem = set->GetGlyphElement(aGlyphId);
+-        }
+-        mGlyphIdMap.Put(aGlyphId, elem);
+-    }
+-
+-    return elem;
++    STUB("gfxSVGGlyphs::GetGlyphElement");
+ }
+ 
+ bool
+ gfxSVGGlyphs::HasSVGGlyph(uint32_t aGlyphId)
+ {
+-    return !!GetGlyphElement(aGlyphId);
++    STUB("HasSVGGlyph::HasSVGGlyph");
+ }
+ 
+ size_t
+@@ -276,7 +161,7 @@
+ Element *
+ gfxSVGGlyphsDocument::GetGlyphElement(uint32_t aGlyphId)
+ {
+-    return mGlyphIdMap.Get(aGlyphId);
++    STUB("gfxSVGGlyphsDocument::GetGlyphElement");
+ }
+ 
+ gfxSVGGlyphsDocument::gfxSVGGlyphsDocument(const uint8_t *aBuffer,
+@@ -284,172 +169,31 @@
+                                            gfxSVGGlyphs *aSVGGlyphs)
+     : mOwner(aSVGGlyphs)
+ {
+-    ParseDocument(aBuffer, aBufLen);
+-    if (!mDocument) {
+-        NS_WARNING("Could not parse SVG glyphs document");
+-        return;
+-    }
+-
+-    Element *root = mDocument->GetRootElement();
+-    if (!root) {
+-        NS_WARNING("Could not parse SVG glyphs document");
+-        return;
+-    }
+-
+-    nsresult rv = SetupPresentation();
+-    if (NS_FAILED(rv)) {
+-        NS_WARNING("Couldn't setup presentation for SVG glyphs document");
+-        return;
+-    }
+-
+-    FindGlyphElements(root);
++    STUB("gfxSVGGlyphsDocument::gfxSVGGlyphsDocument");
+ }
+ 
+ gfxSVGGlyphsDocument::~gfxSVGGlyphsDocument()
+ {
+-    if (mDocument) {
+-        mDocument->OnPageHide(false, nullptr);
+-    }
+-    if (mPresShell) {
+-        mPresShell->RemovePostRefreshObserver(this);
+-    }
+-    if (mViewer) {
+-        mViewer->Close(nullptr);
+-        mViewer->Destroy();
+-    }
++    STUB("gfxSVGGlyphsDocument::~gfxSVGGlyphsDocument");
+ }
+ 
+ static nsresult
+ CreateBufferedStream(const uint8_t *aBuffer, uint32_t aBufLen,
+                      nsCOMPtr<nsIInputStream> &aResult)
+ {
+-    nsCOMPtr<nsIInputStream> stream;
+-    nsresult rv = NS_NewByteInputStream(getter_AddRefs(stream),
+-                                        reinterpret_cast<const char *>(aBuffer),
+-                                        aBufLen, NS_ASSIGNMENT_DEPEND);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    nsCOMPtr<nsIInputStream> aBufferedStream;
+-    if (!NS_InputStreamIsBuffered(stream)) {
+-        rv = NS_NewBufferedInputStream(getter_AddRefs(aBufferedStream), stream, 4096);
+-        NS_ENSURE_SUCCESS(rv, rv);
+-        stream = aBufferedStream;
+-    }
+-
+-    aResult = stream;
+-
+-    return NS_OK;
++    STUB("gfxSVGGlyphsDocument::CreateBufferedStream");
+ }
+ 
+ nsresult
+ gfxSVGGlyphsDocument::ParseDocument(const uint8_t *aBuffer, uint32_t aBufLen)
+ {
+-    // Mostly pulled from nsDOMParser::ParseFromStream
+-
+-    nsCOMPtr<nsIInputStream> stream;
+-    nsresult rv = CreateBufferedStream(aBuffer, aBufLen, stream);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    nsCOMPtr<nsIURI> uri;
+-    nsHostObjectProtocolHandler::GenerateURIString(NS_LITERAL_CSTRING(FONTTABLEURI_SCHEME),
+-                                                   nullptr,
+-                                                   mSVGGlyphsDocumentURI);
+- 
+-    rv = NS_NewURI(getter_AddRefs(uri), mSVGGlyphsDocumentURI);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    nsCOMPtr<nsIPrincipal> principal = nsNullPrincipal::Create();
+-
+-    nsCOMPtr<nsIDOMDocument> domDoc;
+-    rv = NS_NewDOMDocument(getter_AddRefs(domDoc),
+-                           EmptyString(),   // aNamespaceURI
+-                           EmptyString(),   // aQualifiedName
+-                           nullptr,          // aDoctype
+-                           uri, uri, principal,
+-                           false,           // aLoadedAsData
+-                           nullptr,          // aEventObject
+-                           DocumentFlavorSVG);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    nsCOMPtr<nsIDocument> document(do_QueryInterface(domDoc));
+-    if (!document) {
+-        return NS_ERROR_FAILURE;
+-    }
+-
+-    nsCOMPtr<nsIChannel> channel;
+-    rv = NS_NewInputStreamChannel(getter_AddRefs(channel),
+-                                  uri,
+-                                  nullptr, //aStream
+-                                  principal,
+-                                  nsILoadInfo::SEC_FORCE_INHERIT_PRINCIPAL,
+-                                  nsIContentPolicy::TYPE_OTHER,
+-                                  SVG_CONTENT_TYPE,
+-                                  UTF8_CHARSET);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    // Set this early because various decisions during page-load depend on it.
+-    document->SetIsBeingUsedAsImage();
+-    document->SetReadyStateInternal(nsIDocument::READYSTATE_UNINITIALIZED);
+-
+-    nsCOMPtr<nsIStreamListener> listener;
+-    rv = document->StartDocumentLoad("external-resource", channel,
+-                                     nullptr,    // aLoadGroup
+-                                     nullptr,    // aContainer
+-                                     getter_AddRefs(listener),
+-                                     true /* aReset */);
+-    if (NS_FAILED(rv) || !listener) {
+-        return NS_ERROR_FAILURE;
+-    }
+-
+-    rv = listener->OnStartRequest(channel, nullptr /* aContext */);
+-    if (NS_FAILED(rv)) {
+-        channel->Cancel(rv);
+-    }
+-
+-    nsresult status;
+-    channel->GetStatus(&status);
+-    if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(status)) {
+-        rv = listener->OnDataAvailable(channel, nullptr /* aContext */, stream, 0, aBufLen);
+-        if (NS_FAILED(rv)) {
+-            channel->Cancel(rv);
+-        }
+-        channel->GetStatus(&status);
+-    }
+-
+-    rv = listener->OnStopRequest(channel, nullptr /* aContext */, status);
+-    NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
+-
+-    document.swap(mDocument);
+-
+-    return NS_OK;
++    STUB("gfxSVGGlyphsDocument::ParseDocument");
+ }
+ 
+ void
+ gfxSVGGlyphsDocument::InsertGlyphId(Element *aGlyphElement)
+ {
+-    nsAutoString glyphIdStr;
+-    static const uint32_t glyphPrefixLength = 5;
+-    // The maximum glyph ID is 65535 so the maximum length of the numeric part
+-    // is 5.
+-    if (!aGlyphElement->GetAttr(kNameSpaceID_None, nsGkAtoms::id, glyphIdStr) ||
+-        !StringBeginsWith(glyphIdStr, NS_LITERAL_STRING("glyph")) ||
+-        glyphIdStr.Length() > glyphPrefixLength + 5) {
+-        return;
+-    }
+-
+-    uint32_t id = 0;
+-    for (uint32_t i = glyphPrefixLength; i < glyphIdStr.Length(); ++i) {
+-      char16_t ch = glyphIdStr.CharAt(i);
+-      if (ch < '0' || ch > '9') {
+-        return;
+-      }
+-      if (ch == '0' && i == glyphPrefixLength) {
+-        return;
+-      }
+-      id = id * 10 + (ch - '0');
+-    }
+-
+-    mGlyphIdMap.Put(id, aGlyphElement);
++    STUB("gfxSVGGlyphsDocument::InsertGlyphId");
+ }
+ 
+ size_t
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes-patched/gfxTextRun.cpp
+--- gfx/thebes/gfxTextRun.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-05 16:16:15.000000000 +0200
+@@ -3244,7 +3244,6 @@
+         mMissingFonts[i] = 0;
+     }
+     if (!fontNeeded.IsEmpty()) {
+-        nsCOMPtr<nsIObserverService> service = GetObserverService();
+-        service->NotifyObservers(nullptr, "font-needed", fontNeeded.get());
++       
+     }
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
+--- gfx/thebes/gfxUserFontSet.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-05 16:16:15.000000000 +0200
+@@ -472,80 +472,6 @@
+                                                       &bypassCache);
+ 
+                 if (NS_SUCCEEDED(rv) && principal != nullptr) {
+-                    if (!bypassCache) {
+-                        // see if we have an existing entry for this source
+-                        gfxFontEntry* fe = gfxUserFontSet::
+-                            UserFontCache::GetFont(currSrc.mURI,
+-                                                   principal,
+-                                                   this,
+-                                                   mFontSet->GetPrivateBrowsing());
+-                        if (fe) {
+-                            mPlatformFontEntry = fe;
+-                            SetLoadState(STATUS_LOADED);
+-                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
+-                                LOG(("userfonts (%p) [src %d] "
+-                                     "loaded uri from cache: (%s) for (%s)\n",
+-                                     mFontSet, mSrcIndex, fontURI.get(),
+-                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
+-                            }
+-                            return;
+-                        }
+-                    }
+-
+-                    // record the principal returned by CheckFontLoad,
+-                    // for use when creating a channel
+-                    // and when caching the loaded entry
+-                    mPrincipal = principal;
+-
+-                    bool loadDoesntSpin = false;
+-                    rv = NS_URIChainHasFlags(currSrc.mURI,
+-                           nsIProtocolHandler::URI_SYNC_LOAD_IS_OK,
+-                           &loadDoesntSpin);
+-
+-                    if (NS_SUCCEEDED(rv) && loadDoesntSpin) {
+-                        uint8_t* buffer = nullptr;
+-                        uint32_t bufferLength = 0;
+-
+-                        // sync load font immediately
+-                        rv = mFontSet->SyncLoadFontData(this, &currSrc, buffer,
+-                                                        bufferLength);
+-
+-                        if (NS_SUCCEEDED(rv) &&
+-                            LoadPlatformFont(buffer, bufferLength)) {
+-                            SetLoadState(STATUS_LOADED);
+-                            Telemetry::Accumulate(Telemetry::WEBFONT_SRCTYPE,
+-                                                  currSrc.mSourceType + 1);
+-                            return;
+-                        } else {
+-                            mFontSet->LogMessage(this,
+-                                                 "font load failed",
+-                                                 nsIScriptError::errorFlag,
+-                                                 rv);
+-                        }
+-
+-                    } else {
+-                        // otherwise load font async
+-                        rv = mFontSet->StartLoad(this, &currSrc);
+-                        bool loadOK = NS_SUCCEEDED(rv);
+-
+-                        if (loadOK) {
+-                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
+-                                LOG(("userfonts (%p) [src %d] loading uri: (%s) for (%s)\n",
+-                                     mFontSet, mSrcIndex, fontURI.get(),
+-                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
+-                            }
+-                            return;
+-                        } else {
+-                            mFontSet->LogMessage(this,
+-                                                 "download failed",
+-                                                 nsIScriptError::errorFlag,
+-                                                 rv);
+-                        }
+-                    }
+                 } else {
+                     mFontSet->LogMessage(this, "download not allowed",
+                                          nsIScriptError::errorFlag, rv);
+@@ -1081,12 +1007,7 @@
+ static bool
+ IgnorePrincipal(nsIURI* aURI)
+ {
+-    nsresult rv;
+-    bool inherits = false;
+-    rv = NS_URIChainHasFlags(aURI,
+-                             nsIProtocolHandler::URI_INHERITS_SECURITY_CONTEXT,
+-                             &inherits);
+-    return NS_SUCCEEDED(rv) && inherits;
++   return true;
+ }
+ 
+ bool
+@@ -1136,68 +1057,6 @@
+ gfxUserFontSet::UserFontCache::CacheFont(gfxFontEntry* aFontEntry,
+                                          EntryPersistence aPersistence)
+ {
+-    NS_ASSERTION(aFontEntry->mFamilyName.Length() != 0,
+-                 "caching a font associated with no family yet");
+-
+-    // if caching is disabled, simply return
+-    if (Preferences::GetBool("gfx.downloadable_fonts.disable_cache")) {
+-        return;
+-    }
+-
+-    gfxUserFontData* data = aFontEntry->mUserFontData.get();
+-    if (data->mIsBuffer) {
+-#ifdef DEBUG_USERFONT_CACHE
+-        printf("userfontcache skipped fontentry with buffer source: %p\n",
+-               aFontEntry);
+-#endif
+-        return;
+-    }
+-
+-    if (!sUserFonts) {
+-        sUserFonts = new nsTHashtable<Entry>;
+-
+-        nsCOMPtr<nsIObserverService> obs =
+-            mozilla::services::GetObserverService();
+-        if (obs) {
+-            Flusher* flusher = new Flusher;
+-            obs->AddObserver(flusher, "cacheservice:empty-cache",
+-                             false);
+-            obs->AddObserver(flusher, "last-pb-context-exited", false);
+-            obs->AddObserver(flusher, "xpcom-shutdown", false);
+-        }
+-
+-        // Create and register a memory reporter for sUserFonts.
+-        // This reporter is never unregistered, but that's OK because
+-        // the reporter checks whether sUserFonts is null, so it would
+-        // be safe to call even after UserFontCache::Shutdown has deleted
+-        // the cache.
+-        RegisterStrongMemoryReporter(new MemoryReporter());
+-    }
+-
+-    if (data->mLength) {
+-        MOZ_ASSERT(aPersistence == kPersistent);
+-        MOZ_ASSERT(!data->mPrivate);
+-        sUserFonts->PutEntry(Key(data->mCRC32, data->mLength, aFontEntry,
+-                                 data->mPrivate, aPersistence));
+-    } else {
+-        MOZ_ASSERT(aPersistence == kDiscardable);
+-        // For data: URIs, the principal is ignored; anyone who has the same
+-        // data: URI is able to load it and get an equivalent font.
+-        // Otherwise, the principal is used as part of the cache key.
+-        nsIPrincipal* principal;
+-        if (IgnorePrincipal(data->mURI)) {
+-            principal = nullptr;
+-        } else {
+-            principal = data->mPrincipal;
+-        }
+-        sUserFonts->PutEntry(Key(data->mURI, principal, aFontEntry,
+-                                 data->mPrivate, aPersistence));
+-    }
+-
+-#ifdef DEBUG_USERFONT_CACHE
+-    printf("userfontcache added fontentry: %p\n", aFontEntry);
+-    Dump();
+-#endif
+ }
+ 
+ void
+@@ -1230,62 +1089,6 @@
+                                        gfxUserFontEntry* aUserFontEntry,
+                                        bool aPrivate)
+ {
+-    if (!sUserFonts ||
+-        Preferences::GetBool("gfx.downloadable_fonts.disable_cache")) {
+-        return nullptr;
+-    }
+-
+-    // We have to perform another content policy check here to prevent
+-    // cache poisoning. E.g. a.com loads a font into the cache but
+-    // b.com has a CSP not allowing any fonts to be loaded.
+-    if (!aUserFontEntry->mFontSet->IsFontLoadAllowed(aSrcURI, aPrincipal)) {
+-        return nullptr;
+-    }
+-
+-    // Ignore principal when looking up a data: URI.
+-    nsIPrincipal* principal;
+-    if (IgnorePrincipal(aSrcURI)) {
+-        principal = nullptr;
+-    } else {
+-        principal = aPrincipal;
+-    }
+-
+-    Entry* entry = sUserFonts->GetEntry(Key(aSrcURI, principal, aUserFontEntry,
+-                                            aPrivate));
+-    if (entry) {
+-        return entry->GetFontEntry();
+-    }
+-
+-    // The channel is never openend; to be conservative we use the most
+-    // restrictive security flag: SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS.
+-    nsCOMPtr<nsIChannel> chan;
+-    if (NS_FAILED(NS_NewChannel(getter_AddRefs(chan),
+-                                aSrcURI,
+-                                aPrincipal,
+-                                nsILoadInfo::SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+-                                nsIContentPolicy::TYPE_FONT))) {
+-        return nullptr;
+-    }
+-
+-    nsCOMPtr<nsIJARChannel> jarchan = do_QueryInterface(chan);
+-    if (!jarchan) {
+-        return nullptr;
+-    }
+-
+-    nsCOMPtr<nsIZipEntry> zipentry;
+-    if (NS_FAILED(jarchan->GetZipEntry(getter_AddRefs(zipentry)))) {
+-        return nullptr;
+-    }
+-
+-    uint32_t crc32, length;
+-    zipentry->GetCRC32(&crc32);
+-    zipentry->GetRealSize(&length);
+-
+-    entry = sUserFonts->GetEntry(Key(crc32, length, aUserFontEntry, aPrivate));
+-    if (entry) {
+-        return entry->GetFontEntry();
+-    }
+-
+     return nullptr;
+ }
+ 
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
+--- gfx/thebes/gfxUtils.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-08-05 16:16:15.000000000 +0200
+@@ -1334,106 +1334,6 @@
+     return imageBuffer;
+ }
+ 
+-/* static */ nsresult
+-gfxUtils::GetInputStream(gfx::DataSourceSurface* aSurface,
+-                         bool aIsAlphaPremultiplied,
+-                         const char* aMimeType,
+-                         const char16_t* aEncoderOptions,
+-                         nsIInputStream** outStream)
+-{
+-    nsCString enccid("@mozilla.org/image/encoder;2?type=");
+-    enccid += aMimeType;
+-    nsCOMPtr<imgIEncoder> encoder = do_CreateInstance(enccid.get());
+-    if (!encoder)
+-        return NS_ERROR_FAILURE;
+-
+-    int32_t format = 0;
+-    UniquePtr<uint8_t[]> imageBuffer = GetImageBuffer(aSurface, aIsAlphaPremultiplied, &format);
+-    if (!imageBuffer)
+-        return NS_ERROR_FAILURE;
+-
+-    return dom::ImageEncoder::GetInputStream(aSurface->GetSize().width,
+-                                             aSurface->GetSize().height,
+-                                             imageBuffer.get(), format,
+-                                             encoder, aEncoderOptions, outStream);
+-}
+-
+-class GetFeatureStatusRunnable final : public dom::workers::WorkerMainThreadRunnable
+-{
+-public:
+-    GetFeatureStatusRunnable(dom::workers::WorkerPrivate* workerPrivate,
+-                             const nsCOMPtr<nsIGfxInfo>& gfxInfo,
+-                             int32_t feature,
+-                             nsACString& failureId,
+-                             int32_t* status)
+-      : WorkerMainThreadRunnable(workerPrivate,
+-                                 NS_LITERAL_CSTRING("GFX :: GetFeatureStatus"))
+-      , mGfxInfo(gfxInfo)
+-      , mFeature(feature)
+-      , mStatus(status)
+-      , mFailureId(failureId)
+-      , mNSResult(NS_OK)
+-    {
+-    }
+-
+-    bool MainThreadRun() override
+-    {
+-      if (mGfxInfo) {
+-        mNSResult = mGfxInfo->GetFeatureStatus(mFeature, mFailureId, mStatus);
+-      }
+-      return true;
+-    }
+-
+-    nsresult GetNSResult() const
+-    {
+-      return mNSResult;
+-    }
+-
+-protected:
+-    ~GetFeatureStatusRunnable() {}
+-
+-private:
+-    nsCOMPtr<nsIGfxInfo> mGfxInfo;
+-    int32_t mFeature;
+-    int32_t* mStatus;
+-    nsACString& mFailureId;
+-    nsresult mNSResult;
+-};
+-
+-/* static */ nsresult
+-gfxUtils::ThreadSafeGetFeatureStatus(const nsCOMPtr<nsIGfxInfo>& gfxInfo,
+-                                     int32_t feature, nsACString& failureId,
+-                                     int32_t* status)
+-{
+-  if (!NS_IsMainThread()) {
+-    dom::workers::WorkerPrivate* workerPrivate =
+-      dom::workers::GetCurrentThreadWorkerPrivate();
+-
+-    RefPtr<GetFeatureStatusRunnable> runnable =
+-      new GetFeatureStatusRunnable(workerPrivate, gfxInfo, feature, failureId,
+-                                   status);
+-
+-    ErrorResult rv;
+-    runnable->Dispatch(rv);
+-    if (rv.Failed()) {
+-        // XXXbz This is totally broken, since we're supposed to just abort
+-        // everything up the callstack but the callers basically eat the
+-        // exception.  Ah, well.
+-        return rv.StealNSResult();
+-    }
+-
+-    return runnable->GetNSResult();
+-  }
+-
+-  return gfxInfo->GetFeatureStatus(feature, failureId, status);
+-}
+-
+-/* static */ bool
+-gfxUtils::DumpDisplayList() {
+-  return gfxPrefs::LayoutDumpDisplayList() ||
+-         (gfxPrefs::LayoutDumpDisplayListContent() && XRE_IsContentProcess());
+-}
+-
+ FILE *gfxUtils::sDumpPaintFile = stderr;
+ 
+ namespace mozilla {

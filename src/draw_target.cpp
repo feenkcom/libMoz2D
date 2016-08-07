@@ -6,11 +6,19 @@
  */
 
 #include "draw_target.h"
+
 #include "2d/Filters.h"
+#include "SkiaGLGlue.h"
+#include "gfxPlatform.h"
 
 using namespace mozilla::gfx;
 
 DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
+	if (aBackend == BackendType::SKIA) {
+		mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
+		if (skiaGlue)
+			return Factory::CreateDrawTargetSkiaWithGrContext(skiaGlue->GetGrContext(), IntSize(width, height), aFormat).take();
+	}
 	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
 }
 

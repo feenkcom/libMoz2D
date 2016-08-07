@@ -1,0 +1,149 @@
+diff -Naur --exclude '.*' gfx/gl/GLLibraryEGL.cpp gfx/gl-patched/GLLibraryEGL.cpp
+--- gfx/gl/GLLibraryEGL.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/GLLibraryEGL.cpp	2016-08-06 20:23:10.000000000 +0200
+@@ -148,21 +148,7 @@
+ IsAccelAngleSupported(const nsCOMPtr<nsIGfxInfo>& gfxInfo,
+                       nsACString* const out_failureId)
+ {
+-    int32_t angleSupport;
+-    nsCString failureId;
+-    gfxUtils::ThreadSafeGetFeatureStatus(gfxInfo,
+-                                         nsIGfxInfo::FEATURE_WEBGL_ANGLE,
+-                                         failureId,
+-                                         &angleSupport);
+-    if (failureId.IsEmpty() && angleSupport != nsIGfxInfo::FEATURE_STATUS_OK) {
+-        // This shouldn't happen, if we see this it's because we've missed
+-        // some failure paths
+-        failureId = NS_LITERAL_CSTRING("FEATURE_FAILURE_ACCL_ANGLE_NOT_OK");
+-    }
+-    if (out_failureId->IsEmpty()) {
+-        *out_failureId = failureId;
+-    }
+-    return (angleSupport == nsIGfxInfo::FEATURE_STATUS_OK);
++	return false;
+ }
+ 
+ static EGLDisplay
+diff -Naur --exclude '.*' gfx/gl/SharedSurface.cpp gfx/gl-patched/SharedSurface.cpp
+--- gfx/gl/SharedSurface.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurface.cpp	2016-08-06 20:10:46.000000000 +0200
+@@ -304,9 +304,7 @@
+ SurfaceFactory::~SurfaceFactory()
+ {
+     while (!mRecycleTotalPool.empty()) {
+-        RefPtr<layers::SharedSurfaceTextureClient> tex = *mRecycleTotalPool.begin();
+-        StopRecycling(tex);
+-        tex->CancelWaitForRecycle();
++
+     }
+ 
+     MOZ_RELEASE_ASSERT(mRecycleTotalPool.empty(),"GFX: Surface recycle pool not empty.");
+@@ -335,12 +333,7 @@
+     if (!surf)
+         return nullptr;
+ 
+-    RefPtr<layers::SharedSurfaceTextureClient> ret;
+-    ret = layers::SharedSurfaceTextureClient::Create(Move(surf), this, mAllocator, mFlags);
+-
+-    StartRecycling(ret);
+-
+-    return ret.forget();
++    return nullptr;
+ }
+ 
+ void
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceANGLE.cpp gfx/gl-patched/SharedSurfaceANGLE.cpp
+--- gfx/gl/SharedSurfaceANGLE.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceANGLE.cpp	2016-08-05 18:48:33.000000000 +0200
+@@ -164,10 +164,6 @@
+ bool
+ SharedSurface_ANGLEShareHandle::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    gfx::SurfaceFormat format = mHasAlpha ? gfx::SurfaceFormat::B8G8R8A8
+-                                          : gfx::SurfaceFormat::B8G8R8X8;
+-    *out_descriptor = layers::SurfaceDescriptorD3D10((WindowsHandle)mShareHandle, format,
+-                                                     mSize);
+     return true;
+ }
+ 
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceD3D11Interop.cpp gfx/gl-patched/SharedSurfaceD3D11Interop.cpp
+--- gfx/gl/SharedSurfaceD3D11Interop.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceD3D11Interop.cpp	2016-08-05 18:48:53.000000000 +0200
+@@ -357,10 +357,6 @@
+ bool
+ SharedSurface_D3D11Interop::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    gfx::SurfaceFormat format = mHasAlpha ? gfx::SurfaceFormat::B8G8R8A8
+-                                          : gfx::SurfaceFormat::B8G8R8X8;
+-    *out_descriptor = layers::SurfaceDescriptorD3D10(WindowsHandle(mSharedHandle), format,
+-                                                     mSize);
+     return true;
+ }
+ 
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceEGL.cpp gfx/gl-patched/SharedSurfaceEGL.cpp
+--- gfx/gl/SharedSurfaceEGL.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceEGL.cpp	2016-08-05 18:49:03.000000000 +0200
+@@ -153,8 +153,6 @@
+ bool
+ SharedSurface_EGLImage::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    *out_descriptor = layers::EGLImageDescriptor((uintptr_t)mImage, (uintptr_t)mSync,
+-                                                 mSize, mHasAlpha);
+     return true;
+ }
+ 
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGL.cpp gfx/gl-patched/SharedSurfaceGL.cpp
+--- gfx/gl/SharedSurfaceGL.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGL.cpp	2016-08-05 18:49:22.000000000 +0200
+@@ -173,12 +173,6 @@
+ bool
+ SharedSurface_GLTexture::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    *out_descriptor = layers::SurfaceDescriptorSharedGLTexture(ProdTexture(),
+-                                                               ProdTextureTarget(),
+-                                                               (uintptr_t)mSync,
+-                                                               mSize,
+-                                                               mHasAlpha);
+-
+     // Transfer ownership of the fence to the host
+     mSync = nullptr;
+     return true;
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGLX.cpp gfx/gl-patched/SharedSurfaceGLX.cpp
+--- gfx/gl/SharedSurfaceGLX.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGLX.cpp	2016-08-05 18:49:31.000000000 +0200
+@@ -79,8 +79,6 @@
+ {
+     if (!mXlibSurface)
+         return false;
+-
+-    *out_descriptor = layers::SurfaceDescriptorX11(mXlibSurface, mInSameProcess);
+     return true;
+ }
+ 
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGralloc.cpp gfx/gl-patched/SharedSurfaceGralloc.cpp
+--- gfx/gl/SharedSurfaceGralloc.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGralloc.cpp	2016-08-05 18:49:57.000000000 +0200
+@@ -231,8 +231,7 @@
+ bool
+ SharedSurface_Gralloc::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    mTextureClient->mWorkaroundAnnoyingSharedSurfaceOwnershipIssues = true;
+-    return mTextureClient->ToSurfaceDescriptor(*out_descriptor);
++    return false;
+ }
+ 
+ bool
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceIO.cpp gfx/gl-patched/SharedSurfaceIO.cpp
+--- gfx/gl/SharedSurfaceIO.cpp	2016-08-05 12:01:14.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceIO.cpp	2016-08-05 18:50:08.000000000 +0200
+@@ -174,10 +174,6 @@
+ bool
+ SharedSurface_IOSurface::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
+ {
+-    bool isOpaque = !mHasAlpha;
+-    *out_descriptor = layers::SurfaceDescriptorMacIOSurface(mIOSurf->GetIOSurfaceID(),
+-                                                            mIOSurf->GetContentsScaleFactor(),
+-                                                            isOpaque);
+     return true;
+ }
+ 

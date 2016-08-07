@@ -14,3 +14,15 @@ bool BrowserTabsRemoteAutostart() {
 }
 
 } // namespace mozilla
+
+bool
+XRE_IsParentProcess()
+{
+  return true;
+}
+
+bool
+XRE_IsContentProcess()
+{
+  return true;
+}

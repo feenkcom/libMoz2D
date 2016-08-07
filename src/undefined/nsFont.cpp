@@ -9,6 +9,6 @@
 
 using namespace mozilla;
 
-nsFont::~nsFont()
-{
-}
+//nsFont::~nsFont()
+//{
+//}
