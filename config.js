@@ -15,7 +15,10 @@ module.exports = {
         objects: 'obj-mozilla',
         // relative to this config file
         patches: 'patches',
+        // binary output folder, relative to this config file
+        bin: 'build',
         makefile: 'backend.mk',
+        mozilla_config: 'mozilla-config.h',
         url: 'https://hg.mozilla.org/mozilla-central/archive/tip',
         format: '.tar.gz',
         arch: 'i386', // i386, x86_64
@@ -140,6 +143,15 @@ module.exports = {
         },
         defines: {
             general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR'
+        },
+        undefines: {
+            general: [
+                'MOZ_CRASHREPORTER',
+                'MOZ_CRASHREPORTER_ENABLE_PERCENT',
+                'MOZ_LOGGING',
+                'MOZ_MEMORY',
+                'MOZ_ENABLE_PROFILER_SPS'
+            ]
         },
         includes: [
             '${MOZ_TOP_OBJ_PATH}/dist/include',

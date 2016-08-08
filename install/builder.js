@@ -87,6 +87,13 @@ function Builder (_args) {
         platform.log('Generating ipdl sources...');
         _this.exec('make recurse_pre-export', platform.objects());
         _this.exec('make mozilla-config.h buildid.h source-repo.h', platform.objects());
+
+        var mozillaConfig = fs.openSync(platform.mozillaConfigH(), 'a');
+        _(platform.undefines()).each(function(each) {
+            fs.writeSync(mozillaConfig, '#undef ' + each);
+        });
+        fs.closeSync(mozillaConfig);
+
         _this.exec('make recurse_export', platform.objects());
         platform.log('   Done');
 
@@ -102,6 +109,10 @@ function Builder (_args) {
         new Generator().generate(platform);
         platform.log('Generated root CMakeLists.txt');
         platform.log('   Done');
+    };
+
+    _this.compile = function () {
+        throw new Error('Subclass responsibility!');
     };
 
     _this.isDownloaded = function () {

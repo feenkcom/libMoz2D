@@ -3,6 +3,7 @@
  */
 
 Config = require('./../config.js');
+ConfigStatusParser = require('./configParser.js');
 fs = require('fs');
 _ = require('./libs/underscore.js');
 Package = require('./package.js');
@@ -12,151 +13,8 @@ Package = require('./package.js');
  */
 var platform;
 
-OS_CXXFLAGS = 'OS_CXXFLAGS';
-OS_CFLAGS = 'OS_CFLAGS';
-OS_COMPILE_CXXFLAGS = 'OS_COMPILE_CXXFLAGS';
-OS_COMPILE_CFLAGS = 'OS_COMPILE_CFLAGS';
-ASFLAGS = 'ASFLAGS';
-CC = 'CC';
-CXX = 'CXX';
-
-
-function ConfigStatusParser() {
-    var _this = this;
-
-    var contents;
-
-    _this.initialize = function () {
-        contents = _this.readConfig();
-    };
-
-    _this.parseVar = function (type) {
-        var flags = _(contents).find(function(line) {
-            return line.trim().startsWith('"' + type + '"');
-        });
-        if (_.isUndefined(flags))
-            throw new Error (type + ' not found!');
-        flags = _this.trimAfter(flags, type+'":');
-
-        // removes commas from the begin and end of the string
-        flags = flags.replace (/(^,)|(,$)/g, '');
-        // removes double quotes from the begin and end
-        flags = flags.replace (/(^")|("$)/g, '');
-
-        var replaces = {
-            '$(topsrcdir)': '${PROJECT_SOURCE_DIR}/' + Platform.getPlatform().sources(),
-            '$(topobjdir)': '${PROJECT_SOURCE_DIR}/'+ Platform.getPlatform().objects()
-        };
-
-        flags = _this.replace(flags, replaces);
-        return flags;
-    };
-
-    _this.parseCXXFlags = function () {
-        return _this.parseVar(OS_CXXFLAGS);
-    };
-
-    _this.parseCFlags = function () {
-        return _this.parseVar(OS_CFLAGS);
-    };
-
-    _this.parseCompileCXXFlags = function () {
-        return _this.parseVar(OS_COMPILE_CXXFLAGS);
-    };
-
-    _this.parseCompileCFlags = function () {
-        return _this.parseVar(OS_COMPILE_CFLAGS);
-    };
-
-    _this.parseASMFlags = function () {
-        return _this.parseVar(ASFLAGS);
-    };
-
-    _this.parseCCompiler = function () {
-        var compiler = _this.parseVar(CC);
-        var compiler = compiler.split(' ');
-        if (compiler.length < 1)
-            throw new Error('C Compiler not defined!');
-        return compiler[0].trim();
-    };
-
-    _this.parseCCompilerFlags = function () {
-        var compiler = _this.parseVar(CC);
-        var compiler = compiler.split(' ');
-        compiler = compiler.slice(1, compiler.length);
-        return _(compiler).reduce(function(memo, each) {
-            return memo + ' ' + each;
-        }, '');
-    };
-
-    _this.parseCXXCompiler = function () {
-        var compiler = _this.parseVar(CXX);
-        var compiler = compiler.split(' ');
-        if (compiler.length < 1)
-            throw new Error('CXX Compiler not defined!');
-        return compiler[0].trim();
-    };
-
-    _this.parseCXXCompilerFlags = function () {
-        var compiler = _this.parseVar(CXX);
-        var compiler = compiler.split(' ');
-        compiler = compiler.slice(1, compiler.length);
-        return _(compiler).reduce(function(memo, each) {
-            return memo + ' ' + each;
-        }, '');
-    };
-
-    /**
-     * Reads config.status file and returns its content splitted by new line
-     * @return {Array|{index: number, input: string}}
-     */
-    _this.readConfig = function () {
-        var data = fs.readFileSync(_this.fullConfigPath(), 'utf8');
-        return data.match(/[^\r\n]+/g);
-    };
-
-    _this.fullConfigPath = function () {
-        return  Platform.getPlatform().objects() + '/' +  Platform.getPlatform().configStatus();
-    };
-
-    /**
-     * Return a trimmed substring of a string after a prefix
-     * @param {String} string
-     * @param {string} prefix
-     * @return {string}
-     */
-    _this.trimAfter = function(string, prefix) {
-        return string.substring(string.indexOf(prefix) + prefix.length, string.length).trim();
-    };
-
-    /**
-     * Replaces substrings from a string by ones defines in a table
-     * @param string
-     * @param table
-     */
-    _this.replace = function (string, table) {
-        var result = string;
-        _(table).each(function(to, what) {
-            result = result.replace(what,to);
-        });
-        return result;
-    };
-
-    _this.initialize();
-}
-
-function Architecture() {
-
-}
-
-function Builder() {
-
-}
-
-
-function BuilderMac() {
-
-}
+ARCH_32 = 'i386';
+ARCH_64 = 'x86_64';
 
 function Platform() {
     var _this = this;
@@ -427,6 +285,15 @@ function Platform() {
         return _this.string(_this.platform(_this.config().build.defines));
     };
 
+    _this.undefines = function () {
+        var defines = _this.array(_this.config().build.undefines.general);
+        return defines.concat(_this.platformUndefines());
+    };
+
+    _this.platformUndefines = function () {
+        return _this.array(_this.platform(_this.config().build.undefines));
+    };
+
     /**
      * Return an array of libraries that we need to link against
      * @return {Array.<Object>}
@@ -526,6 +393,28 @@ function Platform() {
         });
     };
 
+    /**
+     * Return true if we compile for 32 bits architecture,
+     * false otherwise
+     * @return {boolean}
+     */
+    _this.is32 = function () {
+        return _this.arch() == ARCH_32;
+    };
+
+    /**
+     * Return true if we compile for 64 bits architecture,
+     * false otherwise
+     * @return {boolean}
+     */
+    _this.is64 = function () {
+        return _this.arch() == ARCH_64;
+    };
+
+    _this.output = function () {
+        return _this.config().build.bin;
+    };
+
     _this.log = function (object) {
         console.log(object);
     };
@@ -538,23 +427,11 @@ function Platform() {
     _this.accept = function (visitor) {
         return visitor.visitPlatform(_this);
     };
-}
 
-
-function PlatformMac() { // subclass Platform
-    var _this = new Platform;
-
-    /**
-     * Return a platform specific object field for my platform
-     * @param anObject
-     */
-    _this.platform = function (anObject) {
-        return anObject.mac;
+    _this.mozillaConfigH = function () {
+        return _this.objects() + ' / ' + _this.config().build.mozilla_config;
     };
-
-    return _this;
 }
-
 
 Platform.getPlatform = function () {
     if (!_.isUndefined(platform))
@@ -562,7 +439,12 @@ Platform.getPlatform = function () {
 
     var os = process.platform;
     if (os === 'darwin') {
+        var PlatformMac = require('./platformMac.js');
         platform = new PlatformMac();
+    }
+    if (os === 'linux') {
+        var PlatformLinux = require('./platformLinux.js');
+        platform = new PlatformLinux();
     }
 
     if (_.isUndefined(platform))
