@@ -210,8 +210,8 @@ static void pref_float(const char* aName, float aValue) {
 	LOG(table->EntryCount());
 }
 
-static void pref_default(const char* aName, double aValue) {
-
+static void pref_default(const char* aName, void*  aValue) {
+	LOG("Unknown preference type!");
 }
 
 #define pref(x, y) _Generic((x), \
@@ -220,8 +220,17 @@ static void pref_default(const char* aName, double aValue) {
 				double: pref_double, \
 				float: pref_float, \
 				const char[sizeof(y)]: pref_string, \
+				const char*: pref_string, \
 				int32_t: pref_long, \
-		default: pref_default) \
+				default: pref_default), \
+		const char*: _Generic((y), \
+				bool: pref_bool, \
+				double: pref_double, \
+				float: pref_float, \
+				const char[sizeof(y)]: pref_string, \
+				const char*: pref_string, \
+				int32_t: pref_long, \
+				default: pref_default) \
 )(x, y)
 
 
@@ -298,7 +307,7 @@ Preferences::IsServiceAvailable()
 bool
 Preferences::InitStaticMembers()
 {
-
+	return true;
 }
 
 

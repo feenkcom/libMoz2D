@@ -3,7 +3,6 @@
  * Created by Aliaksei Syrel on 07/08/16.
  */
 
-var Config = require('./../config.json');
 var Parser = require('./parser.js');
 
 module.exports = function Package(_args) {
@@ -24,9 +23,9 @@ module.exports = function Package(_args) {
 
     _this.initialize = function (args) {
         name = args.name;
-        makefile = _.isUndefined(args.makefile) ? Config.makefile : args.makefile;
-        sourcesPath = _.isUndefined(args.sources) ? Config.sources : args.sources;
-        objectsPath = _.isUndefined(args.objects) ? Config.objects : args.objects;
+        makefile = args.makefile;
+        sourcesPath = args.sources;
+        objectsPath = args.objects;
 
         var props = new Parser({
             file: makefile,
@@ -80,16 +79,21 @@ module.exports = function Package(_args) {
         return sourceFlags;
     };
 
-    _this.accept = function (visitor) {
-        return visitor.visitPackage(_this);
-    };
-
     _this.fullSourcePath = function () {
         return sourcesPath + '/' + name;
     };
 
     _this.fullObjectPath = function () {
         return objectsPath + '/' + name;
+    };
+
+    /**
+     * A visitor pattern
+     * @param visitor
+     * @return {*}
+     */
+    _this.accept = function (visitor) {
+        return visitor.visitPackage(_this);
     };
 
     _this.initialize(_args);

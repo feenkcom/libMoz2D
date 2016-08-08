@@ -4,6 +4,7 @@
 
 var fs = require('fs');
 _ = require('./libs/underscore.js');
+var Platform = require('./platform.js');
 
 CMAKE_FILE = 'CMakeLists.txt';
 
@@ -13,7 +14,6 @@ module.exports = function Generator() {
     _this.visitPackage = function (aPackage) {
         var cmake = _this.generatePackage(aPackage);
         _this.write(aPackage.fullObjectPath() + '/' + CMAKE_FILE, cmake);
-        console.log("Converted: " + aPackage.fullObjectPath() + '/' + aPackage.makefile());
         return cmake;
     };
 
@@ -71,8 +71,175 @@ module.exports = function Generator() {
         return anObject.accept(this);
     };
 
+    _this.visitPlatform = function (aPlatform) {
+        var cmake = _this.generatePlatformCmakeVersion(aPlatform) + '\n';
+        cmake += _this.generatePlatformCCompiler(aPlatform);
+        cmake += _this.generatePlatformCXXCompiler(aPlatform) + '\n';
+        cmake += _this.generatePlatformProjectName(aPlatform) + '\n';
+        cmake += _this.generatePlatformMajorVersion(aPlatform);
+        cmake += _this.generatePlatformMinorVersion(aPlatform) + '\n';
+        cmake += _this.generatePlatformMozPathVariables(aPlatform) + '\n';
+        cmake += _this.generatePlatformEnableAsm() + '\n';
+        cmake += _this.generatePlatformDefines(aPlatform) + '\n';
+        cmake += _this.generatePlatformAsmFlags(aPlatform);
+        cmake += _this.generatePlatformCFlags(aPlatform);
+        cmake += _this.generatePlatformCxxFlags(aPlatform);
+        cmake += _this.generatePlatformLinkerFlags(aPlatform) + '\n';
+        cmake += _this.generatePlatformIncludes(aPlatform) + '\n';
+        cmake += _this.generatePlatformPackages(aPlatform) + '\n';
+        cmake += _this.generatePlatformSourcesFlags(aPlatform) + '\n';
+        cmake += _this.generatePlatformLibraries(aPlatform);
+        cmake += _this.generatePlatformLinkLibraries() + '\n';
+        _this.write(CMAKE_FILE, cmake);
+        return cmake;
+    };
+
+    _this.generatePlatformCmakeVersion = function(aPlatform) {
+        return 'cmake_minimum_required (VERSION '+ aPlatform.cmakeVersion().toFixed(1)+')\n';
+    };
+
+    _this.generatePlatformCCompiler = function (aPlatform) {
+        return 'set (CMAKE_C_COMPILER "'+ aPlatform.cCompiler() +'")\n'
+    };
+
+    _this.generatePlatformCXXCompiler = function (aPlatform) {
+        return 'set (CMAKE_CXX_COMPILER "'+ aPlatform.cxxCompiler() +'")\n'
+    };
+
+    _this.generatePlatformProjectName = function (aPlatform) {
+        return 'project ('+ aPlatform.projectName() +')\n';
+    };
+
+    _this.generatePlatformMajorVersion = function(aPlatform) {
+        return 'set ('+ aPlatform.projectName() +'_VERSION_MAJOR '+ aPlatform.versionMajor()+')\n';
+    };
+
+    _this.generatePlatformMinorVersion = function(aPlatform) {
+        return 'set ('+ aPlatform.projectName() +'_VERSION_MINOR '+ aPlatform.versionMinor()+')\n';
+    };
+
+    _this.generatePlatformEnableAsm = function () {
+        return 'enable_language(ASM)\n';
+    };
+
+    _this.generatePlatformMozPathVariables = function(aPlatform) {
+        var result = 'set (MOZ_TOP_PATH ${PROJECT_SOURCE_DIR}/'+aPlatform.sources()+' CACHE STRING "Path to mozilla-central repo")\n';
+        result += 'set (MOZ_TOP_OBJ_PATH ${PROJECT_SOURCE_DIR}/'+aPlatform.objects()+' CACHE STRING "Path to object directory")\n';
+        return result;
+    };
+
+    _this.generatePlatformDefines = function(aPlatform) {
+        return 'add_definitions('+aPlatform.defines()+')\n';
+    };
+
+    _this.generatePlatformAsmFlags = function (aPlatform) {
+        return 'set (CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} '+aPlatform.asmFlags()+'")\n';
+    };
+
+    _this.generatePlatformCFlags = function (aPlatform) {
+        return 'set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ' + aPlatform.cCompilerFlags() + ' ' + aPlatform.cFlags()+'")\n';
+    };
+
+    _this.generatePlatformCxxFlags = function (aPlatform) {
+        return 'set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ' + aPlatform.cxxCompilerFlags() + ' ' + aPlatform.cxxFlags() + '")\n';
+    };
+
+    _this.generatePlatformLinkerFlags = function (aPlatform) {
+        return 'set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} '+ aPlatform.linkerFlags() +'")\n';
+    };
+
+    _this.generatePlatformIncludes = function (aPlatform) {
+        return _this.merge(aPlatform.includes(), '\n', function(include){
+            return 'include_directories('+ include+ ')';
+        }) + '\n';
+    };
+
+    _this.generatePlatformPackages = function (aPlatform) {
+        var subdirs = _(aPlatform.packages()).reduce(function(memo, pkg) {
+            return memo + '     add_subdirectory(${MOZ_TOP_OBJ_PATH}/'+pkg.name()+')\n'
+        }, '');
+        subdirs = _(aPlatform.bindingSources()).reduce(function(memo, name) {
+            return memo + '     add_subdirectory('+name+')\n'
+        }, subdirs + '\n');
+
+        var library = _(aPlatform.packages()).reduce(function(memo, pkg) {
+            return memo + '     $<TARGET_OBJECTS:'+pkg.library()+'>\n'
+        }, 'add_library(${PROJECT_NAME} SHARED\n');
+        library = _(aPlatform.bindingPackages()).reduce(function(memo, name) {
+            return memo + '     $<TARGET_OBJECTS:'+name+'>\n'
+        }, library + '\n');
+        library += ')\n';
+        return subdirs + '\n' + library;
+    };
+
+    _this.generatePlatformSourcesFlags = function (aPlatform) {
+        return _this.merge(aPlatform.sourcesFlags(), '\n', function(obj) {
+            return 'set_source_files_properties(' + obj.source + ' PROPERTIES COMPILE_FLAGS "' + obj.flags + '")';
+        }) + '\n';
+    };
+
+    _this.generatePlatformLibraries = function (aPlatform) {
+        return 'file(GLOB LIBRARIES "' + _this.merge(aPlatform.libraries(), ' ') + '")\n';
+    };
+
+    _this.generatePlatformLinkLibraries = function () {
+        return 'target_link_libraries(${PROJECT_NAME} ${LIBRARIES})\n';
+    };
+
+    _this.visitConfig = function (aConfig) {
+        var platform = Platform.getPlatform();
+        var conf = _this.generateConfigCrossCompile(platform);
+        conf += _this.generateConfigObjDir(platform);
+        conf += _this.generateConfigMakeFlags(platform) + '\n';
+        conf += _this.generateConfigModules(platform);
+        _this.write(platform.mozconfigPath(), conf);
+        return conf;
+    };
+
+    _this.generateConfigCrossCompile = function (aPlatform) {
+        return aPlatform.crossCompile() ? 'export CROSS_COMPILE=1\n\n' : '';
+    };
+
+    _this.generateConfigObjDir = function (aPlatform) {
+        return 'mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/' + aPlatform.config().build.objects + '\n';
+    };
+
+    _this.generateConfigMakeFlags = function (aPlatform) {
+        return 'mk_add_options MOZ_MAKE_FLAGS="' + aPlatform.configFlags() + '"\n';
+    };
+
+    _this.generateConfigModules = function (aPlatform) {
+        var enabled = _this.merge(aPlatform.enabledModules(), '\n', function(item) {
+            return 'ac_add_options --enable-' + item;
+        })+'\n';
+        var disabled = _this.merge(aPlatform.disabledModules(), '\n', function(item) {
+            return 'ac_add_options --disable-' + item;
+        })+'\n';
+        return enabled + '\n' + disabled;
+    };
+
+    _this.merge = function(array, _delimiter, _transform) {
+        var delimiter = _.isUndefined(_delimiter) ? ' ' : _delimiter;
+        var transform = _.isUndefined(_transform) ? _.identity : _transform;
+
+        return _(array).reduce(function(memo, each, index) {
+            return memo + (index > 0 ? delimiter : '') + transform(each);
+        }, '');
+    };
+
     _this.write = function (file, content) {
         fs.writeFileSync(file,content);
     };
 
+    _this.read = function (file) {
+        var contents;
+        try {
+            fs.statSync(file);
+            contents = fs.readFileSync(file);
+        }
+        catch (e) {
+            contents = null;
+        }
+        return contents;
+    };
 };
