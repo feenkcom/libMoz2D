@@ -1,0 +1,27 @@
+{
+  "name": "parser",
+  "version": "1.0.0",
+  "description": "Parser of mozilla backend.mk files",
+  "main": "install/index.js",
+  "bin": {
+     "moz2d": "install/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syrel/Moz2D.git"
+  },
+  "keywords": [
+    "Moz2D",
+    "Parser",
+    "CMake"
+  ],
+  "author": "Aliaksei Syrel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/syrel/Moz2D/issues"
+  },
+  "homepage": "https://github.com/syrel/Moz2D#readme"
+}

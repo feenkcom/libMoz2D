@@ -158,64 +158,106 @@ function prepare {
 }
 
 function build {
+	node install/index.js
+	
+#	parse 'gfx/2d'
+#	parse 'gfx/cairo/cairo/src'
+#	parse 'gfx/cairo/libpixman/src'
+#	parse 'gfx/config'
+#	parse 'gfx/gl'
+#	parse 'gfx/graphite2/src'
+#	parse 'gfx/harfbuzz/src'
+#	parse 'gfx/ots/src'
+#	parse 'gfx/qcms'
+#	parse 'gfx/skia'
+#	parse 'gfx/src'
+#	parse 'gfx/thebes'
+
+#	parse 'modules/brotli'
+#	parse 'modules/woff2'
+#	parse 'modules/zlib/src'
+
+#	parse 'memory/fallible'
+#	parse 'memory/mozalloc'
+
+#	parse 'mfbt'
+	
+#	parse 'dom/encoding'
+	
+#	parse 'xpcom/glue'
+#	parse 'xpcom/string'
+	
+#	parse 'config/external/nspr/libc'
+#	parse 'config/external/nspr/pr'
+#	parse 'config/external/nspr/ds'
+#	parse 'config/external/icu/common'
+#	parse 'config/external/icu/stubdata'
+#	parse 'config/external/icu/i18n'
+	
+#	parse 'intl/locale'
+#	parse 'intl/unicharutil/util/internal'
+
+#	parse 'mozglue/misc'
+	
+	
 	# gfx
-	recursiveBackendToCMake "$MOZ_OBJ_GFX_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_GFX_PATH
+	#recursiveBackendToCMake "$MOZ_OBJ_GFX_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_GFX_PATH
 	# memory/build
-	backendToCMake "$MOZ_OBJ_MEMORY_BUILD_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MEMORY_BUILD_PATH
+	#backendToCMake "$MOZ_OBJ_MEMORY_BUILD_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MEMORY_BUILD_PATH
 	# memory/jemalloc
-	backendToCMake "$MOZ_OBJ_JEMALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_JEMALLOC_PATH
+	#backendToCMake "$MOZ_OBJ_JEMALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_JEMALLOC_PATH
 	# memory/fallible
-	backendToCMake "$MOZ_OBJ_FALLIBLE_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_FALLIBLE_PATH
+	#backendToCMake "$MOZ_OBJ_FALLIBLE_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_FALLIBLE_PATH
 	# memory/mozalloc
-	backendToCMake "$MOZ_OBJ_MOZALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MOZALLOC_PATH
+	#backendToCMake "$MOZ_OBJ_MOZALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MOZALLOC_PATH
 	# memory/mozjealloc
-	backendToCMake "$MOZ_OBJ_MOZJEMALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MOZJEMALLOC_PATH
+	#backendToCMake "$MOZ_OBJ_MOZJEMALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MOZJEMALLOC_PATH
 	# memory/replace/replace
-	backendToCMake "$MOZ_OBJ_MEMORY_REPLACE_MALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MEMORY_REPLACE_MALLOC_PATH
+	#backendToCMake "$MOZ_OBJ_MEMORY_REPLACE_MALLOC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MEMORY_REPLACE_MALLOC_PATH
 	# intl/uconv
-	backendToCMake "$MOZ_OBJ_UCONV_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UCONV_PATH
+	#backendToCMake "$MOZ_OBJ_UCONV_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UCONV_PATH
 	# intl/locale
-	recursiveBackendToCMake "$MOZ_OBJ_INTL_PATH/locale/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_INTL_PATH/locale"
+	#recursiveBackendToCMake "$MOZ_OBJ_INTL_PATH/locale/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_INTL_PATH/locale"
 	# intl/unicharutil
-	backendToCMake "$MOZ_OBJ_UNICHARUTIL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_PATH
+	#backendToCMake "$MOZ_OBJ_UNICHARUTIL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_PATH
 	# intl/unicharutil/util
-	backendToCMake "$MOZ_OBJ_UNICHARUTIL_UTIL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_UTIL_PATH
+	#backendToCMake "$MOZ_OBJ_UNICHARUTIL_UTIL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_UTIL_PATH
 	# intl/unicharutil/util/internal
-	backendToCMake "$MOZ_OBJ_UNICHARUTIL_UTIL_INTERNAL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_UTIL_INTERNAL_PATH
+	#backendToCMake "$MOZ_OBJ_UNICHARUTIL_UTIL_INTERNAL_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_UNICHARUTIL_UTIL_INTERNAL_PATH
 	# mfbt
-	backendToCMake "$MOZ_OBJ_MFBT_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MFBT_PATH
+	#backendToCMake "$MOZ_OBJ_MFBT_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_MFBT_PATH
 	# xpcom/glue
-	backendToCMake "$MOZ_OBJ_XPCOM_PATH/glue/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_XPCOM_PATH/glue"
+	#backendToCMake "$MOZ_OBJ_XPCOM_PATH/glue/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_XPCOM_PATH/glue"
 	# xpcom/string
-	backendToCMake "$MOZ_OBJ_XPCOM_PATH/string/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_XPCOM_PATH/string"
+	#backendToCMake "$MOZ_OBJ_XPCOM_PATH/string/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_XPCOM_PATH/string"
 	# config/external/nspr
-	recursiveBackendToCMake "$MOZ_TOP_OBJ_PATH/config/external/nspr/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/nspr"
+	#recursiveBackendToCMake "$MOZ_TOP_OBJ_PATH/config/external/nspr/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/nspr"
 	# config/external/icu/common
-	backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/common/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/common"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/common/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/common"
 	# config/external/icu/data
-	backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/data/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/data"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/data/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/data"
 	# config/external/icu/stubdata
-	backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/stubdata/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/stubdata"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/stubdata/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/stubdata"
 	# config/external/icu/i18n
-	backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/i18n/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/i18n"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/config/external/icu/i18n/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/config/external/icu/i18n"
 	# modules/brotli
-	backendToCMake "$MOZ_TOP_OBJ_PATH/modules/brotli/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/brotli"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/modules/brotli/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/brotli"
 	# modules/libpref
-	backendToCMake "$MOZ_TOP_OBJ_PATH/modules/libpref/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/libpref"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/modules/libpref/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/libpref"
 	# modules/woff2
-	backendToCMake "$MOZ_TOP_OBJ_PATH/modules/woff2/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/woff2"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/modules/woff2/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/woff2"
 	# modules/zlib
-	backendToCMake "$MOZ_TOP_OBJ_PATH/modules/zlib/src/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/zlib/src"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/modules/zlib/src/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/modules/zlib/src"
 	# mozglue/misc
-	backendToCMake "$MOZ_TOP_OBJ_PATH/mozglue/misc/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/mozglue/misc"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/mozglue/misc/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/mozglue/misc"
 	# hal
-	backendToCMake "$MOZ_TOP_OBJ_PATH/hal/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/hal"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/hal/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/hal"
 	# dom/base
-	backendToCMake "$MOZ_TOP_OBJ_PATH/dom/base/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/dom/base"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/dom/base/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/dom/base"
 	# dom/encoding
-	backendToCMake "$MOZ_TOP_OBJ_PATH/dom/encoding/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/dom/encoding"
+	#backendToCMake "$MOZ_TOP_OBJ_PATH/dom/encoding/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/dom/encoding"
 	# ipc
-	recursiveBackendToCMake "$MOZ_OBJ_IPC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_IPC_PATH
+	#recursiveBackendToCMake "$MOZ_OBJ_IPC_PATH/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH $MOZ_IPC_PATH
 }
 
 function apply_shell_expansion() {
@@ -249,6 +291,11 @@ function privPrepare {
 	done
 	
 	make recurse_export
+}
+
+function parse {
+	local folder=$1
+	backendToCMake "$MOZ_TOP_OBJ_PATH/$folder/$MOZ_BACKEND_FILE" $MOZ_TOP_OBJ_PATH $MOZ_TOP_SRC_PATH "$MOZ_TOP_SRC_PATH/$folder"
 }
 
 function backendToCMake {
@@ -288,13 +335,13 @@ function generateBackendToCMake {
 	topsrcdir=$3
 	srcdir=$4
 
-	local libName=$(backendLibraryName $backend)
-	local defines=($(backendDefines $backend))
-	local sources=($(backendSources $backend))
-	local unifiedSources=($(backendUnifiedSources $backend))
-	local localIncludes=($(backendLocalIncludes $backend $topobjdir $topsrcdir $srcdir))
+	local libName=$(backendLibraryName $backend) #done
+	local defines=($(backendDefines $backend)) #done
+	local sources=($(backendSources $backend)) #done
+	local unifiedSources=($(backendUnifiedSources $backend)) #done
+	local localIncludes=($(backendLocalIncludes $backend $topobjdir $topsrcdir $srcdir)) #done
 	local customIncludes=($(backendCustomIncludes $backend 'dist/include'))
-	local cxxFlags=($(backendCXXFlags $backend))
+	local cxxFlags=($(backendCXXFlags $backend)) #done
 
 	#echo $libName
 	#echo "${defines[@]}"
@@ -631,7 +678,6 @@ function backendCustomIncludes {
 	backend=$1
 	local dest="$2/"
 	local includes=()
-	
 	IFS_backup=$IFS
 	IFS=$'\n'
 	lines=($(cat "$backend" | grep  "^${dest//[\/]/_}"))
@@ -646,6 +692,7 @@ function backendCustomIncludes {
 		if [ "$mode" == "FILES" ]; then
 			path=${lineBefore%%_FILES*}
 			path=${path//[_]/\/}
+			eval "asasfsdfsdf";
 			includes+=($dest$path)
 			#local files=${line##*=}
 			#files=($(echo $files | xargs))

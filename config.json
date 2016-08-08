@@ -1,0 +1,83 @@
+{
+    "sources": "mozilla-central",
+    "objects": "mozilla-central/obj-mozilla",
+    "makefile": "backend.mk",
+    "cross_compile": true,
+    "make_flags": "-j4",
+    "packages": {
+        "general": [
+            "gfx/2d",
+            "gfx/cairo/cairo/src",
+            "gfx/cairo/libpixman/src",
+            "gfx/config",
+            "gfx/gl",
+            "gfx/graphite2/src",
+            "gfx/harfbuzz/src",
+            "gfx/ots/src",
+            "gfx/qcms",
+            "gfx/skia",
+            "gfx/src",
+            "gfx/thebes",
+
+            "modules/brotli",
+            "modules/woff2",
+            "modules/zlib/src",
+
+            "memory/fallible",
+            "memory/mozalloc",
+
+            "mfbt",
+
+            "dom/encoding",
+
+            "xpcom/glue",
+            "xpcom/string",
+
+            "config/external/nspr/libc",
+            "config/external/nspr/pr",
+            "config/external/nspr/ds",
+            "config/external/icu/common",
+            "config/external/icu/stubdata",
+            "config/external/icu/i18n",
+
+            "intl/locale",
+            "intl/unicharutil/util/internal",
+
+            "mozglue/misc"
+        ],
+        "mac": [
+            "intl/locale/mac"
+        ]
+    },
+    "modules": {
+        "enabled": [
+            "tree-freetype"
+        ],
+        "disabled": [
+            "sandbox",
+            "printing",
+            "gio",
+            "dbus",
+            "synth-speechd",
+            "websms-backend",
+            "dbm",
+            "accessibility",
+            "webrtc",
+            "webspeech",
+            "webspeechtestbackend",
+            "permissions",
+            "negotiateauth",
+            "pref-extensions",
+            "system-extension-dirs",
+            "gamepad",
+            "crashreporter",
+            "updater",
+            "parental-controls",
+            "content-sandbox",
+            "mozril-geoloc",
+            "necko-wifi",
+            "cookies",
+            "ctypes"
+        ]
+    }
+}

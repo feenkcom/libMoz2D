@@ -64,6 +64,7 @@ include_directories(${MOZ_TOP_PATH}/intl/locale)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/config/external/icu/i18n)
 
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/locale)
+	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/locale/mac)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/intl/unicharutil/util/internal)
 	add_subdirectory(${MOZ_TOP_OBJ_PATH}/mozglue/misc)
 		

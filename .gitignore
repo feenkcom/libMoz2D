@@ -1,3 +1,4 @@
 build/
 mozilla-central/
 *.tar.gz
+.idea/
