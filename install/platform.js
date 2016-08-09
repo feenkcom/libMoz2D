@@ -429,7 +429,7 @@ function Platform() {
     };
 
     _this.mozillaConfigH = function () {
-        return _this.objects() + ' / ' + _this.config().build.mozilla_config;
+        return _this.objects() + '/' + _this.config().build.mozilla_config;
     };
 }
 

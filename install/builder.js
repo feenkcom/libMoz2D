@@ -74,7 +74,6 @@ function Builder (_args) {
         }
         _this.exec('rm -rf ' + _this.configCheckFile());
 
-
         platform.log('Generating ' + platform.mozconfigPath() + '...');
         new Generator().generate(platform.config());
         platform.log('   Done');
@@ -88,9 +87,11 @@ function Builder (_args) {
         _this.exec('make recurse_pre-export', platform.objects());
         _this.exec('make mozilla-config.h buildid.h source-repo.h', platform.objects());
 
+        platform.log('Undefining defines...');
         var mozillaConfig = fs.openSync(platform.mozillaConfigH(), 'a');
         _(platform.undefines()).each(function(each) {
-            fs.writeSync(mozillaConfig, '#undef ' + each);
+            fs.writeSync(mozillaConfig, '#undef ' + each + '\n');
+            platform.log('  #undef '+ each);
         });
         fs.closeSync(mozillaConfig);
 
