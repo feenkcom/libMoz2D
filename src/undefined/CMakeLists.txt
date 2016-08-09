@@ -12,10 +12,6 @@ include_directories(${MOZ_TOP_OBJ_PATH}/ipc/ipdl/_ipdlheaders)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -include ${MOZ_TOP_PATH}/ipc/chromium/src/base/logging.h -include ${MOZ_TOP_PATH}/xpcom/glue/nsComponentManagerUtils.h")
 
 set(SRC
-    ${MOZ_TOP_PATH}/ipc/chromium/src/base/platform_thread_posix.cc
-    ${MOZ_TOP_PATH}/ipc/chromium/src/base/platform_thread_mac.mm
-    ${MOZ_TOP_PATH}/ipc/chromium/src/base/scoped_nsautorelease_pool.mm
-
     ${MOZ_TOP_PATH}/xpcom/ds/nsCRT.cpp
     ${MOZ_TOP_PATH}/xpcom/ds/Tokenizer.cpp
     ${MOZ_TOP_PATH}/xpcom/ds/nsStaticNameTable.cpp

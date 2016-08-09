@@ -191,6 +191,7 @@ module.exports = function Generator() {
         var conf = _this.generateConfigCrossCompile(platform);
         conf += _this.generateConfigObjDir(platform);
         conf += _this.generateConfigMakeFlags(platform) + '\n';
+        conf += _this.generateConfigOptions(platform) + '\n';
         conf += _this.generateConfigModules(platform);
         _this.write(platform.mozconfigPath(), conf);
         return conf;
@@ -206,6 +207,12 @@ module.exports = function Generator() {
 
     _this.generateConfigMakeFlags = function (aPlatform) {
         return 'mk_add_options MOZ_MAKE_FLAGS="' + aPlatform.configFlags() + '"\n';
+    };
+    
+    _this.generateConfigOptions = function (aPlatform) {
+	return _this.merge(aPlatform.configOptions(), '\n', function(option){
+	  return 'ac_add_options ' + option;
+	}) + '\n';
     };
 
     _this.generateConfigModules = function (aPlatform) {

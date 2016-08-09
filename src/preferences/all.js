@@ -1350,7 +1350,6 @@ pref("gfx.font_rendering.fontconfig.fontlist.enabled", true);
 pref("gfx.font_rendering.fontconfig.max_generic_substitutions", 3);
 #endif
 
-# XP_UNIX
 #endif
 #endif
 #endif

@@ -219,6 +219,32 @@ function Platform() {
     _this.configFlags = function () {
         return _this.config().config.flags;
     };
+    
+    _this.configOptions = function () {
+      return _this.generalConfigOptions().concat(_this.platformConfigOptions());
+    };
+    /**
+     * Return an array containing config options
+     * that are common for all platforms
+     */
+    _this.generalConfigOptions = function () {
+        // options cross target, general platform
+        var options = _this.array(_this.object((_this.object(_this.config().config.options)).cross).general);
+        // options current target, general platform
+        options = options.concat(_this.array(_this.object(_this.target(_this.object(_this.config().config.options))).general));
+        return options;
+    };
+    
+    /**
+     * Return a platform specific config options
+     */
+    _this.platformConfigOptions = function (type) {
+        // options cross target, current platform
+        var options = _this.array(_this.platform(_this.object((_this.object(_this.config().config.options)).cross)));
+        // options current target, current platform
+        options = options.concat(_this.array(_this.platform(_this.object(_this.target(_this.object(_this.config().config.options))))));
+        return options;
+    };
 
     _this.enabledModules = function () {
         return _this.array(_this.config().config.modules.enabled);

@@ -53,7 +53,6 @@ module.exports = {
 
                 'config/external/nspr/libc',
                 'config/external/nspr/pr',
-                'config/external/nspr/ds',
                 'config/external/icu/common',
                 'config/external/icu/stubdata',
                 'config/external/icu/i18n',
@@ -65,7 +64,10 @@ module.exports = {
             ],
             mac: [
                 'intl/locale/mac'
-            ]
+            ],
+	    linux: [
+	        'intl/locale/unix'
+	    ]
         },
         bindings: {
             general: {
@@ -77,6 +79,14 @@ module.exports = {
                     'services',
                     'undefined'
                 ]
+            },
+	    mac: {
+                sources: [ 'src/undefined/mac' ],
+                packages: [ 'undefined_mac' ]
+            },
+	    linux: {
+                sources: [ 'src/undefined/unix' ],
+                packages: [ 'undefined_unix' ]
             }
         },
         libraries: {
@@ -93,7 +103,7 @@ module.exports = {
                     linux: ''
                 },
                 i386: {
-                    linux: '-m32'
+                    linux: ''
                 },
                 x86_64: {
                     linux: '-m64'
@@ -107,7 +117,7 @@ module.exports = {
                     linux: ''
                 },
                 i386: {
-                    linux: '-m32'
+                    linux: ''
                 },
                 x86_64: {
                     linux: '-m64'
@@ -164,12 +174,23 @@ module.exports = {
         status: 'config.status',
         mozconfig: '.mozconfig',
         flags: '-j4',
+	options: {
+	  i386: {
+	    linux: [
+	      '--target=i686-pc-linux',
+	      '--x-libraries=/usr/lib32'
+	    ]
+	  }
+	  
+	},
         cross_compile: true,
         modules: {
             enabled: [
-                'tree-freetype'
+                'tree-freetype',
+		'optimize=-O2'
             ],
             disabled: [
+		'debug',
                 'sandbox',
                 'printing',
                 'gio',

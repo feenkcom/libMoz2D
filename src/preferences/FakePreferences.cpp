@@ -173,28 +173,28 @@ static HashEntry* GetOrMakeEntry(const char* aName, uint8_t aEntryType)
 	return foundEntry;
 }
 
-static void pref_bool(const char* aName, bool aValue) {
+static void pref(const char* aName, bool aValue) {
 	LOG("[Init   Bool] "<< aName << ": " << (aValue ? "true" : "false"));
 	HashEntry* foundEntry = GetOrMakeEntry(aName, eLongType);
 	if (!foundEntry) { return; }
 	foundEntry->mData.mLong = aValue;
 	LOG(table->EntryCount());
 }
-static void pref_string(const char* aName, const char*  aValue) {
+static void pref(const char* aName, const char*  aValue) {
 	LOG("[Init String] "<< aName << ": " << "\"" << aValue << "\"");
 	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
 	if (!foundEntry) { return; }
 	foundEntry->mData.mCString = new nsCString(aValue);
 	LOG(table->EntryCount());
 }
-static void pref_long(const char* aName, int32_t aValue) {
+static void pref(const char* aName, int32_t aValue) {
 	LOG("[Init   Long] "<< aName << ": " << aValue);
 	HashEntry* foundEntry = GetOrMakeEntry(aName, eLongType);
 	if (!foundEntry) { return; }
 	foundEntry->mData.mLong = aValue;
 	LOG(table->EntryCount());
 }
-static void pref_double(const char* aName, double aValue) {
+static void pref(const char* aName, double aValue) {
 	LOG("[Init Double] "<< aName << ": " << aValue);
 	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
 	if (!foundEntry) { return; }
@@ -202,37 +202,13 @@ static void pref_double(const char* aName, double aValue) {
 	LOG(table->EntryCount());
 }
 
-static void pref_float(const char* aName, float aValue) {
+static void pref(const char* aName, float aValue) {
 	LOG("[Init  Float] "<< aName << ": " << aValue);
 	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
 	if (!foundEntry) { return; }
 	foundEntry->mData.mCString = new nsCString(nsPrintfCString("%f", aValue).get());
 	LOG(table->EntryCount());
 }
-
-static void pref_default(const char* aName, void*  aValue) {
-	LOG("Unknown preference type!");
-}
-
-#define pref(x, y) _Generic((x), \
-		const char[sizeof(x)]: _Generic((y), \
-				bool: pref_bool, \
-				double: pref_double, \
-				float: pref_float, \
-				const char[sizeof(y)]: pref_string, \
-				const char*: pref_string, \
-				int32_t: pref_long, \
-				default: pref_default), \
-		const char*: _Generic((y), \
-				bool: pref_bool, \
-				double: pref_double, \
-				float: pref_float, \
-				const char[sizeof(y)]: pref_string, \
-				const char*: pref_string, \
-				int32_t: pref_long, \
-				default: pref_default) \
-)(x, y)
-
 
 PLDHashNumber HashKey(const void* aKey)
 {
