@@ -9,7 +9,7 @@ Binary will be in `build/` folder
 
 ## Dependencies
 Tools:<br>
-`git` `node` `python` `cmake >= 3.0` `make` `autoconf 2.13` `gcc-multilib >= 5.3`<br>
+`git >= 1.7.12` `node >= v0.11.12` `python` `cmake >= 3.0` `make` `autoconf 2.13` `gcc-multilib >= 5.3`<br>
 Utilities:<br>
 `wget` `patch` `which` `tar`
 
