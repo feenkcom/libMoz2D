@@ -3,4 +3,4 @@ mozilla-central/
 *.tar.gz
 .idea/
 
-CMakeLists.txt
+/CMakeLists.txt
