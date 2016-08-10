@@ -5,7 +5,8 @@ module.exports = {
             major: 1,
             minor: 0
         },
-        cmake: 3.0
+        cmake: 3.0,
+		installer: 'install'
     },
 
     build: {

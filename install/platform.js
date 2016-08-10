@@ -472,6 +472,11 @@ Platform.getPlatform = function () {
         var PlatformLinux = require('./platformLinux.js');
         platform = new PlatformLinux();
     }
+	
+	if (os === 'win32') {
+        var PlatformWin = require('./platformWin.js');
+        platform = new PlatformWin();
+    }
 
     if (_.isUndefined(platform))
         throw new Error('Unknown platform: ' + os);

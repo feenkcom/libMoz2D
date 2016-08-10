@@ -31,7 +31,8 @@ function Builder (_args) {
             platform.log('   Achieve exists, no need to download. [perform clean for fresh install]');
             return;
         }
-        var cmd = 'wget ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
+		// --no-check-certificate is required because on windows it fails to locally verify issuer's authority
+        var cmd = 'wget --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
         execSync(cmd, { stdio: ['pipe', 'pipe', process.stderr] });
         execSync('mv -fv '+platform.sourcesArchive()+'_tmp ' + platform.sourcesArchive(), { stdio: ['pipe', 'pipe', process.stderr] });
         platform.log('Downloaded as ' + platform.sourcesArchive());
@@ -48,7 +49,12 @@ function Builder (_args) {
         }
 
         _this.exec('rm -rf ' + platform.sources() + '_tmp');
-        _this.exec('mkdir ' + platform.sources() + '_tmp && tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
+		try{
+			_this.exec('mkdir ' + platform.sources() + '_tmp && tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
+		} catch(e) {
+			console.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
+		};
+        
         _this.exec('rm -rf ' + platform.sources());
         _this.exec('mv ' + platform.sources() + '_tmp ' + platform.sources());
         platform.log('Extracted in ' + platform.sources());
@@ -79,8 +85,8 @@ function Builder (_args) {
         platform.log('   Done');
 
         platform.log('Configuring build system...');
-        _this.exec('./mach clobber', platform.sources());
-        _this.exec('./mach configure', platform.sources());
+        _this.exec('sh mach clobber', platform.sources());
+        _this.exec('sh mach configure', platform.sources());
         platform.log('   Done');
 
         platform.log('Generating ipdl sources...');
@@ -142,8 +148,10 @@ function Builder (_args) {
     };
 
     _this.exec = function(cmd, dir) {
-        var cwd = _.isUndefined(dir) ? dir : execSync('pwd').toString().trim() + '/' + dir;
-        return execSync(cmd, { stdio: 'inherit', cwd: cwd });
+        var cwd = _.isUndefined(dir) ? '' : dir;
+		// we use shell wrapper to print all errors
+		var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '" "' + cwd + '"';
+        return execSync(command, { stdio: [process.stdin, process.stdout, process.stdout] });
     };
 
     _this.configCheckFile = function () {

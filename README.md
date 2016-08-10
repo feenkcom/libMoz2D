@@ -8,7 +8,10 @@ Compile shared library (32 bit):
 Binary will be in `build/` folder
 
 ## Dependencies
-`node` `wget` `cmake >= 3.0` `make` `autoconf 2.13` `patch` `gcc-multilib >= 5.3`
+Tools:<br>
+`git` `node` `python` `cmake >= 3.0` `make` `autoconf 2.13` `gcc-multilib >= 5.3`<br>
+Utilities:<br>
+`wget` `patch` `which` `tar`
 
 ### ArchLinux
 Node.js:<br>
@@ -23,3 +26,11 @@ Autoconf2.13:<br>
 GCC-Multilib:<br>
 `yaourt -S gcc-multilib`
 
+### Windows
+
+First [install MingGW](https://sourceforge.net/projects/mingw/files/) and follow "[Environment Settings](http://www.mingw.org/wiki/Getting_Started#toc7)" instruction to add MinGW to PATH environment variable. If installed with default settings a path should be `C:\MinGW\bin`<br>
+Additional packages are required, install them by executing:<br>
+`mingw-get install msys-unzip msys-wget msys-zip msys-tar msys-patch`<br>
+MSYS also needs to be added to the PATH variable, by default it is `C:\MinGW\msys\1.0\bin;C:\MinGW\msys\1.0\local\bin`
+
+Installation scripts require latest version of [Node.js](https://nodejs.org/en/).
