@@ -49,11 +49,13 @@ function Builder (_args) {
         }
 
         _this.exec('rm -rf ' + platform.sources() + '_tmp');
+        _this.exec('mkdir ' + platform.sources() + '_tmp');
+
 		try{
-			_this.exec('mkdir ' + platform.sources() + '_tmp && tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
+			_this.exec('tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
 		} catch(e) {
-			console.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
-		};
+            platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
+		}
         
         _this.exec('rm -rf ' + platform.sources());
         _this.exec('mv ' + platform.sources() + '_tmp ' + platform.sources());
@@ -148,9 +150,9 @@ function Builder (_args) {
     };
 
     _this.exec = function(cmd, dir) {
-        var cwd = _.isUndefined(dir) ? '' : dir;
 		// we use shell wrapper to print all errors
-		var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '" "' + cwd + '"';
+		var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '"';
+        if (!_.isUndefined(dir)) command += ' "' + dir + '"';
         return execSync(command, { stdio: [process.stdin, process.stdout, process.stdout] });
     };
 

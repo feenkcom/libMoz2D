@@ -12,6 +12,3 @@ builder.patch();
 builder.configure();
 builder.export();
 builder.compile();
-
-//var execSync = require('child_process').execSync;
-//execSync('ls -la',  { stdio: [process.stdin, process.stdout, process.stdout] });
