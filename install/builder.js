@@ -34,7 +34,7 @@ function Builder (_args) {
             platform.log('   Achieve exists, no need to download. [perform clean for fresh install]');
             return;
         }
-		// --no-check-certificate is required because on windows it fails to locally verify issuer's authority
+        // --no-check-certificate is required because on windows it fails to locally verify issuer's authority
         var cmd = 'wget --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
         execSync(cmd, { stdio: ['pipe', 'pipe', process.stderr] });
         execSync('mv -fv '+platform.sourcesArchive()+'_tmp ' + platform.sourcesArchive(), { stdio: ['pipe', 'pipe', process.stderr] });
@@ -57,12 +57,12 @@ function Builder (_args) {
         _this.exec('rm -rf ' + platform.sources() + '_tmp');
         _this.exec('mkdir ' + platform.sources() + '_tmp');
 
-		try{
-			_this.exec('tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
-		} catch(e) {
+        try{
+            _this.exec('tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1');
+        } catch(e) {
             platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
-		}
-        
+        }
+
         _this.exec('rm -rf ' + platform.sources());
         _this.exec('mv ' + platform.sources() + '_tmp ' + platform.sources());
         platform.log('Extracted in ' + platform.sources());
@@ -77,7 +77,7 @@ function Builder (_args) {
             try {
                 _this.exec('patch --forward -p0 -d ' + platform.sources() +' < ' + patch);
             }
-            // error means that patch was already applied, so it is ok to just print message
+                // error means that patch was already applied, so it is ok to just print message
             catch(e) {
                 //console.error(e.stdout.toString());
             }
@@ -159,8 +159,8 @@ function Builder (_args) {
     };
 
     _this.exec = function(cmd, dir) {
-		// we use shell wrapper to print all errors
-		var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '"';
+        // we use shell wrapper to print all errors
+        var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '"';
         if (!_.isUndefined(dir)) command += ' "' + dir + '"';
         return execSync(command, { stdio: [process.stdin, process.stdout, process.stdout] });
     };

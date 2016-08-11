@@ -6,7 +6,7 @@ module.exports = {
             minor: 0
         },
         cmake: 3.0,
-		installer: 'install'
+        installer: 'install'
     },
 
     build: {
@@ -66,9 +66,9 @@ module.exports = {
             mac: [
                 'intl/locale/mac'
             ],
-	    linux: [
-	        'intl/locale/unix'
-	    ]
+            linux: [
+                'intl/locale/unix'
+            ]
         },
         bindings: {
             general: {
@@ -81,11 +81,11 @@ module.exports = {
                     'undefined'
                 ]
             },
-	    mac: {
+            mac: {
                 sources: [ 'src/undefined/mac' ],
                 packages: [ 'undefined_mac' ]
             },
-	    linux: {
+            linux: {
                 sources: [ 'src/undefined/unix' ],
                 packages: [ 'undefined_unix' ]
             }
@@ -175,23 +175,23 @@ module.exports = {
         status: 'config.status',
         mozconfig: '.mozconfig',
         flags: '-j4',
-	options: {
-	  i386: {
-	    linux: [
-	      '--target=i686-pc-linux',
-	      '--x-libraries=/usr/lib32'
-	    ]
-	  }
-	  
-	},
+        options: {
+            i386: {
+                linux: [
+                    '--target=i686-pc-linux',
+                    '--x-libraries=/usr/lib32'
+                ]
+            }
+
+        },
         cross_compile: true,
         modules: {
             enabled: [
                 'tree-freetype',
-		'optimize=-O2'
+                'optimize=-O2'
             ],
             disabled: [
-		'debug',
+                'debug',
                 'sandbox',
                 'printing',
                 'gio',

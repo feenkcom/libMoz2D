@@ -219,9 +219,9 @@ function Platform() {
     _this.configFlags = function () {
         return _this.config().config.flags;
     };
-    
+
     _this.configOptions = function () {
-      return _this.generalConfigOptions().concat(_this.platformConfigOptions());
+        return _this.generalConfigOptions().concat(_this.platformConfigOptions());
     };
     /**
      * Return an array containing config options
@@ -234,7 +234,7 @@ function Platform() {
         options = options.concat(_this.array(_this.object(_this.target(_this.object(_this.config().config.options))).general));
         return options;
     };
-    
+
     /**
      * Return a platform specific config options
      */
@@ -412,11 +412,11 @@ function Platform() {
         return _(fs.readdirSync(_this.config().build.patches)).map(function(item) {
             return _this.config().build.patches + '/' + item;
         }).filter(function(item) {
-            try { return fs.statSync(item).isFile(); }
-            catch (e) { return false; }
-        }).filter(function(file) {
-            return file.endsWith('.patch');
-        });
+                try { return fs.statSync(item).isFile(); }
+                catch (e) { return false; }
+            }).filter(function(file) {
+                return file.endsWith('.patch');
+            });
     };
 
     /**
@@ -472,8 +472,8 @@ Platform.getPlatform = function () {
         var PlatformLinux = require('./platformLinux.js');
         platform = new PlatformLinux();
     }
-	
-	if (os === 'win32') {
+
+    if (os === 'win32') {
         var PlatformWin = require('./platformWin.js');
         platform = new PlatformWin();
     }
