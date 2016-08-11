@@ -64,6 +64,7 @@ module.exports = {
                 'mozglue/misc'
             ],
             mac: [
+                'config/external/nspr/ds',
                 'intl/locale/mac'
             ],
             linux: [
