@@ -25,6 +25,9 @@ function Builder (_args) {
         return platform;
     };
 
+    /**
+     * Downloads latest mozilla sources from repository
+     */
     _this.download = function () {
         platform.log('Downloading sources...');
         if (_this.isDownloaded()) {
@@ -38,6 +41,9 @@ function Builder (_args) {
         platform.log('Downloaded as ' + platform.sourcesArchive());
     };
 
+    /**
+     * Extracts mozilla sources from archive
+     */
     _this.extract = function () {
         platform.log('Extracting ' + platform.sourcesArchive() + '... this may take a while');
         if (!_this.isDownloaded())
@@ -62,6 +68,9 @@ function Builder (_args) {
         platform.log('Extracted in ' + platform.sources());
     };
 
+    /**
+     * Applies patches on mozilla sources
+     */
     _this.patch = function () {
         platform.log('Applying patches...');
         _(platform.patches()).each(function(patch) {
