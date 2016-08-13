@@ -96,6 +96,22 @@ void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPerm
 }
 
 /* --------------------------------------------------- */
+/* ------------------- C L I P P I N G --------------- */
+/* --------------------------------------------------- */
+
+void moz2d_draw_target_pop_clip(DrawTarget* drawTarget) {
+	drawTarget->PopClip();
+}
+
+void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height) {
+	drawTarget->PushClipRect(Rect(x,y, width, height));
+}
+
+void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath) {
+	drawTarget->PushClip(aPath);
+}
+
+/* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
 

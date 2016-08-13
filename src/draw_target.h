@@ -98,6 +98,28 @@ void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPerm
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
 void moz2d_draw_target_flush(DrawTarget *drawTarget);
 
+
+/* --------------------------------------------------- */
+/* ------------------- C L I P P I N G --------------- */
+/* --------------------------------------------------- */
+
+/**
+ * Pop a clip from the DrawTarget. A pop without a corresponding push will
+ * be ignored.
+ */
+void moz2d_draw_target_pop_clip(DrawTarget* drawTarget);
+
+/**
+ * Push an axis-aligned rectangular clip to the DrawTarget. This rectangle
+ * is specified in user space.
+ */
+void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height);
+
+/**
+ * Push a clip to the DrawTarget.
+ */
+void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath);
+
 /* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
