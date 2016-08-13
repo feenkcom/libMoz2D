@@ -21,19 +21,86 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
-DrawTarget* moz2d_draw_target_create_for_data(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized);
+/* --------------------------------------------------- */
+/* ----------------- C R E A T I O N ----------------- */
+/* --------------------------------------------------- */
 
+/**
+ * Create a new draw target of a type that fits best for current platform and aFormat pixel format
+ */
+DrawTarget* moz2d_draw_target_create(int32_t width, int32_t height, SurfaceFormat aFormat);
+
+/**
+ * Create a new draw target of aBackend type and aFormat pixel format
+ */
+DrawTarget* moz2d_draw_target_create_type(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
+
+/**
+ * Create a new draw target for data (pixels) of aBackend type
+ */
+DrawTarget* moz2d_draw_target_create_for_data_type(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized);
+
+/**
+ * Create a new draw target for data (pixels) of the type that fits best current platform.
+ */
+DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat);
+
+/**
+ * Deletes draw target and frees memory
+ */
 void moz2d_draw_target_delete(DrawTarget *drawTarget);
+
+/* --------------------------------------------------- */
+/* ------------------- T E S T I N G ----------------- */
+/* --------------------------------------------------- */
+
+/**
+ * Return true if draw target is valid, false otherwise
+ */
 bool moz2d_draw_target_is_valid(DrawTarget *drawTarget);
-DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
-BackendType moz2d_draw_target_get_backend_type (DrawTarget *drawTarget);
+
+/**
+ * Return true if draw target is recording, false otherwise
+ */
 bool moz2d_draw_target_is_recording(DrawTarget *drawTarget);
+
+/**
+ * Return true if subpixel antialias is permitted, false otherwise
+ */
 bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget);
+
+/* --------------------------------------------------- */
+/* ----------------- A C C E S S I N G --------------- */
+/* --------------------------------------------------- */
+
+/**
+ * Return a type of draw target (software, hardware, vector)
+ */
+DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
+
+/**
+ * Return a backend type of draw target (cairo, skia, cg, d2d1, etc)
+ */
+BackendType moz2d_draw_target_get_backend_type (DrawTarget *drawTarget);
+
+/**
+ * Return a surface format (pixel format) of draw target
+ */
+SurfaceFormat moz2d_draw_target_get_surface_format (DrawTarget *drawTarget);
+
+/**
+ * Store a size (extent) of draw target in size argument
+ */
+void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize);
+
+
 void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA);
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
-IntSize* moz2d_draw_target_get_size(DrawTarget *drawTarget);
 void moz2d_draw_target_flush(DrawTarget *drawTarget);
+
+/* --------------------------------------------------- */
+/* -------------------- D R A W I N G ---------------- */
+/* --------------------------------------------------- */
 
 /*
  * Fill

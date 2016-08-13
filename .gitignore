@@ -5,3 +5,7 @@ mozilla-central/
 .idea/
 
 /CMakeLists.txt
+
+/.cproject
+
+/.project

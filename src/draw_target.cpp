@@ -13,7 +13,15 @@
 
 using namespace mozilla::gfx;
 
-DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
+/* --------------------------------------------------- */
+/* ----------------- C R E A T I O N ----------------- */
+/* --------------------------------------------------- */
+
+DrawTarget* moz2d_draw_target_create (int32_t width, int32_t height, SurfaceFormat aFormat) {
+	return gfxPlatform::GetPlatform()->CreateOffscreenCanvasDrawTarget(IntSize(width, height), aFormat).take();
+}
+
+DrawTarget* moz2d_draw_target_create_type (BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
 	if (aBackend == BackendType::SKIA) {
 		mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
 		if (skiaGlue)
@@ -22,13 +30,58 @@ DrawTarget* moz2d_draw_target_create(BackendType aBackend, int32_t width, int32_
 	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
 }
 
-DrawTarget* moz2d_draw_target_create_for_data(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized) {
+DrawTarget* moz2d_draw_target_create_for_data_type (BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized) {
 	return Factory::CreateDrawTargetForData(aBackend, aData, IntSize(width, height), aStride, aFormat, aUninitialized).take();
+}
+
+DrawTarget* moz2d_draw_target_create_for_data (unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat) {
+	return gfxPlatform::GetPlatform()->CreateDrawTargetForData(aData, IntSize(width, height), aStride, aFormat).take();
 }
 
 void moz2d_draw_target_delete(DrawTarget *drawTarget) {
 	delete drawTarget;
 }
+
+/* --------------------------------------------------- */
+/* ------------------- T E S T I N G ----------------- */
+/* --------------------------------------------------- */
+
+bool moz2d_draw_target_is_valid(DrawTarget *drawTarget) {
+	return drawTarget->IsValid();
+}
+
+bool moz2d_draw_target_is_recording(DrawTarget *drawTarget) {
+	return drawTarget->IsRecording();
+}
+
+bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget) {
+	return drawTarget->GetPermitSubpixelAA();
+}
+
+/* --------------------------------------------------- */
+/* ----------------- A C C E S S I N G --------------- */
+/* --------------------------------------------------- */
+
+DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget) {
+	return drawTarget->GetType();
+}
+
+BackendType moz2d_draw_target_get_backend_type (DrawTarget *drawTarget) {
+	return drawTarget->GetBackendType();
+}
+
+SurfaceFormat moz2d_draw_target_get_surface_format (DrawTarget *drawTarget) {
+	return drawTarget->GetFormat();
+}
+
+void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize) {
+	IntSize size = drawTarget->GetSize();
+	aSize->width = size.width;
+	aSize->height = size.height;
+}
+
+
+
 
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget) {
 	return drawTarget->Snapshot().take();
@@ -38,13 +91,13 @@ void moz2d_draw_target_flush(DrawTarget *drawTarget) {
 	drawTarget->Flush();
 }
 
-bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget) {
-	return drawTarget->GetPermitSubpixelAA();
-}
-
 void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA) {
 	drawTarget->SetPermitSubpixelAA(aPermitSubpixelAA);
 }
+
+/* --------------------------------------------------- */
+/* -------------------- D R A W I N G ---------------- */
+/* --------------------------------------------------- */
 
 /*
  * Fill
