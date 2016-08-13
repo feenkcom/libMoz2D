@@ -9,7 +9,6 @@
 #define PATH_H_
 
 #include "2d/2D.h"
-#include "structs.h"
 
 using namespace mozilla::gfx;
 

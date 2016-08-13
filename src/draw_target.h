@@ -97,8 +97,7 @@ void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize);
 void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA);
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
 void moz2d_draw_target_flush(DrawTarget *drawTarget);
-
-
+uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */
@@ -140,26 +139,50 @@ void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* 
 void moz2d_draw_target_mask_pattern(DrawTarget* drawTarget, Pattern* aSource, Pattern* aMask, DrawOptions* aOptions);
 void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, SourceSurface *aMask, Float offsetX, Float offsetY, DrawOptions* aOptions);
 
+/*
+ * Filter
+ */
 void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions);
+
+/*
+ * Path
+ */
 PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule);
 
+/* --------------------------------------------------- */
+/* ----------- T R A N S F O R M A T I O N ----------- */
+/* --------------------------------------------------- */
 
+/**
+ * Return current transformation matrix as components array of 6 elements
+ */
+void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array);
 
-//
-uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
+/**
+ * Set a transform on the surface, this transform is applied at drawing time
+ * to both the mask and source of the operation.
+ *
+ * Performance note: For some backends it is expensive to change the current
+ * transform (because transforms affect a lot of the parts of the pipeline,
+ * so new transform change can result in a pipeline flush).  To get around
+ * this, DrawTarget implementations buffer transform changes and try to only
+ * set the current transform on the backend when required.  That tracking has
+ * its own performance impact though, and ideally callers would be smart
+ * enough not to require it.  At a future date this method may stop this
+ * doing transform buffering so, if you're a consumer, please try to be smart
+ * about calling this method as little as possible.  For example, instead of
+ * concatenating a translation onto the current transform then calling
+ * FillRect, try to integrate the translation into FillRect's aRect
+ * argument's x/y offset.
+ */
+void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
 
-//int32_t moz2d_draw_target_stride(CDrawTarget drawTarget);
-uint32_t moz2d_draw_target_get_pixel (CDrawTarget drawTarget, int32_t x, int32_t y);
-//CSourceSurface moz2d_draw_target_get_surface(CDrawTarget drawTarget);
-//
-//void moz2d_draw_target_fill_rect(CDrawTarget drawTarget, Float x, Float y, Float width, Float height, CPattern pattern);
-//void moz2d_draw_target_fill_rect_color(CDrawTarget drawTarget,
-//		Float x, Float y, Float width, Float height,
-//		Float red, Float green, Float blue, Float alpha);
-//void moz2d_draw_target_draw_filter(CDrawTarget drawTarget, CFilterNode filter, Float x, Float y, Float width, Float height, Float destX, Float destY);
-//
-//CColorPattern moz2d_color_pattern_create(CColor color);
-//void moz2d_color_pattern_delete(CColorPattern pattern);
+/**
+ * Concatenate current transformation with provided one
+ */
+void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float* rawMatrix);
+
+void moz2d_draw_target_transform_push(DrawTarget* drawTarget);
 
 #ifdef __cplusplus
 }

@@ -95,6 +95,12 @@ void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPerm
 	drawTarget->SetPermitSubpixelAA(aPermitSubpixelAA);
 }
 
+uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget) {
+	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
+	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
+	return (uint32_t *) mDataSnapshot->GetData();
+}
+
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */
@@ -148,67 +154,38 @@ void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, So
 	drawTarget->MaskSurface(*aSource, aMask, Point(offsetX, offsetY), *aOptions);
 }
 
+/*
+ * Filter
+ */
 void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions) {
 	drawTarget->DrawFilter(aFilter, *sourceRect, Point(destX, destY), *drawOptions);
 }
 
+/*
+ * Path
+ */
 PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule) {
 	return drawTarget->CreatePathBuilder(aFillRule).take();
 }
 
-//
-//DrawTargetType moz2d_draw_target_type (CDrawTarget drawTarget) {
-//	return reinterpret_cast<DrawTarget*>(drawTarget)->GetType();
-//}
-//
-//bool moz2d_draw_target_is_valid(CDrawTarget drawTarget) {
-//	return reinterpret_cast<DrawTarget*>(drawTarget)->IsValid();
-//}
-//
-//CSourceSurface moz2d_draw_target_get_surface(CDrawTarget drawTarget) {
-//	already_AddRefed<SourceSurface> snapshot = reinterpret_cast<DrawTarget*>(drawTarget)->Snapshot();
-//	return reinterpret_cast<void*>(snapshot.take());
-//}
-//
+/* --------------------------------------------------- */
+/* ----------- T R A N S F O R M A T I O N ----------- */
+/* --------------------------------------------------- */
 
-uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget) {
-	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
-	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
-	return (uint32_t *) mDataSnapshot->GetData();
+void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array) {
+	Matrix matrix = drawTarget->GetTransform();
+	array[0] = matrix._11;
+	array[1] = matrix._12;
+	array[2] = matrix._21;
+	array[3] = matrix._22;
+	array[4] = matrix._31;
+	array[5] = matrix._32;
 }
 
-//
-//
-//void moz2d_draw_target_draw_filter(CDrawTarget drawTarget, CFilterNode filter, Float x, Float y, Float width, Float height, Float destX, Float destY) {
-//	FilterNode* tmpFilter = reinterpret_cast<FilterNode*>(filter);
-//	reinterpret_cast<DrawTarget*>(drawTarget)->DrawFilter(
-//				tmpFilter,
-//				Rect(x,y,width,height),
-//				Point(destX, destY),
-//				DrawOptions());
-//}
-//
-//int32_t moz2d_draw_target_stride(CDrawTarget drawTarget){
-//	RefPtr<SourceSurface> snapshot = reinterpret_cast<DrawTarget*>(drawTarget)->Snapshot();
-//	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
-//	return mDataSnapshot->Stride();
-//}
-//
-
-uint32_t moz2d_draw_target_get_pixel (CDrawTarget drawTarget, int32_t x, int32_t y) {
-	RefPtr<SourceSurface> snapshot = reinterpret_cast<DrawTarget*>(drawTarget)->Snapshot();
-	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
-	int32_t stride = mDataSnapshot->Stride();
-	uint32_t* data = (uint32_t*) mDataSnapshot->GetData();
-	return data[ y * ( stride / 4 ) + x ];
+void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix) {
+	drawTarget->SetTransform(Matrix(rawMatrix[0],rawMatrix[1],rawMatrix[2],rawMatrix[3],rawMatrix[4],rawMatrix[5]));
 }
-//
-//
-//CColorPattern moz2d_color_pattern_create(CColor color) {
-//	Color* tmpColor = reinterpret_cast<Color*>(color);
-//	return reinterpret_cast<void*>(new ColorPattern(*tmpColor));
-//}
-//
-//void moz2d_color_pattern_delete(CColorPattern pattern) {
-//	delete reinterpret_cast<ColorPattern*>(pattern);
-//}
+
+void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float* rawMatrix) {
+	drawTarget->ConcatTransform(Matrix(rawMatrix[0],rawMatrix[1],rawMatrix[2],rawMatrix[3],rawMatrix[4],rawMatrix[5]));
+}
