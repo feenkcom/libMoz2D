@@ -39,6 +39,16 @@ void moz2d_path_sink_close(PathSink* pathSink);
 /** Add an arc to the current figure */
 void moz2d_path_sink_arc(PathSink* pathSink, float originX, float originY, float aRadius, float aStartAngle, float anEndAngle, bool aAntiClockwise);
 
+/**
+ * Add an arc to the current figure
+ */
+void moz2d_path_sink_arc_to_angle(PathSink* pathSink, float endX, float endY, float angle, bool aAntiClockwise);
+
+/**
+ * Add an arc to the current figure, assuming angle is Pi / 2
+ */
+void moz2d_path_sink_arc_to (PathSink* pathSink, float endX, float endY, bool aAntiClockwise);
+
 /** Point the current subpath is at - or where the next subpath will start
  * if there is no active subpath.
  */

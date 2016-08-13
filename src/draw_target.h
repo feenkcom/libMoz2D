@@ -189,7 +189,7 @@ void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
 /**
  * Concatenate current transformation with provided one
  */
-void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float* rawMatrix);
+void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float a11, float a12, float a21, float a22, float a31, float a32);
 
 /**
  * Push current transform on a stack
