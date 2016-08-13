@@ -119,6 +119,15 @@ void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, flo
  */
 void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath);
 
+/**
+ * Stores current clipping bounds in device space in rectangle
+ */
+void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget, Rect* rectangle);
+
+/**
+ * Stores current clipping bounds in user space in rectangle
+ */
+void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle);
 /* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
@@ -182,7 +191,15 @@ void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
  */
 void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float* rawMatrix);
 
+/**
+ * Push current transform on a stack
+ */
 void moz2d_draw_target_transform_push(DrawTarget* drawTarget);
+
+/**
+ * Pops current transform from the stack
+ */
+void moz2d_draw_target_transform_pop(DrawTarget* drawTarget);
 
 #ifdef __cplusplus
 }

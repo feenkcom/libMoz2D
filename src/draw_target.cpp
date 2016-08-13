@@ -11,6 +11,8 @@
 #include "SkiaGLGlue.h"
 #include "gfxPlatform.h"
 
+#include <stack> // std::stack
+
 using namespace mozilla::gfx;
 
 /* --------------------------------------------------- */
@@ -104,17 +106,88 @@ uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget) {
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */
+static UserDataKey sClippingBounds;
 
 void moz2d_draw_target_pop_clip(DrawTarget* drawTarget) {
 	drawTarget->PopClip();
+
+	std::stack<Rect> *stack = static_cast<std::stack<Rect>*>(drawTarget->GetUserData(&sClippingBounds));
+	if (!stack) {
+		return;
+	}
+	if (stack->empty()) {
+		return;
+	}
+
+	stack->pop();
+}
+
+/**
+ * Clip is in user space
+ */
+void push_clip(DrawTarget* drawTarget, Rect clip) {
+	Rect deviceClip = drawTarget->GetTransform().Inverse().TransformBounds(clip);
+
+	std::stack<Rect> *stack = static_cast<std::stack<Rect>*>(drawTarget->GetUserData(&sClippingBounds));
+	if (!stack) {
+		stack = new std::stack<Rect>();
+		drawTarget->AddUserData(&sClippingBounds, stack, nullptr);
+	}
+	Rect newClip = deviceClip;
+	if (!stack->empty()) {
+		newClip = stack->top().Intersect(deviceClip);
+	}
+	stack->push(newClip);
 }
 
 void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height) {
-	drawTarget->PushClipRect(Rect(x,y, width, height));
+	Rect clip = Rect(x,y, width, height);
+
+	drawTarget->PushClipRect(clip);
+
+	push_clip(drawTarget, clip);
 }
 
 void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath) {
 	drawTarget->PushClip(aPath);
+
+	push_clip(drawTarget, aPath->GetBounds(Matrix()));
+}
+
+/**
+ * Return clip in device space
+ */
+Rect get_clip(DrawTarget* drawTarget) {
+	std::stack<Rect> *stack = static_cast<std::stack<Rect>*>(drawTarget->GetUserData(&sClippingBounds));
+	if (!stack) {
+		IntSize extent = drawTarget->GetSize();
+		return Rect(0,0, extent.width, extent.height);
+	}
+
+	if (stack->empty()) {
+		IntSize extent = drawTarget->GetSize();
+		return Rect(0,0, extent.width, extent.height);
+	}
+
+	return stack->top();
+}
+
+void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget, Rect* rectangle) {
+	Rect clip = get_clip(drawTarget);
+
+	rectangle->x = clip.x;
+	rectangle->y = clip.y;
+	rectangle->width = clip.width;
+	rectangle->height = clip.height;
+}
+
+void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle) {
+	Rect clip = drawTarget->GetTransform().TransformBounds(get_clip(drawTarget));
+
+	rectangle->x = clip.x;
+	rectangle->y = clip.y;
+	rectangle->width = clip.width;
+	rectangle->height = clip.height;
 }
 
 /* --------------------------------------------------- */
@@ -188,4 +261,33 @@ void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix) {
 
 void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float* rawMatrix) {
 	drawTarget->ConcatTransform(Matrix(rawMatrix[0],rawMatrix[1],rawMatrix[2],rawMatrix[3],rawMatrix[4],rawMatrix[5]));
+}
+
+static UserDataKey sTransformKey;
+
+void moz2d_draw_target_transform_push(DrawTarget* drawTarget) {
+	Matrix transform = drawTarget->GetTransform().Copy();
+
+	std::stack<Matrix> *stack = static_cast<std::stack<Matrix>*>(drawTarget->GetUserData(&sTransformKey));
+	if (!stack) {
+		stack = new std::stack<Matrix>();
+		drawTarget->AddUserData(&sTransformKey, stack, nullptr);
+	}
+
+	stack->push(transform);
+}
+
+void moz2d_draw_target_transform_pop(DrawTarget* drawTarget) {
+	std::stack<Matrix> *stack = static_cast<std::stack<Matrix>*>(drawTarget->GetUserData(&sTransformKey));
+	if (!stack) {
+		return;
+	}
+
+	if (stack->empty()) {
+		return;
+	}
+
+	Matrix transform = stack->top();
+	stack->pop();
+	drawTarget->SetTransform(transform);
 }
