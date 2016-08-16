@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
---- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-06 18:57:28.000000000 +0200
+--- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -13,138 +13,8 @@
  
  SoftwareVsyncSource::SoftwareVsyncSource()
@@ -141,8 +141,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp g
 -  delete mVsyncThread;
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
---- gfx/thebes/SoftwareVsyncSource.h	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-06 18:57:28.000000000 +0200
+--- gfx/thebes/SoftwareVsyncSource.h	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-16 17:23:35.000000000 +0200
 @@ -14,32 +14,6 @@
  #include "nsISupportsImpl.h"
  #include "VsyncSource.h"
@@ -192,8 +192,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx
  
  #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
---- gfx/thebes/VsyncSource.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.cpp	2016-08-06 18:57:28.000000000 +0200
+--- gfx/thebes/VsyncSource.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -8,146 +8,3 @@
  #include "nsXULAppAPI.h"
  #include "mozilla/VsyncDispatcher.h"
@@ -342,8 +342,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebe
 -} //namespace gfx
 -} //namespace mozilla
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
---- gfx/thebes/VsyncSource.h	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.h	2016-08-06 18:57:28.000000000 +0200
+--- gfx/thebes/VsyncSource.h	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.h	2016-08-16 17:23:35.000000000 +0200
 @@ -13,8 +13,6 @@
  #include "nsISupportsImpl.h"
  
@@ -410,1100 +410,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-
  protected:
    virtual ~VsyncSource() {}
  };
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxBlur.cpp gfx/thebes-patched/gfxBlur.cpp
---- gfx/thebes/gfxBlur.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxBlur.cpp	2016-08-07 18:28:17.000000000 +0200
-@@ -5,1085 +5,7 @@
- 
- #include "gfxBlur.h"
- 
--#include "gfx2DGlue.h"
--#include "gfxContext.h"
--#include "gfxPlatform.h"
--#include "mozilla/gfx/2D.h"
--#include "mozilla/gfx/Blur.h"
--#include "mozilla/gfx/PathHelpers.h"
--#include "mozilla/UniquePtr.h"
--#include "mozilla/UniquePtrExtensions.h"
--#include "nsExpirationTracker.h"
--#include "nsClassHashtable.h"
--#include "gfxUtils.h"
-+/* static */
-+void gfxAlphaBoxBlur::ShutdownBlurCache() {
- 
--using namespace mozilla;
--using namespace mozilla::gfx;
--
--gfxAlphaBoxBlur::gfxAlphaBoxBlur()
--{
--}
--
--gfxAlphaBoxBlur::~gfxAlphaBoxBlur()
--{
--  mContext = nullptr;
--}
--
--gfxContext*
--gfxAlphaBoxBlur::Init(const gfxRect& aRect,
--                      const IntSize& aSpreadRadius,
--                      const IntSize& aBlurRadius,
--                      const gfxRect* aDirtyRect,
--                      const gfxRect* aSkipRect)
--{
--    mozilla::gfx::Rect rect(Float(aRect.x), Float(aRect.y),
--                            Float(aRect.width), Float(aRect.height));
--    IntSize spreadRadius(aSpreadRadius.width, aSpreadRadius.height);
--    IntSize blurRadius(aBlurRadius.width, aBlurRadius.height);
--    UniquePtr<Rect> dirtyRect;
--    if (aDirtyRect) {
--      dirtyRect = MakeUnique<Rect>(Float(aDirtyRect->x),
--                                   Float(aDirtyRect->y),
--                                   Float(aDirtyRect->width),
--                                   Float(aDirtyRect->height));
--    }
--    UniquePtr<Rect> skipRect;
--    if (aSkipRect) {
--      skipRect = MakeUnique<Rect>(Float(aSkipRect->x),
--                                  Float(aSkipRect->y),
--                                  Float(aSkipRect->width),
--                                  Float(aSkipRect->height));
--    }
--
--    mBlur = MakeUnique<AlphaBoxBlur>(rect, spreadRadius, blurRadius, dirtyRect.get(), skipRect.get());
--    size_t blurDataSize = mBlur->GetSurfaceAllocationSize();
--    if (blurDataSize == 0)
--        return nullptr;
--
--    IntSize size = mBlur->GetSize();
--
--    // Make an alpha-only surface to draw on. We will play with the data after
--    // everything is drawn to create a blur effect.
--    mData = MakeUniqueFallible<unsigned char[]>(blurDataSize);
--    if (!mData) {
--        return nullptr;
--    }
--    memset(mData.get(), 0, blurDataSize);
--
--    RefPtr<DrawTarget> dt =
--        gfxPlatform::GetPlatform()->CreateDrawTargetForData(mData.get(), size,
--                                                            mBlur->GetStride(),
--                                                            SurfaceFormat::A8);
--    if (!dt || !dt->IsValid()) {
--        return nullptr;
--    }
--
--    IntRect irect = mBlur->GetRect();
--    gfxPoint topleft(irect.TopLeft().x, irect.TopLeft().y);
--
--    mContext = gfxContext::CreateOrNull(dt);
--    MOZ_ASSERT(mContext); // already checked for target above
--    mContext->SetMatrix(gfxMatrix::Translation(-topleft));
--
--    return mContext;
--}
--
--void
--DrawBlur(gfxContext* aDestinationCtx,
--         SourceSurface* aBlur,
--         const IntPoint& aTopLeft,
--         const Rect* aDirtyRect)
--{
--    DrawTarget *dest = aDestinationCtx->GetDrawTarget();
--
--    RefPtr<gfxPattern> thebesPat = aDestinationCtx->GetPattern();
--    Pattern* pat = thebesPat->GetPattern(dest, nullptr);
--
--    Matrix oldTransform = dest->GetTransform();
--    Matrix newTransform = oldTransform;
--    newTransform.PreTranslate(aTopLeft.x, aTopLeft.y);
--
--    // Avoid a semi-expensive clip operation if we can, otherwise
--    // clip to the dirty rect
--    if (aDirtyRect) {
--        dest->PushClipRect(*aDirtyRect);
--    }
--
--    dest->SetTransform(newTransform);
--    dest->MaskSurface(*pat, aBlur, Point(0, 0));
--    dest->SetTransform(oldTransform);
--
--    if (aDirtyRect) {
--        dest->PopClip();
--    }
--}
--
--already_AddRefed<SourceSurface>
--gfxAlphaBoxBlur::DoBlur(DrawTarget* aDT, IntPoint* aTopLeft)
--{
--    mBlur->Blur(mData.get());
--
--    *aTopLeft = mBlur->GetRect().TopLeft();
--
--    return aDT->CreateSourceSurfaceFromData(mData.get(),
--                                            mBlur->GetSize(),
--                                            mBlur->GetStride(),
--                                            SurfaceFormat::A8);
--}
--
--void
--gfxAlphaBoxBlur::Paint(gfxContext* aDestinationCtx)
--{
--    if (!mContext)
--        return;
--
--    DrawTarget *dest = aDestinationCtx->GetDrawTarget();
--    if (!dest) {
--      NS_WARNING("Blurring not supported for Thebes contexts!");
--      return;
--    }
--
--    Rect* dirtyRect = mBlur->GetDirtyRect();
--
--    IntPoint topLeft;
--    RefPtr<SourceSurface> mask = DoBlur(dest, &topLeft);
--    if (!mask) {
--      NS_ERROR("Failed to create mask!");
--      return;
--    }
--
--    DrawBlur(aDestinationCtx, mask, topLeft, dirtyRect);
--}
--
--IntSize gfxAlphaBoxBlur::CalculateBlurRadius(const gfxPoint& aStd)
--{
--    mozilla::gfx::Point std(Float(aStd.x), Float(aStd.y));
--    IntSize size = AlphaBoxBlur::CalculateBlurRadius(std);
--    return IntSize(size.width, size.height);
--}
--
--struct BlurCacheKey : public PLDHashEntryHdr {
--  typedef const BlurCacheKey& KeyType;
--  typedef const BlurCacheKey* KeyTypePointer;
--  enum { ALLOW_MEMMOVE = true };
--
--  IntSize mMinSize;
--  IntSize mBlurRadius;
--  Color mShadowColor;
--  BackendType mBackend;
--  RectCornerRadii mCornerRadii;
--  bool mIsInset;
--
--  // Only used for inset blurs
--  bool mHasBorderRadius;
--  IntSize mInnerMinSize;
--
--  BlurCacheKey(IntSize aMinSize, IntSize aBlurRadius,
--               RectCornerRadii* aCornerRadii, const Color& aShadowColor,
--               BackendType aBackendType)
--    : BlurCacheKey(aMinSize, IntSize(0, 0),
--                   aBlurRadius, aCornerRadii,
--                   aShadowColor, false,
--                   false, aBackendType)
--  {}
--
--  explicit BlurCacheKey(const BlurCacheKey* aOther)
--    : mMinSize(aOther->mMinSize)
--    , mBlurRadius(aOther->mBlurRadius)
--    , mShadowColor(aOther->mShadowColor)
--    , mBackend(aOther->mBackend)
--    , mCornerRadii(aOther->mCornerRadii)
--    , mIsInset(aOther->mIsInset)
--    , mHasBorderRadius(aOther->mHasBorderRadius)
--    , mInnerMinSize(aOther->mInnerMinSize)
--  { }
--
--  explicit BlurCacheKey(IntSize aOuterMinSize, IntSize aInnerMinSize,
--                        IntSize aBlurRadius,
--                        const RectCornerRadii* aCornerRadii,
--                        const Color& aShadowColor, bool aIsInset,
--                        bool aHasBorderRadius, BackendType aBackendType)
--    : mMinSize(aOuterMinSize)
--    , mBlurRadius(aBlurRadius)
--    , mShadowColor(aShadowColor)
--    , mBackend(aBackendType)
--    , mCornerRadii(aCornerRadii ? *aCornerRadii : RectCornerRadii())
--    , mIsInset(aIsInset)
--    , mHasBorderRadius(aHasBorderRadius)
--    , mInnerMinSize(aInnerMinSize)
--  { }
--
--  static PLDHashNumber
--  HashKey(const KeyTypePointer aKey)
--  {
--    PLDHashNumber hash = 0;
--    hash = AddToHash(hash, aKey->mMinSize.width, aKey->mMinSize.height);
--    hash = AddToHash(hash, aKey->mBlurRadius.width, aKey->mBlurRadius.height);
--
--    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.r,
--                                     sizeof(aKey->mShadowColor.r)));
--    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.g,
--                                     sizeof(aKey->mShadowColor.g)));
--    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.b,
--                                     sizeof(aKey->mShadowColor.b)));
--    hash = AddToHash(hash, HashBytes(&aKey->mShadowColor.a,
--                                     sizeof(aKey->mShadowColor.a)));
--
--    for (int i = 0; i < 4; i++) {
--      hash = AddToHash(hash, aKey->mCornerRadii[i].width, aKey->mCornerRadii[i].height);
--    }
--
--    hash = AddToHash(hash, (uint32_t)aKey->mBackend);
--
--    if (aKey->mIsInset) {
--      hash = AddToHash(hash, aKey->mInnerMinSize.width, aKey->mInnerMinSize.height);
--      hash = AddToHash(hash, HashBytes(&aKey->mHasBorderRadius, sizeof(bool)));
--    }
--    return hash;
--  }
--
--  bool
--  KeyEquals(KeyTypePointer aKey) const
--  {
--    if (aKey->mMinSize == mMinSize &&
--        aKey->mBlurRadius == mBlurRadius &&
--        aKey->mCornerRadii == mCornerRadii &&
--        aKey->mShadowColor == mShadowColor &&
--        aKey->mBackend == mBackend) {
--
--      if (mIsInset) {
--        return (mHasBorderRadius == aKey->mHasBorderRadius) &&
--                (mInnerMinSize == aKey->mInnerMinSize);
--      }
--
--      return true;
--     }
--
--     return false;
--  }
--
--  static KeyTypePointer
--  KeyToPointer(KeyType aKey)
--  {
--    return &aKey;
--  }
--};
--
--/**
-- * This class is what is cached. It need to be allocated in an object separated
-- * to the cache entry to be able to be tracked by the nsExpirationTracker.
-- * */
--struct BlurCacheData {
--  BlurCacheData(SourceSurface* aBlur, IntMargin aExtendDestBy, const BlurCacheKey& aKey)
--    : mBlur(aBlur)
--    , mExtendDest(aExtendDestBy)
--    , mKey(aKey)
--  {}
--
--  BlurCacheData(const BlurCacheData& aOther)
--    : mBlur(aOther.mBlur)
--    , mExtendDest(aOther.mExtendDest)
--    , mKey(aOther.mKey)
--  { }
--
--  nsExpirationState *GetExpirationState() {
--    return &mExpirationState;
--  }
--
--  nsExpirationState mExpirationState;
--  RefPtr<SourceSurface> mBlur;
--  IntMargin mExtendDest;
--  BlurCacheKey mKey;
--};
--
--/**
-- * This class implements a cache with no maximum size, that retains the
-- * SourceSurfaces used to draw the blurs.
-- *
-- * An entry stays in the cache as long as it is used often.
-- */
--class BlurCache final : public nsExpirationTracker<BlurCacheData,4>
--{
--  public:
--    BlurCache()
--      : nsExpirationTracker<BlurCacheData, 4>(GENERATION_MS, "BlurCache")
--    {
--    }
--
--    virtual void NotifyExpired(BlurCacheData* aObject)
--    {
--      RemoveObject(aObject);
--      mHashEntries.Remove(aObject->mKey);
--    }
--
--    BlurCacheData* Lookup(const IntSize aMinSize,
--                          const IntSize& aBlurRadius,
--                          RectCornerRadii* aCornerRadii,
--                          const Color& aShadowColor,
--                          BackendType aBackendType)
--    {
--      BlurCacheData* blur =
--        mHashEntries.Get(BlurCacheKey(aMinSize, aBlurRadius,
--                                      aCornerRadii, aShadowColor,
--                                      aBackendType));
--      if (blur) {
--        MarkUsed(blur);
--      }
--
--      return blur;
--    }
--
--    BlurCacheData* LookupInsetBoxShadow(const IntSize aOuterMinSize,
--                                        const IntSize aInnerMinSize,
--                                        const IntSize& aBlurRadius,
--                                        const RectCornerRadii* aCornerRadii,
--                                        const Color& aShadowColor,
--                                        const bool& aHasBorderRadius,
--                                        BackendType aBackendType)
--    {
--      bool insetBoxShadow = true;
--      BlurCacheKey key(aOuterMinSize, aInnerMinSize,
--                       aBlurRadius, aCornerRadii,
--                       aShadowColor, insetBoxShadow,
--                       aHasBorderRadius, aBackendType);
--      BlurCacheData* blur = mHashEntries.Get(key);
--      if (blur) {
--        MarkUsed(blur);
--      }
--
--      return blur;
--    }
--
--    // Returns true if we successfully register the blur in the cache, false
--    // otherwise.
--    bool RegisterEntry(BlurCacheData* aValue)
--    {
--      nsresult rv = AddObject(aValue);
--      if (NS_FAILED(rv)) {
--        // We are OOM, and we cannot track this object. We don't want stall
--        // entries in the hash table (since the expiration tracker is responsible
--        // for removing the cache entries), so we avoid putting that entry in the
--        // table, which is a good things considering we are short on memory
--        // anyway, we probably don't want to retain things.
--        return false;
--      }
--      mHashEntries.Put(aValue->mKey, aValue);
--      return true;
--    }
--
--  protected:
--    static const uint32_t GENERATION_MS = 1000;
--    /**
--     * FIXME use nsTHashtable to avoid duplicating the BlurCacheKey.
--     * https://bugzilla.mozilla.org/show_bug.cgi?id=761393#c47
--     */
--    nsClassHashtable<BlurCacheKey, BlurCacheData> mHashEntries;
--};
--
--static BlurCache* gBlurCache = nullptr;
--
--static IntSize
--ComputeMinSizeForShadowShape(RectCornerRadii* aCornerRadii,
--                             IntSize aBlurRadius,
--                             IntMargin& aSlice,
--                             const IntSize& aRectSize)
--{
--  float cornerWidth = 0;
--  float cornerHeight = 0;
--  if (aCornerRadii) {
--    RectCornerRadii corners = *aCornerRadii;
--    for (size_t i = 0; i < 4; i++) {
--      cornerWidth = std::max(cornerWidth, corners[i].width);
--      cornerHeight = std::max(cornerHeight, corners[i].height);
--    }
--  }
--
--  aSlice = IntMargin(ceil(cornerHeight) + aBlurRadius.height,
--                     ceil(cornerWidth) + aBlurRadius.width,
--                     ceil(cornerHeight) + aBlurRadius.height,
--                     ceil(cornerWidth) + aBlurRadius.width);
--
--  IntSize minSize(aSlice.LeftRight() + 1,
--                      aSlice.TopBottom() + 1);
--
--  // If aRectSize is smaller than minSize, the border-image approach won't
--  // work; there's no way to squeeze parts of the min box-shadow source
--  // image such that the result looks correct. So we need to adjust minSize
--  // in such a way that we can later draw it without stretching in the affected
--  // dimension. We also need to adjust "slice" to ensure that we're not trying
--  // to slice away more than we have.
--  if (aRectSize.width < minSize.width) {
--    minSize.width = aRectSize.width;
--    aSlice.left = 0;
--    aSlice.right = 0;
--  }
--  if (aRectSize.height < minSize.height) {
--    minSize.height = aRectSize.height;
--    aSlice.top = 0;
--    aSlice.bottom = 0;
--  }
--
--  MOZ_ASSERT(aSlice.LeftRight() <= minSize.width);
--  MOZ_ASSERT(aSlice.TopBottom() <= minSize.height);
--  return minSize;
--}
--
--void
--CacheBlur(DrawTarget& aDT,
--          const IntSize& aMinSize,
--          const IntSize& aBlurRadius,
--          RectCornerRadii* aCornerRadii,
--          const Color& aShadowColor,
--          IntMargin aExtendDest,
--          SourceSurface* aBoxShadow)
--{
--  BlurCacheKey key(aMinSize, aBlurRadius, aCornerRadii, aShadowColor, aDT.GetBackendType());
--  BlurCacheData* data = new BlurCacheData(aBoxShadow, aExtendDest, key);
--  if (!gBlurCache->RegisterEntry(data)) {
--    delete data;
--  }
--}
--
--// Blurs a small surface and creates the mask.
--static already_AddRefed<SourceSurface>
--CreateBlurMask(const IntSize& aMinSize,
--               RectCornerRadii* aCornerRadii,
--               IntSize aBlurRadius,
--               IntMargin& aExtendDestBy,
--               IntMargin& aSliceBorder,
--               DrawTarget& aDestDrawTarget)
--{
--  gfxAlphaBoxBlur blur;
--  IntRect minRect(IntPoint(), aMinSize);
--
--  gfxContext* blurCtx = blur.Init(ThebesRect(Rect(minRect)), IntSize(),
--                                  aBlurRadius, nullptr, nullptr);
--
--  if (!blurCtx) {
--    return nullptr;
--  }
--
--  DrawTarget* blurDT = blurCtx->GetDrawTarget();
--  ColorPattern black(Color(0.f, 0.f, 0.f, 1.f));
--
--  if (aCornerRadii) {
--    RefPtr<Path> roundedRect =
--      MakePathForRoundedRect(*blurDT, Rect(minRect), *aCornerRadii);
--    blurDT->Fill(roundedRect, black);
--  } else {
--    blurDT->FillRect(Rect(minRect), black);
--  }
--
--  IntPoint topLeft;
--  RefPtr<SourceSurface> result = blur.DoBlur(&aDestDrawTarget, &topLeft);
--  if (!result) {
--    return nullptr;
--  }
--
--  IntRect expandedMinRect(topLeft, result->GetSize());
--  aExtendDestBy = expandedMinRect - minRect;
--  aSliceBorder += aExtendDestBy;
--
--  MOZ_ASSERT(aSliceBorder.LeftRight() <= expandedMinRect.width);
--  MOZ_ASSERT(aSliceBorder.TopBottom() <= expandedMinRect.height);
--
--  return result.forget();
--}
--
--static already_AddRefed<SourceSurface>
--CreateBoxShadow(SourceSurface* aBlurMask, const Color& aShadowColor)
--{
--  IntSize blurredSize = aBlurMask->GetSize();
--  gfxPlatform* platform = gfxPlatform::GetPlatform();
--  RefPtr<DrawTarget> boxShadowDT =
--    platform->CreateOffscreenContentDrawTarget(blurredSize, SurfaceFormat::B8G8R8A8);
--
--  if (!boxShadowDT) {
--    return nullptr;
--  }
--
--  ColorPattern shadowColor(ToDeviceColor(aShadowColor));
--  boxShadowDT->MaskSurface(shadowColor, aBlurMask, Point(0, 0));
--  return boxShadowDT->Snapshot();
--}
--
--static already_AddRefed<SourceSurface>
--GetBlur(gfxContext* aDestinationCtx,
--        const IntSize& aRectSize,
--        const IntSize& aBlurRadius,
--        RectCornerRadii* aCornerRadii,
--        const Color& aShadowColor,
--        IntMargin& aExtendDestBy,
--        IntMargin& aSlice)
--{
--  if (!gBlurCache) {
--    gBlurCache = new BlurCache();
--  }
--
--  IntSize minSize =
--    ComputeMinSizeForShadowShape(aCornerRadii, aBlurRadius, aSlice, aRectSize);
--
--  // We can get seams using the min size rect when drawing to the destination rect
--  // if we have a non-pixel aligned destination transformation. In those cases,
--  // fallback to just rendering the destination rect.
--  Matrix destMatrix = ToMatrix(aDestinationCtx->CurrentMatrix());
--  bool useDestRect = !destMatrix.IsRectilinear() || destMatrix.HasNonIntegerTranslation();
--  if (useDestRect) {
--    minSize = aRectSize;
--  }
--
--  DrawTarget& destDT = *aDestinationCtx->GetDrawTarget();
--
--  BlurCacheData* cached = gBlurCache->Lookup(minSize, aBlurRadius,
--                                             aCornerRadii, aShadowColor,
--                                             destDT.GetBackendType());
--  if (cached && !useDestRect) {
--    // See CreateBlurMask() for these values
--    aExtendDestBy = cached->mExtendDest;
--    aSlice = aSlice + aExtendDestBy;
--    RefPtr<SourceSurface> blur = cached->mBlur;
--    return blur.forget();
--  }
--
--  RefPtr<SourceSurface> blurMask =
--    CreateBlurMask(minSize, aCornerRadii, aBlurRadius, aExtendDestBy, aSlice,
--                   destDT);
--
--  if (!blurMask) {
--    return nullptr;
--  }
--
--  RefPtr<SourceSurface> boxShadow = CreateBoxShadow(blurMask, aShadowColor);
--  if (!boxShadow) {
--    return nullptr;
--  }
--
--  if (useDestRect) {
--    // Since we're just going to paint the actual rect to the destination
--    aSlice.SizeTo(0, 0, 0, 0);
--  } else {
--    CacheBlur(destDT, minSize, aBlurRadius, aCornerRadii, aShadowColor,
--              aExtendDestBy, boxShadow);
--  }
--  return boxShadow.forget();
--}
--
--void
--gfxAlphaBoxBlur::ShutdownBlurCache()
--{
--  delete gBlurCache;
--  gBlurCache = nullptr;
--}
--
--static Rect
--RectWithEdgesTRBL(Float aTop, Float aRight, Float aBottom, Float aLeft)
--{
--  return Rect(aLeft, aTop, aRight - aLeft, aBottom - aTop);
--}
--
--static void
--RepeatOrStretchSurface(DrawTarget& aDT, SourceSurface* aSurface,
--                       const Rect& aDest, const Rect& aSrc, Rect& aSkipRect)
--{
--  if (aSkipRect.Contains(aDest)) {
--    return;
--  }
--
--  if ((!aDT.GetTransform().IsRectilinear() &&
--       aDT.GetBackendType() != BackendType::CAIRO) ||
--      (aDT.GetBackendType() == BackendType::DIRECT2D1_1)) {
--    // Use stretching if possible, since it leads to less seams when the
--    // destination is transformed. However, don't do this if we're using cairo,
--    // because if cairo is using pixman it won't render anything for large
--    // stretch factors because pixman's internal fixed point precision is not
--    // high enough to handle those scale factors.
--    // Calling FillRect on a D2D backend with a repeating pattern is much slower
--    // than DrawSurface, so special case the D2D backend here.
--    aDT.DrawSurface(aSurface, aDest, aSrc);
--    return;
--  }
--
--  SurfacePattern pattern(aSurface, ExtendMode::REPEAT,
--                         Matrix::Translation(aDest.TopLeft() - aSrc.TopLeft()),
--                         SamplingFilter::GOOD, RoundedToInt(aSrc));
--  aDT.FillRect(aDest, pattern);
--}
--
--static void
--DrawCorner(DrawTarget& aDT, SourceSurface* aSurface,
--           const Rect& aDest, const Rect& aSrc, Rect& aSkipRect)
--{
--  if (aSkipRect.Contains(aDest)) {
--    return;
--  }
--
--  aDT.DrawSurface(aSurface, aDest, aSrc);
--}
--
--static void
--DrawBoxShadows(DrawTarget& aDestDrawTarget, SourceSurface* aSourceBlur,
--               Rect aDstOuter, Rect aDstInner, Rect aSrcOuter, Rect aSrcInner,
--               Rect aSkipRect)
--{
--  // Corners: top left, top right, bottom left, bottom right
--  DrawCorner(aDestDrawTarget, aSourceBlur,
--             RectWithEdgesTRBL(aDstOuter.Y(), aDstInner.X(),
--                               aDstInner.Y(), aDstOuter.X()),
--             RectWithEdgesTRBL(aSrcOuter.Y(), aSrcInner.X(),
--                               aSrcInner.Y(), aSrcOuter.X()),
--                               aSkipRect);
--
--  DrawCorner(aDestDrawTarget, aSourceBlur,
--             RectWithEdgesTRBL(aDstOuter.Y(), aDstOuter.XMost(),
--                               aDstInner.Y(), aDstInner.XMost()),
--             RectWithEdgesTRBL(aSrcOuter.Y(), aSrcOuter.XMost(),
--                               aSrcInner.Y(), aSrcInner.XMost()),
--             aSkipRect);
--
--  DrawCorner(aDestDrawTarget, aSourceBlur,
--             RectWithEdgesTRBL(aDstInner.YMost(), aDstInner.X(),
--                               aDstOuter.YMost(), aDstOuter.X()),
--             RectWithEdgesTRBL(aSrcInner.YMost(), aSrcInner.X(),
--                               aSrcOuter.YMost(), aSrcOuter.X()),
--             aSkipRect);
--
--  DrawCorner(aDestDrawTarget, aSourceBlur,
--             RectWithEdgesTRBL(aDstInner.YMost(), aDstOuter.XMost(),
--                               aDstOuter.YMost(), aDstInner.XMost()),
--             RectWithEdgesTRBL(aSrcInner.YMost(), aSrcOuter.XMost(),
--                               aSrcOuter.YMost(), aSrcInner.XMost()),
--             aSkipRect);
--
--  // Edges: top, left, right, bottom
--  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
--                         RectWithEdgesTRBL(aDstOuter.Y(), aDstInner.XMost(),
--                                           aDstInner.Y(), aDstInner.X()),
--                         RectWithEdgesTRBL(aSrcOuter.Y(), aSrcInner.XMost(),
--                                           aSrcInner.Y(), aSrcInner.X()),
--                         aSkipRect);
--  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
--                         RectWithEdgesTRBL(aDstInner.Y(), aDstInner.X(),
--                                           aDstInner.YMost(), aDstOuter.X()),
--                         RectWithEdgesTRBL(aSrcInner.Y(), aSrcInner.X(),
--                                           aSrcInner.YMost(), aSrcOuter.X()),
--                         aSkipRect);
--
--  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
--                         RectWithEdgesTRBL(aDstInner.Y(), aDstOuter.XMost(),
--                                           aDstInner.YMost(), aDstInner.XMost()),
--                         RectWithEdgesTRBL(aSrcInner.Y(), aSrcOuter.XMost(),
--                                           aSrcInner.YMost(), aSrcInner.XMost()),
--                         aSkipRect);
--  RepeatOrStretchSurface(aDestDrawTarget, aSourceBlur,
--                         RectWithEdgesTRBL(aDstInner.YMost(), aDstInner.XMost(),
--                                           aDstOuter.YMost(), aDstInner.X()),
--                         RectWithEdgesTRBL(aSrcInner.YMost(), aSrcInner.XMost(),
--                                           aSrcOuter.YMost(), aSrcInner.X()),
--                         aSkipRect);
--}
--
--/***
-- * We draw a blurred a rectangle by only blurring a smaller rectangle and
-- * splitting the rectangle into 9 parts.
-- * First, a small minimum source rect is calculated and used to create a blur
-- * mask since the actual blurring itself is expensive. Next, we use the mask
-- * with the given shadow color to create a minimally-sized box shadow of the
-- * right color. Finally, we cut out the 9 parts from the box-shadow source and
-- * paint each part in the right place, stretching the non-corner parts to fill
-- * the space between the corners.
-- */
--
--/* static */ void
--gfxAlphaBoxBlur::BlurRectangle(gfxContext* aDestinationCtx,
--                               const gfxRect& aRect,
--                               RectCornerRadii* aCornerRadii,
--                               const gfxPoint& aBlurStdDev,
--                               const Color& aShadowColor,
--                               const gfxRect& aDirtyRect,
--                               const gfxRect& aSkipRect)
--{
--  IntSize blurRadius = CalculateBlurRadius(aBlurStdDev);
--
--  IntRect rect = RoundedToInt(ToRect(aRect));
--  IntMargin extendDestBy;
--  IntMargin slice;
--
--  RefPtr<SourceSurface> boxShadow = GetBlur(aDestinationCtx,
--                                            rect.Size(), blurRadius,
--                                            aCornerRadii, aShadowColor,
--                                            extendDestBy, slice);
--  if (!boxShadow) {
--    return;
--  }
--
--  DrawTarget& destDrawTarget = *aDestinationCtx->GetDrawTarget();
--  destDrawTarget.PushClipRect(ToRect(aDirtyRect));
--
--  // Copy the right parts from boxShadow into destDrawTarget. The middle parts
--  // will be stretched, border-image style.
--
--  Rect srcOuter(Point(), Size(boxShadow->GetSize()));
--  Rect srcInner = srcOuter;
--  srcInner.Deflate(Margin(slice));
--
--  rect.Inflate(extendDestBy);
--  Rect dstOuter(rect);
--  Rect dstInner(rect);
--  dstInner.Deflate(Margin(slice));
--
--  Rect skipRect = ToRect(aSkipRect);
--
--  if (srcInner.IsEqualInterior(srcOuter)) {
--    MOZ_ASSERT(dstInner.IsEqualInterior(dstOuter));
--    // The target rect is smaller than the minimal size so just draw the surface
--    destDrawTarget.DrawSurface(boxShadow, dstInner, srcInner);
--  } else {
--    DrawBoxShadows(destDrawTarget, boxShadow, dstOuter, dstInner,
--                   srcOuter, srcInner, skipRect);
--
--    // Middle part
--    RepeatOrStretchSurface(destDrawTarget, boxShadow,
--                           RectWithEdgesTRBL(dstInner.Y(), dstInner.XMost(),
--                                             dstInner.YMost(), dstInner.X()),
--                           RectWithEdgesTRBL(srcInner.Y(), srcInner.XMost(),
--                                             srcInner.YMost(), srcInner.X()),
--                           skipRect);
--  }
--
--  // A note about anti-aliasing and seems between adjacent parts:
--  // We don't explicitly disable anti-aliasing in the DrawSurface calls above,
--  // so if there's a transform on destDrawTarget that is not pixel-aligned,
--  // there will be seams between adjacent parts of the box-shadow. It's hard to
--  // avoid those without the use of an intermediate surface.
--  // You might think that we could avoid those by just turning of AA, but there
--  // is a problem with that: Box-shadow rendering needs to clip out the
--  // element's border box, and we'd like that clip to have anti-aliasing -
--  // especially if the element has rounded corners! So we can't do that unless
--  // we have a way to say "Please anti-alias the clip, but don't antialias the
--  // destination rect of the DrawSurface call".
--  // On OS X there is an additional problem with turning off AA: CoreGraphics
--  // will not just fill the pixels that have their pixel center inside the
--  // filled shape. Instead, it will fill all the pixels which are partially
--  // covered by the shape. So for pixels on the edge between two adjacent parts,
--  // all those pixels will be painted to by both parts, which looks very bad.
--
--  destDrawTarget.PopClip();
--}
--
--static already_AddRefed<Path>
--GetBoxShadowInsetPath(DrawTarget* aDrawTarget,
--                      const Rect aOuterRect, const Rect aInnerRect,
--                      const bool aHasBorderRadius, const RectCornerRadii& aInnerClipRadii)
--{
--  /***
--   * We create an inset path by having two rects.
--   *
--   *  -----------------------
--   *  |  ________________   |
--   *  | |                |  |
--   *  | |                |  |
--   *  | ------------------  |
--   *  |_____________________|
--   *
--   * The outer rect and the inside rect. The path
--   * creates a frame around the content where we draw the inset shadow.
--   */
--  RefPtr<PathBuilder> builder =
--    aDrawTarget->CreatePathBuilder(FillRule::FILL_EVEN_ODD);
--  AppendRectToPath(builder, aOuterRect, true);
--
--  if (aHasBorderRadius) {
--    AppendRoundedRectToPath(builder, aInnerRect, aInnerClipRadii, false);
--  } else {
--    AppendRectToPath(builder, aInnerRect, false);
--  }
--  return builder->Finish();
--}
--
--static void
--FillDestinationPath(gfxContext* aDestinationCtx,
--                    const Rect aDestinationRect,
--                    const Rect aShadowClipRect,
--                    const Color& aShadowColor,
--                    const bool aHasBorderRadius,
--                    const RectCornerRadii& aInnerClipRadii)
--{
--  // When there is no blur radius, fill the path onto the destination
--  // surface.
--  aDestinationCtx->SetColor(aShadowColor);
--  DrawTarget* destDrawTarget = aDestinationCtx->GetDrawTarget();
--  RefPtr<Path> shadowPath = GetBoxShadowInsetPath(destDrawTarget, aDestinationRect,
--                                                  aShadowClipRect, aHasBorderRadius,
--                                                  aInnerClipRadii);
--
--  aDestinationCtx->SetPath(shadowPath);
--  aDestinationCtx->Fill();
--}
--
--static void
--CacheInsetBlur(const IntSize aMinOuterSize,
--               const IntSize aMinInnerSize,
--               const IntSize& aBlurRadius,
--               const RectCornerRadii* aCornerRadii,
--               const Color& aShadowColor,
--               const bool& aHasBorderRadius,
--               BackendType aBackendType,
--               SourceSurface* aBoxShadow)
--{
--  bool isInsetBlur = true;
--  BlurCacheKey key(aMinOuterSize, aMinInnerSize,
--                   aBlurRadius, aCornerRadii,
--                   aShadowColor, isInsetBlur,
--                   aHasBorderRadius, aBackendType);
--  IntMargin extendDestBy(0, 0, 0, 0);
--  BlurCacheData* data = new BlurCacheData(aBoxShadow, extendDestBy, key);
--  if (!gBlurCache->RegisterEntry(data)) {
--    delete data;
--  }
--}
--
--already_AddRefed<mozilla::gfx::SourceSurface>
--gfxAlphaBoxBlur::GetInsetBlur(const mozilla::gfx::Rect aOuterRect,
--                              const mozilla::gfx::Rect aWhitespaceRect,
--                              const bool aIsDestRect,
--                              const mozilla::gfx::Color& aShadowColor,
--                              const mozilla::gfx::IntSize& aBlurRadius,
--                              const bool aHasBorderRadius,
--                              const RectCornerRadii& aInnerClipRadii,
--                              DrawTarget* aDestDrawTarget)
--{
--  if (!gBlurCache) {
--    gBlurCache = new BlurCache();
--  }
--
--  IntSize outerSize((int)aOuterRect.width, (int)aOuterRect.height);
--  IntSize whitespaceSize((int)aWhitespaceRect.width, (int)aWhitespaceRect.height);
--  BlurCacheData* cached =
--      gBlurCache->LookupInsetBoxShadow(outerSize, whitespaceSize,
--                                       aBlurRadius, &aInnerClipRadii,
--                                       aShadowColor, aHasBorderRadius,
--                                       aDestDrawTarget->GetBackendType());
--
--  if (cached && !aIsDestRect) {
--    // So we don't forget the actual cached blur
--    RefPtr<SourceSurface> cachedBlur = cached->mBlur;
--    return cachedBlur.forget();
--  }
--
--  // If we can do a min rect, the whitespace rect will be expanded in Init to
--  // aOuterRect.
--  Rect blurRect = aIsDestRect ? aOuterRect : aWhitespaceRect;
--  IntSize zeroSpread(0, 0);
--  gfxContext* minGfxContext = Init(ThebesRect(blurRect),
--                                   zeroSpread, aBlurRadius,
--                                   nullptr, nullptr);
--  if (!minGfxContext) {
--    return nullptr;
--  }
--
--  // This is really annoying. When we create the AlphaBoxBlur, the gfxContext
--  // has a translation applied to it that is the topLeft point. This is actually
--  // the rect we gave it plus the blur radius. The rects we give this for the outer
--  // and whitespace rects are based at (0, 0). We could either translate those rects
--  // when we don't have a destination rect or ignore the translation when using
--  // the dest rect. The dest rects layout gives us expect this translation.
--  if (!aIsDestRect) {
--    minGfxContext->SetMatrix(gfxMatrix());
--  }
--
--  DrawTarget* minDrawTarget = minGfxContext->GetDrawTarget();
--
--  // Fill in the path between the inside white space / outer rects
--  // NOT the inner frame
--  RefPtr<Path> maskPath =
--    GetBoxShadowInsetPath(minDrawTarget, aOuterRect,
--                          aWhitespaceRect, aHasBorderRadius,
--                          aInnerClipRadii);
--
--  Color black(0.f, 0.f, 0.f, 1.f);
--  minGfxContext->SetColor(black);
--  minGfxContext->SetPath(maskPath);
--  minGfxContext->Fill();
--
--  // Create the A8 mask
--  IntPoint topLeft;
--  RefPtr<SourceSurface> minMask = DoBlur(minDrawTarget, &topLeft);
--  if (!minMask) {
--    return nullptr;
--  }
--
--  // Fill in with the color we actually wanted
--  RefPtr<SourceSurface> minInsetBlur = CreateBoxShadow(minMask, aShadowColor);
--  if (!minInsetBlur) {
--    return nullptr;
--  }
--
--  if (!aIsDestRect) {
--    CacheInsetBlur(outerSize, whitespaceSize,
--                   aBlurRadius, &aInnerClipRadii,
--                   aShadowColor, aHasBorderRadius,
--                   aDestDrawTarget->GetBackendType(),
--                   minInsetBlur);
--  }
--
--  return minInsetBlur.forget();
--}
--
--/***
-- * We create our minimal rect with 2 rects.
-- * The first is the inside whitespace rect, that is "cut out"
-- * from the box. This is (1). This must be the size
-- * of the blur radius + corner radius so we can have a big enough
-- * inside cut.
-- *
-- * The second (2) is one blur radius surrounding the inner
-- * frame of (1). This is the amount of blur space required
-- * to get a proper blend.
-- *
-- * B = one blur size
-- * W = one blur + corner radii - known as inner margin
-- * ___________________________________
-- * |                                |
-- * |          |             |       |
-- * |      (2) |    (1)      |  (2)  |
-- * |       B  |     W       |   B   |
-- * |          |             |       |
-- * |          |             |       |
-- * |          |                     |
-- * |________________________________|
-- */
--static void GetBlurMargins(const bool aHasBorderRadius,
--                           const RectCornerRadii& aInnerClipRadii,
--                           const IntSize aBlurRadius,
--                           Margin& aOutBlurMargin,
--                           Margin& aOutInnerMargin)
--{
--  float cornerWidth = 0;
--  float cornerHeight = 0;
--  if (aHasBorderRadius) {
--    for (size_t i = 0; i < 4; i++) {
--      cornerWidth = std::max(cornerWidth, aInnerClipRadii[i].width);
--      cornerHeight = std::max(cornerHeight, aInnerClipRadii[i].height);
--    }
--  }
--
--  // Only the inside whitespace size cares about the border radius size.
--  // Outer sizes only care about blur.
--  int width = cornerWidth + aBlurRadius.width;
--  int height = cornerHeight + aBlurRadius.height;
--
--  aOutInnerMargin.SizeTo(height, width, height, width);
--  aOutBlurMargin.SizeTo(aBlurRadius.height, aBlurRadius.width,
--                        aBlurRadius.height, aBlurRadius.width);
--}
--
--static bool
--GetInsetBoxShadowRects(const Margin aBlurMargin,
--                       const Margin aInnerMargin,
--                       const Rect aShadowClipRect,
--                       const Rect aDestinationRect,
--                       Rect& aOutWhitespaceRect,
--                       Rect& aOutOuterRect)
--{
--  // We always copy (2 * blur radius) + corner radius worth of data to the destination rect
--  // This covers the blend of the path + the actual blur
--  // Need +1 so that we copy the edges correctly as we'll copy
--  // over the min box shadow corners then the +1 for the edges between
--  // Note, the (x,y) coordinates are from the blur margin
--  // since the frame outside the whitespace rect is 1 blur radius extra space.
--  Rect insideWhiteSpace(aBlurMargin.left,
--                        aBlurMargin.top,
--                        aInnerMargin.LeftRight() + 1,
--                        aInnerMargin.TopBottom() + 1);
--
--  // If the inner white space rect is larger than the shadow clip rect
--  // our approach does not work as we'll just copy one corner
--  // and cover the destination. In those cases, fallback to the destination rect
--  bool useDestRect = (aShadowClipRect.width <= aInnerMargin.LeftRight()) ||
--                     (aShadowClipRect.height <= aInnerMargin.TopBottom());
--
--  if (useDestRect) {
--    aOutWhitespaceRect = aShadowClipRect;
--    aOutOuterRect = aDestinationRect;
--  } else {
--    aOutWhitespaceRect = insideWhiteSpace;
--    aOutOuterRect = aOutWhitespaceRect;
--    aOutOuterRect.Inflate(aBlurMargin);
--  }
--
--  return useDestRect;
--}
--
--void
--gfxAlphaBoxBlur::BlurInsetBox(gfxContext* aDestinationCtx,
--                              const Rect aDestinationRect,
--                              const Rect aShadowClipRect,
--                              const IntSize aBlurRadius,
--                              const IntSize aSpreadRadius,
--                              const Color& aShadowColor,
--                              bool aHasBorderRadius,
--                              const RectCornerRadii& aInnerClipRadii,
--                              const Rect aSkipRect,
--                              const Point aShadowOffset)
--{
--  if ((aBlurRadius.width == 0 && aBlurRadius.height == 0)
--      || aShadowClipRect.IsEmpty()) {
--    FillDestinationPath(aDestinationCtx, aDestinationRect, aShadowClipRect,
--        aShadowColor, aHasBorderRadius, aInnerClipRadii);
--    return;
--  }
--
--  DrawTarget* destDrawTarget = aDestinationCtx->GetDrawTarget();
--
--  Margin innerMargin;
--  Margin blurMargin;
--  GetBlurMargins(aHasBorderRadius, aInnerClipRadii, aBlurRadius,
--                 blurMargin, innerMargin);
--
--  Rect whitespaceRect;
--  Rect outerRect;
--  bool useDestRect = GetInsetBoxShadowRects(blurMargin, innerMargin, aShadowClipRect,
--                                            aDestinationRect, whitespaceRect, outerRect);
--
--  RefPtr<SourceSurface> minBlur = GetInsetBlur(outerRect, whitespaceRect, useDestRect, aShadowColor,
--                                               aBlurRadius, aHasBorderRadius, aInnerClipRadii,
--                                               destDrawTarget);
--  if (!minBlur) {
--    return;
--  }
--
--  if (useDestRect) {
--    IntSize blurSize = minBlur->GetSize();
--    Rect srcBlur(0, 0, blurSize.width, blurSize.height);
--    Rect destBlur = aDestinationRect;
--
--    // The blur itself expands the rect by the blur margin, so we
--    // have to mimic that here.
--    destBlur.Inflate(blurMargin);
--    MOZ_ASSERT(srcBlur.Size() == destBlur.Size());
--    destDrawTarget->DrawSurface(minBlur, destBlur, srcBlur);
--  } else {
--    Rect srcOuter(outerRect);
--    Rect srcInner(srcOuter);
--    srcInner.Deflate(blurMargin);   // The outer color fill
--    srcInner.Deflate(innerMargin);  // The inner whitespace
--
--    // The shadow clip rect already takes into account the spread radius
--    Rect outerFillRect(aShadowClipRect);
--    outerFillRect.Inflate(blurMargin);
--    FillDestinationPath(aDestinationCtx, aDestinationRect, outerFillRect, aShadowColor, false, RectCornerRadii());
--
--    // Inflate once for the frame around the whitespace
--    Rect destRect(aShadowClipRect);
--    destRect.Inflate(blurMargin);
--
--    // Deflate for the blurred in white space
--    Rect destInnerRect(aShadowClipRect);
--    destInnerRect.Deflate(innerMargin);
--
--    DrawBoxShadows(*destDrawTarget, minBlur,
--                   destRect, destInnerRect,
--                   srcOuter, srcInner,
--                   aSkipRect);
--  }
- }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
---- gfx/thebes/gfxFont.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.cpp	2016-08-07 18:16:32.000000000 +0200
+--- gfx/thebes/gfxFont.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -168,25 +168,8 @@
  }
  
@@ -1556,8 +465,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-pa
  gfxFontCache::NotifyReleased(gfxFont *aFont)
  {
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
---- gfx/thebes/gfxFont.h	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.h	2016-08-07 18:16:26.000000000 +0200
+--- gfx/thebes/gfxFont.h	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-08-16 17:23:36.000000000 +0200
 @@ -276,7 +276,7 @@
      size_t mShapedWords; // memory used by the per-font shapedWord caches
  };
@@ -1590,8 +499,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patc
  
      void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
---- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-05 16:16:14.000000000 +0200
+--- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-16 17:23:36.000000000 +0200
 @@ -71,6 +71,8 @@
  #include <time.h>
  #include <dlfcn.h>
@@ -1637,8 +546,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm
      gfxFontFamily* familyEntry = new gfxMacFontFamily(familyName, sizeHint);
      table.Put(key, familyEntry);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
---- gfx/thebes/gfxPlatform.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-06 20:56:09.000000000 +0200
+--- gfx/thebes/gfxPlatform.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-16 17:45:00.000000000 +0200
 @@ -185,218 +185,6 @@
  #include "mozilla/gfx/SourceSurfaceCairo.h"
  using namespace mozilla::gfx;
@@ -1980,14 +889,15 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
    } else {
      Factory::SetGlobalEventRecorder(nullptr);
    }
-@@ -591,57 +281,11 @@
+@@ -591,55 +281,12 @@
  
      // Initialize the preferences by creating the singleton.
      gfxPrefs::GetSingleton();
 -    MediaPrefs::GetSingleton();
--    gfxVars::Initialize();
--
--    gfxConfig::Init();
++
+     gfxVars::Initialize();
+ 
+     gfxConfig::Init();
  
 -    if (XRE_IsParentProcess()) {
 -      GPUProcessManager::Initialize();
@@ -2003,16 +913,14 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -    {
 -      nsAutoCString forcedPrefs;
 -      // D2D prefs
--      forcedPrefs.AppendPrintf("FP(D%d%d%d",
+-      forcedPrefs.AppendPrintf("FP(D%d%d",
 -                               gfxPrefs::Direct2DDisabled(),
--                               gfxPrefs::Direct2DForceEnabled(),
--                               gfxPrefs::DirectWriteFontRenderingForceEnabled());
+-                               gfxPrefs::Direct2DForceEnabled());
 -      // Layers prefs
--      forcedPrefs.AppendPrintf("-L%d%d%d%d%d",
+-      forcedPrefs.AppendPrintf("-L%d%d%d%d",
 -                               gfxPrefs::LayersAMDSwitchableGfxEnabled(),
 -                               gfxPrefs::LayersAccelerationDisabledDoNotUseDirectly(),
 -                               gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly(),
--                               gfxPrefs::LayersD3D11DisableWARP(),
 -                               gfxPrefs::LayersD3D11ForceWARP());
 -      // WebGL prefs
 -      forcedPrefs.AppendPrintf("-W%d%d%d%d%d%d%d%d",
@@ -2032,15 +940,13 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -                               gfxPrefs::ForceShmemTiles());
 -      ScopedGfxFeatureReporter::AppNote(forcedPrefs);
 -    }
-+    gfxVars::Initialize();
- 
+-
      mozilla::gfx::Config cfg;
 -    cfg.mLogForwarder = fwd;
-+
      cfg.mMaxTextureSize = gfxPrefs::MaxTextureSize();
      cfg.mMaxAllocSize = gfxPrefs::MaxAllocSize();
  
-@@ -649,17 +293,6 @@
+@@ -647,17 +294,6 @@
  
      gGfxPlatformPrefsLock = new Mutex("gfxPlatform::gGfxPlatformPrefsLock");
  
@@ -2058,7 +964,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  #if defined(XP_WIN)
      gPlatform = new gfxWindowsPlatform;
  #elif defined(XP_MACOSX)
-@@ -723,15 +356,6 @@
+@@ -721,15 +357,6 @@
          NS_RUNTIMEABORT("Could not initialize gfxFontCache");
      }
  
@@ -2074,7 +980,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  #ifdef MOZ_WIDGET_ANDROID
      // Texture pool init
      TexturePoolOGL::Init();
-@@ -745,28 +369,6 @@
+@@ -743,28 +370,6 @@
  
      CreateCMSOutputProfile();
  
@@ -2103,7 +1009,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  
  #ifdef USE_SKIA
      uint32_t skiaCacheSize = GetSkiaGlyphCacheSize();
-@@ -778,9 +380,6 @@
+@@ -776,9 +381,6 @@
      InitNullMetadata();
      InitOpenGLConfig();
  
@@ -2113,7 +1019,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  static bool sLayersIPCIsUp = false;
-@@ -788,8 +387,6 @@
+@@ -786,8 +388,6 @@
  /* static */ void
  gfxPlatform::InitNullMetadata()
  {
@@ -2122,7 +1028,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  void
-@@ -816,38 +413,13 @@
+@@ -814,38 +414,13 @@
      // Free the various non-null transforms and loaded profiles
      ShutdownCMS();
  
@@ -2161,7 +1067,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  #if defined(XP_WIN)
      // The above shutdown calls operate on the available context providers on
      // most platforms.  Windows is a "special snowflake", though, and has three
-@@ -858,9 +430,6 @@
+@@ -856,9 +431,6 @@
      GLContextProviderEGL::Shutdown();
  #endif
  
@@ -2171,7 +1077,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  
      // This is a bit iffy - we're assuming that we were the ones that set the
      // log forwarder in the Factory, so that it's our responsibility to
-@@ -889,14 +458,6 @@
+@@ -887,14 +459,6 @@
        return;
      }
      sLayersIPCIsUp = true;
@@ -2186,7 +1092,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  /* static */ void
-@@ -906,29 +467,6 @@
+@@ -904,29 +468,6 @@
        return;
      }
      sLayersIPCIsUp = false;
@@ -2216,7 +1122,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  gfxPlatform::~gfxPlatform()
-@@ -1204,20 +742,6 @@
+@@ -1206,20 +747,6 @@
  void
  gfxPlatform::PopulateScreenInfo()
  {
@@ -2237,7 +1143,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  bool
-@@ -1243,17 +767,7 @@
+@@ -1245,17 +772,7 @@
  bool gfxPlatform::UseAcceleratedCanvas()
  {
    // Allow acceleration on Skia if the preference is set, unless it's blocked
@@ -2256,7 +1162,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  void
-@@ -2000,30 +1514,6 @@
+@@ -2001,30 +1518,6 @@
  mozilla::LogModule*
  gfxPlatform::GetLog(eGfxLog aWhichLog)
  {
@@ -2287,7 +1193,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
      return nullptr;
  }
  
-@@ -2085,98 +1575,11 @@
+@@ -2086,98 +1579,11 @@
  void
  gfxPlatform::InitAcceleration()
  {
@@ -2386,7 +1292,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  bool
-@@ -2306,33 +1709,11 @@
+@@ -2307,33 +1713,11 @@
  void
  gfxPlatform::GetApzSupportInfo(mozilla::widget::InfoObject& aObj)
  {
@@ -2420,7 +1326,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  /*static*/ bool
-@@ -2369,80 +1750,26 @@
+@@ -2364,80 +1748,26 @@
  void
  gfxPlatform::GetAcceleratedCompositorBackends(nsTArray<LayersBackend>& aBackends)
  {
@@ -2501,7 +1407,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
    return true;
  }
  
-@@ -2461,61 +1788,11 @@
+@@ -2456,61 +1786,11 @@
  void
  gfxPlatform::InitOpenGLConfig()
  {
@@ -2564,9 +1470,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
    return true;
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
---- gfx/thebes/gfxPlatform.h	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.h	2016-08-06 19:06:37.000000000 +0200
-@@ -274,10 +274,6 @@
+--- gfx/thebes/gfxPlatform.h	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-08-16 17:23:36.000000000 +0200
+@@ -275,10 +275,6 @@
      static bool AsyncPanZoomEnabled();
  
      virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
@@ -2577,7 +1483,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-
      }
      void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
      void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
-@@ -804,10 +800,6 @@
+@@ -805,10 +801,6 @@
      // Bitmask of backend types we can use to render content
      uint32_t mContentBackendBitmask;
  
@@ -2589,8 +1495,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-
      RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
---- gfx/thebes/gfxPlatformFontList.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-05 16:16:14.000000000 +0200
+--- gfx/thebes/gfxPlatformFontList.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -24,6 +24,7 @@
  #include "mozilla/Telemetry.h"
  #include "mozilla/TimeStamp.h"
@@ -2706,8 +1612,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp g
      NS_ASSERTION(mLangService, "no language service!");
      return mLangService;
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
---- gfx/thebes/gfxPlatformGtk.cpp	2016-08-05 16:16:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-07 18:27:17.000000000 +0200
+--- gfx/thebes/gfxPlatformGtk.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -648,238 +648,11 @@
  
  #ifdef GL_PROVIDER_GLX
@@ -2949,9 +1855,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/th
  
  bool
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
---- gfx/thebes/gfxPlatformMac.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-05 16:16:14.000000000 +0200
-@@ -374,211 +374,10 @@
+--- gfx/thebes/gfxPlatformMac.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-16 17:23:36.000000000 +0200
+@@ -373,211 +373,10 @@
    return true;
  }
  
@@ -3165,8 +2071,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/th
  
  void
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
---- gfx/thebes/gfxPrefs.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-05 16:16:15.000000000 +0200
+--- gfx/thebes/gfxPrefs.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -38,14 +38,7 @@
  
  gfxPrefs::gfxPrefs()
@@ -3200,8 +2106,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-p
  
  void gfxPrefs::PrefAddVarCache(bool* aVariable,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
---- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-05 17:47:24.000000000 +0200
+--- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -39,38 +39,28 @@
  
  typedef mozilla::dom::Element Element;
@@ -3613,8 +2519,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  
  size_t
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes-patched/gfxTextRun.cpp
---- gfx/thebes/gfxTextRun.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-05 16:16:15.000000000 +0200
+--- gfx/thebes/gfxTextRun.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -3244,7 +3244,6 @@
          mMissingFonts[i] = 0;
      }
@@ -3625,8 +2531,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes
      }
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
---- gfx/thebes/gfxUserFontSet.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-05 16:16:15.000000000 +0200
+--- gfx/thebes/gfxUserFontSet.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -472,80 +472,6 @@
                                                        &bypassCache);
  
@@ -3855,8 +2761,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/th
  }
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
---- gfx/thebes/gfxUtils.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/thebes-patched/gfxUtils.cpp	2016-08-05 16:16:15.000000000 +0200
+--- gfx/thebes/gfxUtils.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-08-16 17:23:36.000000000 +0200
 @@ -1334,106 +1334,6 @@
      return imageBuffer;
  }

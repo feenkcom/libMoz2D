@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' gfx/config/gfxVars.cpp gfx/config-patched/gfxVars.cpp
---- gfx/config/gfxVars.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/config-patched/gfxVars.cpp	2016-08-06 19:29:17.000000000 +0200
+--- gfx/config/gfxVars.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/config-patched/gfxVars.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -25,17 +25,6 @@
    // sInstance.
    sVarList = new nsTArray<gfxVars::VarBase*>();

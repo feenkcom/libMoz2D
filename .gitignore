@@ -1,5 +1,5 @@
 build/
-mozilla-central/
+mozilla-central*/
 *.tar.gz
 *_tmp
 .idea/

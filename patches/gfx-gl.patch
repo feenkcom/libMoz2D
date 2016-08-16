@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' gfx/gl/GLLibraryEGL.cpp gfx/gl-patched/GLLibraryEGL.cpp
---- gfx/gl/GLLibraryEGL.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/GLLibraryEGL.cpp	2016-08-06 20:23:10.000000000 +0200
+--- gfx/gl/GLLibraryEGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/GLLibraryEGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -148,21 +148,7 @@
  IsAccelAngleSupported(const nsCOMPtr<nsIGfxInfo>& gfxInfo,
                        nsACString* const out_failureId)
@@ -25,8 +25,8 @@ diff -Naur --exclude '.*' gfx/gl/GLLibraryEGL.cpp gfx/gl-patched/GLLibraryEGL.cp
  
  static EGLDisplay
 diff -Naur --exclude '.*' gfx/gl/SharedSurface.cpp gfx/gl-patched/SharedSurface.cpp
---- gfx/gl/SharedSurface.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurface.cpp	2016-08-06 20:10:46.000000000 +0200
+--- gfx/gl/SharedSurface.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurface.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -304,9 +304,7 @@
  SurfaceFactory::~SurfaceFactory()
  {
@@ -53,8 +53,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurface.cpp gfx/gl-patched/SharedSurface.
  
  void
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceANGLE.cpp gfx/gl-patched/SharedSurfaceANGLE.cpp
---- gfx/gl/SharedSurfaceANGLE.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceANGLE.cpp	2016-08-05 18:48:33.000000000 +0200
+--- gfx/gl/SharedSurfaceANGLE.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceANGLE.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -164,10 +164,6 @@
  bool
  SharedSurface_ANGLEShareHandle::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -67,8 +67,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceANGLE.cpp gfx/gl-patched/SharedSur
  }
  
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceD3D11Interop.cpp gfx/gl-patched/SharedSurfaceD3D11Interop.cpp
---- gfx/gl/SharedSurfaceD3D11Interop.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceD3D11Interop.cpp	2016-08-05 18:48:53.000000000 +0200
+--- gfx/gl/SharedSurfaceD3D11Interop.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceD3D11Interop.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -357,10 +357,6 @@
  bool
  SharedSurface_D3D11Interop::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -81,8 +81,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceD3D11Interop.cpp gfx/gl-patched/Sh
  }
  
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceEGL.cpp gfx/gl-patched/SharedSurfaceEGL.cpp
---- gfx/gl/SharedSurfaceEGL.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceEGL.cpp	2016-08-05 18:49:03.000000000 +0200
+--- gfx/gl/SharedSurfaceEGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceEGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -153,8 +153,6 @@
  bool
  SharedSurface_EGLImage::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -93,8 +93,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceEGL.cpp gfx/gl-patched/SharedSurfa
  }
  
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGL.cpp gfx/gl-patched/SharedSurfaceGL.cpp
---- gfx/gl/SharedSurfaceGL.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGL.cpp	2016-08-05 18:49:22.000000000 +0200
+--- gfx/gl/SharedSurfaceGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -173,12 +173,6 @@
  bool
  SharedSurface_GLTexture::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -109,8 +109,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGL.cpp gfx/gl-patched/SharedSurfac
      mSync = nullptr;
      return true;
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGLX.cpp gfx/gl-patched/SharedSurfaceGLX.cpp
---- gfx/gl/SharedSurfaceGLX.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGLX.cpp	2016-08-05 18:49:31.000000000 +0200
+--- gfx/gl/SharedSurfaceGLX.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGLX.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -79,8 +79,6 @@
  {
      if (!mXlibSurface)
@@ -121,8 +121,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGLX.cpp gfx/gl-patched/SharedSurfa
  }
  
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGralloc.cpp gfx/gl-patched/SharedSurfaceGralloc.cpp
---- gfx/gl/SharedSurfaceGralloc.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGralloc.cpp	2016-08-05 18:49:57.000000000 +0200
+--- gfx/gl/SharedSurfaceGralloc.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGralloc.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -231,8 +231,7 @@
  bool
  SharedSurface_Gralloc::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -134,8 +134,8 @@ diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGralloc.cpp gfx/gl-patched/SharedS
  
  bool
 diff -Naur --exclude '.*' gfx/gl/SharedSurfaceIO.cpp gfx/gl-patched/SharedSurfaceIO.cpp
---- gfx/gl/SharedSurfaceIO.cpp	2016-08-05 12:01:14.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceIO.cpp	2016-08-05 18:50:08.000000000 +0200
+--- gfx/gl/SharedSurfaceIO.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceIO.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -174,10 +174,6 @@
  bool
  SharedSurface_IOSurface::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
