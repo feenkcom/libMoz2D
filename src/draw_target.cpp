@@ -201,8 +201,16 @@ void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pa
 	drawTarget->FillRect(*rect, *pattern, *drawOptions);
 }
 
+void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, DrawOptions* drawOptions) {
+	drawTarget->FillRect(Rect(x,y,width,height), ColorPattern(Color(r,g,b,a)), *drawOptions);
+}
+
 void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions) {
 	drawTarget->Fill(path, *pattern, *drawOptions);
+}
+
+void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, DrawOptions* drawOptions) {
+	drawTarget->Fill(path, ColorPattern(Color(r,g,b,a)), *drawOptions);
 }
 
 /*
@@ -212,8 +220,16 @@ void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* 
 	drawTarget->StrokeRect(*rect, *pattern, *strokeOptions, *drawOptions);
 }
 
+void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+	drawTarget->StrokeRect(Rect(x,y,width,height), ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
+}
+
 void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->Stroke(path, *pattern, *strokeOptions, *drawOptions);
+}
+
+void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+	drawTarget->Stroke(path, ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
 }
 
 /*
