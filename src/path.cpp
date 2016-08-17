@@ -149,48 +149,64 @@ void moz2d_path_sink_circle_arc_to(PathSink* pathSink, float radius, int8_t vect
 	moz2d_path_sink_arc(pathSink, center.x, center.y, radius, startAngle, endAngle, aAntiClockwise, true);
 }
 
-void moz2d_path_sink_ellipse_arc_to(PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool absolute) {
-//	Point start = pathSink->CurrentPoint();
-//	Point end = start + Point(radius * vectorX, radius * vectorY);
-//
-//	Point center;
-//	float startAngle;
-//	float endAngle;
-//	if (end.x > start.x) {
-//		if (end.y > start.y) {
-//			center = start + (aAntiClockwise ? Point(radius, 0) : Point(0, radius));
-//			startAngle = aAntiClockwise ? PI : HalfPI;
-//			endAngle = aAntiClockwise ? HalfPI : 0;
-//		}
-//		else {
-//			center = start + (aAntiClockwise ? Point(0, -radius) : Point(radius, 0));
-//			startAngle = aAntiClockwise ? HalfPI : PI;
-//			endAngle = aAntiClockwise ? 0 : ThreeHalvesPI;
-//		}
-//	}
-//	else {
-//		if (end.y > start.y) {
-//			center = start + (aAntiClockwise ? Point(0, radius) : Point(-radius, 0));
-//			startAngle = aAntiClockwise ? PI : 0;
-//			endAngle = aAntiClockwise ? HalfPI : HalfPI;
-//		}
-//		else {
-//			center = start + (aAntiClockwise ? Point(-radius, 0) : Point(0, -radius));
-//			startAngle = aAntiClockwise ? 0 : HalfPI;
-//			endAngle = aAntiClockwise ? HalfPI : PI;
-//		}
-//	}
-//
-//	moz2d_path_sink_arc(pathSink, center.x, center.y, radius, startAngle, endAngle, aAntiClockwise, true);
+void moz2d_path_sink_ellipse_arc_to(PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool isAbsolute) {
+	Point start = pathSink->CurrentPoint(); // absolute value
+	Point end = isAbsolute ? Point(endX, endY) : start + Point(endX, endY);
+	Point vector = end - start;
+
+	float halfWidth = std::abs(vector.x);
+	float halfHeight = std::abs(vector.y);
+	bool absolute = false;
+
+	if (end.x > start.x) {
+		if (end.y > start.y) {
+			if (aAntiClockwise) {
+				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55, halfWidth * 0.45, halfHeight, halfWidth, halfHeight, absolute);
+			}
+			else {
+				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55, 0, halfWidth, halfHeight * 0.45, halfWidth, halfHeight, absolute);
+			}
+		}
+		else {
+			if (aAntiClockwise) {
+				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55, 0, halfWidth, -halfHeight * 0.45, halfWidth, -halfHeight, absolute);
+			}
+			else {
+				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55, halfWidth * 0.45, -halfHeight, halfWidth, -halfHeight, absolute);
+			}
+		}
+	}
+	else {
+		if (end.y > start.y) {
+			if (aAntiClockwise) {
+				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55, 0, -halfWidth , halfHeight * 0.45, -halfWidth, halfHeight, absolute);
+			}
+			else {
+				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55, -halfWidth * 0.45, halfHeight, -halfWidth, halfHeight, absolute);
+			}
+		}
+		else {
+			if (aAntiClockwise) {
+				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55, -halfWidth * 0.45, -halfHeight,  -halfWidth, -halfHeight, absolute);
+			}
+			else {
+				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55, 0, -halfWidth, -halfHeight * 0.45, -halfWidth, -halfHeight, absolute);
+			}
+		}
+	}
 }
 
 void moz2d_path_sink_arc_to (PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool absolute) {
-	Point start = pathSink->CurrentPoint();
-	Point end = Point(endX, endY);
-
-	Point vector = absolute ? (end - start) : end;
-
-	moz2d_path_sink_circle_arc_to(pathSink, vector.x, sign(vector.x), sign(vector.y), aAntiClockwise);
+	// if endX = endY we get a quarter of circle and can simplify creation
+	if (endX == endY) {
+		Point start = pathSink->CurrentPoint();
+		Point vector = absolute ? Point(endX, endY) - start : Point(endX, endY);
+		moz2d_path_sink_circle_arc_to(pathSink, vector.x, sign(vector.x), sign(vector.y), aAntiClockwise);
+	}
+	// otherwise we need to create an ellipse arc
+	else {
+		moz2d_path_sink_ellipse_arc_to(pathSink, endX, endY, aAntiClockwise, absolute);
+	}
 }
 
 void moz2d_path_sink_current_point(PathSink* pathSink, Point* point) {
@@ -207,26 +223,28 @@ Path* moz2d_shape_rounded_rectangle (DrawTarget* drawTarget,
 		float x, float y, float width, float height,
 		float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, FillRule aFillRule) {
 
-	float min = std::min((x + width) , (y + height)) / 2;
+	float min = std::min(width , height) / 2;
 	float tlr = std::min(topLeftRadius, min);
 	float trr = std::min(topRightRadius, min);
 	float brr = std::min(bottomRightRadius, min);
 	float blr = std::min(bottomLeftRadius, min);
+	float right = x + width;
+	float bottom = y + height;
 
 	bool absolute = true;
 
 	PathBuilder* pathBuilder = drawTarget->CreatePathBuilder(aFillRule).take();
 
-	moz2d_path_sink_move_to(pathBuilder, x, tlr, absolute);
-	moz2d_path_sink_arc_to(pathBuilder, tlr, y, false, absolute);
-	moz2d_path_sink_line_to(pathBuilder, x + width - trr, y, absolute);
+	moz2d_path_sink_move_to(pathBuilder, x, y + tlr, absolute);
+	moz2d_path_sink_arc_to(pathBuilder, x + tlr, y, false, absolute);
+	moz2d_path_sink_line_to(pathBuilder, right - trr, y, absolute);
 
-	moz2d_path_sink_arc_to(pathBuilder, x + width, trr, false, absolute);
-	moz2d_path_sink_line_to(pathBuilder, x + width, y + height - brr, absolute);
+	moz2d_path_sink_arc_to(pathBuilder, right, y + trr, false, absolute);
+	moz2d_path_sink_line_to(pathBuilder, right, bottom - brr, absolute);
 
-	moz2d_path_sink_arc_to(pathBuilder, x + width - brr, y + height, false, absolute);
-	moz2d_path_sink_line_to(pathBuilder, x + blr, y + height, absolute);
-	moz2d_path_sink_arc_to(pathBuilder, x, y + height - blr, false, absolute);
+	moz2d_path_sink_arc_to(pathBuilder, right - brr, bottom, false, absolute);
+	moz2d_path_sink_line_to(pathBuilder, x + blr, bottom, absolute);
+	moz2d_path_sink_arc_to(pathBuilder, x, bottom - blr, false, absolute);
 	moz2d_path_sink_close(pathBuilder);
 
 	Path* path = moz2d_path_builder_finish(pathBuilder);
@@ -240,16 +258,21 @@ Path* moz2d_shape_ellipse (DrawTarget* drawTarget,
 
 	float halfWidth = width / 2;
 	float halfHeight = height / 2;
+	float halfWidth055 = halfWidth * 0.55;
+	float halfHeight055 = halfHeight * 0.55;
+	float halfWidth045 = halfWidth * 0.45;
+	float halfHeight045 = halfHeight * 0.45;
 
-	bool relative = false;
+	bool absolute = false;
 
 	PathBuilder* pathBuilder = drawTarget->CreatePathBuilder(aFillRule).take();
 
-	moz2d_path_sink_move_to(pathBuilder, halfWidth, y, relative);
-	moz2d_path_sink_bezier_to(pathBuilder, halfWidth * 0.55, y, halfWidth, halfHeight * 0.45, halfWidth, halfHeight, relative);
-	moz2d_path_sink_bezier_to(pathBuilder, x, halfHeight * 0.55, -halfWidth * 0.45, halfHeight, -halfWidth, halfHeight, relative);
-	moz2d_path_sink_bezier_to(pathBuilder, -halfWidth * 0.55, y, -halfWidth, -halfHeight * 0.45, -halfWidth, -halfHeight, relative);
-	moz2d_path_sink_bezier_to(pathBuilder, x, -halfHeight * 0.55, halfWidth * 0.45, -halfHeight, halfWidth, -halfHeight, relative);
+	moz2d_path_sink_move_to(pathBuilder, x, y, absolute);
+	moz2d_path_sink_move_to(pathBuilder, halfWidth, 0, absolute);
+	moz2d_path_sink_bezier_to(pathBuilder, halfWidth055, 0, halfWidth, halfHeight045, halfWidth, halfHeight, absolute);
+	moz2d_path_sink_bezier_to(pathBuilder, 0, halfHeight055, -halfWidth045, halfHeight, -halfWidth, halfHeight, absolute);
+	moz2d_path_sink_bezier_to(pathBuilder, -halfWidth055, 0, -halfWidth, -halfHeight045, -halfWidth, -halfHeight, absolute);
+	moz2d_path_sink_bezier_to(pathBuilder, 0, -halfHeight055, halfWidth045, -halfHeight, halfWidth, -halfHeight, absolute);
 	moz2d_path_sink_close(pathBuilder);
 
 	Path* path = moz2d_path_builder_finish(pathBuilder);

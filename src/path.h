@@ -50,6 +50,7 @@ void moz2d_path_sink_arc_to_angle(PathSink* pathSink, float endX, float endY, fl
 void moz2d_path_sink_arc_to (PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool absolute);
 
 void moz2d_path_sink_circle_arc_to(PathSink* pathSink, float radius, int8_t vectorX, int8_t vectorY, bool aAntiClockwise);
+void moz2d_path_sink_ellipse_arc_to(PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool absolute);
 
 /** Point the current subpath is at - or where the next subpath will start
  * if there is no active subpath.
@@ -61,7 +62,7 @@ void moz2d_path_sink_current_point(PathSink* pathSink, Point* point);
  */
 Path* moz2d_path_builder_finish(PathBuilder* pathBuilder);
 
-Path* moz2d_shape_rounded_rectangle(DrawTarget* drawTarget, float x, float y, float width, float height, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius);
+Path* moz2d_shape_rounded_rectangle(DrawTarget* drawTarget, float x, float y, float width, float height, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, FillRule aFillRule);
 Path* moz2d_shape_ellipse (DrawTarget* drawTarget, float x, float y, float width, float height, FillRule aFillRule);
 
 void moz2d_path_get_stroked_bounds(Path* path, StrokeOptions* aStrokeOptions, Rect* retBounds);
