@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <algorithm>
+#include <limits>
 
 #define PI 				3.141592654
 #define TwoPI			6.283185307
@@ -124,7 +125,7 @@ void moz2d_path_sink_circle_arc_to(PathSink* pathSink, float radius, int8_t vect
 	if (end.x > start.x) {
 		if (end.y > start.y) {
 			center = start + (aAntiClockwise ? Point(radius, 0) : Point(0, radius));
-			startAngle = aAntiClockwise ? PI : HalfPI;
+			startAngle = aAntiClockwise ? PI : ThreeHalvesPI;
 			endAngle = aAntiClockwise ? HalfPI : 0;
 		}
 		else {
@@ -196,9 +197,27 @@ void moz2d_path_sink_ellipse_arc_to(PathSink* pathSink, float endX, float endY, 
 	}
 }
 
+
+MOZ_ALWAYS_INLINE bool floatEquals(float a, float b) {
+	return fabs(a - b) < std::numeric_limits<float>::epsilon();
+}
+
+MOZ_ALWAYS_INLINE bool absEquals(float a, float b) {
+	return floatEquals(fabs(a), fabs(b));
+}
+
+
 void moz2d_path_sink_arc_to (PathSink* pathSink, float endX, float endY, bool aAntiClockwise, bool absolute) {
 	// if endX = endY we get a quarter of circle and can simplify creation
-	if (endX == endY) {
+
+	bool optimize = !absolute && absEquals(endX, endY);
+	if (!optimize && absolute) {
+		Point current = pathSink->CurrentPoint();
+		optimize = absEquals(endX - current.x, endY - current.y);
+	}
+
+	// if we can optimize, create a circled arc instead
+	if (optimize) {
 		Point start = pathSink->CurrentPoint();
 		Point vector = absolute ? Point(endX, endY) - start : Point(endX, endY);
 		moz2d_path_sink_circle_arc_to(pathSink, vector.x, sign(vector.x), sign(vector.y), aAntiClockwise);
@@ -219,6 +238,19 @@ Path* moz2d_path_builder_finish(PathBuilder* pathBuilder) {
 	return pathBuilder->Finish().take();
 }
 
+Path* moz2d_shape_circle (DrawTarget* drawTarget, float x, float y, float radius, FillRule aFillRule) {
+
+	PathBuilder* pathBuilder = drawTarget->CreatePathBuilder(aFillRule).take();
+
+	moz2d_path_sink_arc(pathBuilder, x, y, radius, 0, TwoPI, false, true);
+	moz2d_path_sink_close(pathBuilder);
+
+	Path* path = moz2d_path_builder_finish(pathBuilder);
+	delete pathBuilder;
+
+	return path;
+}
+
 Path* moz2d_shape_rounded_rectangle (DrawTarget* drawTarget,
 		float x, float y, float width, float height,
 		float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, FillRule aFillRule) {
@@ -237,12 +269,13 @@ Path* moz2d_shape_rounded_rectangle (DrawTarget* drawTarget,
 
 	moz2d_path_sink_move_to(pathBuilder, x, y + tlr, absolute);
 	moz2d_path_sink_arc_to(pathBuilder, x + tlr, y, false, absolute);
+
 	moz2d_path_sink_line_to(pathBuilder, right - trr, y, absolute);
-
 	moz2d_path_sink_arc_to(pathBuilder, right, y + trr, false, absolute);
-	moz2d_path_sink_line_to(pathBuilder, right, bottom - brr, absolute);
 
+	moz2d_path_sink_line_to(pathBuilder, right, bottom - brr, absolute);
 	moz2d_path_sink_arc_to(pathBuilder, right - brr, bottom, false, absolute);
+
 	moz2d_path_sink_line_to(pathBuilder, x + blr, bottom, absolute);
 	moz2d_path_sink_arc_to(pathBuilder, x, bottom - blr, false, absolute);
 	moz2d_path_sink_close(pathBuilder);
@@ -255,6 +288,15 @@ Path* moz2d_shape_rounded_rectangle (DrawTarget* drawTarget,
 
 Path* moz2d_shape_ellipse (DrawTarget* drawTarget,
 		float x, float y, float width, float height, FillRule aFillRule) {
+
+	// if ellipse degrades to circle we create a circle
+	if (floatEquals(width, height)) {
+		float radius = width / 2;
+		float centerX = x + radius;
+		float centerY = y + radius;
+
+		return moz2d_shape_circle (drawTarget, centerX, centerY, radius, aFillRule);
+	}
 
 	float halfWidth = width / 2;
 	float halfHeight = height / 2;

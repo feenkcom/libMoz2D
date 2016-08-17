@@ -64,6 +64,7 @@ Path* moz2d_path_builder_finish(PathBuilder* pathBuilder);
 
 Path* moz2d_shape_rounded_rectangle(DrawTarget* drawTarget, float x, float y, float width, float height, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius, FillRule aFillRule);
 Path* moz2d_shape_ellipse (DrawTarget* drawTarget, float x, float y, float width, float height, FillRule aFillRule);
+Path* moz2d_shape_circle (DrawTarget* drawTarget, float x, float y, float radius, FillRule aFillRule);
 
 void moz2d_path_get_stroked_bounds(Path* path, StrokeOptions* aStrokeOptions, Rect* retBounds);
 
