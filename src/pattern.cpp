@@ -56,6 +56,15 @@ Pattern* moz2d_pattern_radial_gradient_create_flat(
 			Matrix(rawMatrix[0],rawMatrix[1],rawMatrix[2],rawMatrix[3],rawMatrix[4],rawMatrix[5]));
 }
 
+Pattern* moz2d_pattern_surface_create (SourceSurface* surface, int32_t samplingX, int32_t samplingY, int32_t samplingWidth, int32_t samplingHeight, SamplingFilter aSamplingFilter, ExtendMode aExtendMode, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32) {
+	return new SurfacePattern (
+			surface,
+			aExtendMode,
+			Matrix(a11, a12, a21, a22, a31, a32),
+			aSamplingFilter,
+			IntRect(samplingX, samplingY, samplingWidth, samplingHeight));
+}
+
 void moz2d_pattern_delete(Pattern* pattern) {
 	delete pattern;
 }

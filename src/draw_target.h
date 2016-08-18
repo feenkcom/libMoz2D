@@ -98,6 +98,7 @@ void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPerm
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
 void moz2d_draw_target_flush(DrawTarget *drawTarget);
 uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
+int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget);
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */

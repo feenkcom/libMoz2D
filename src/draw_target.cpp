@@ -103,6 +103,12 @@ uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget) {
 	return (uint32_t *) mDataSnapshot->GetData();
 }
 
+int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget) {
+	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
+	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
+	return mDataSnapshot->Stride();
+}
+
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */
@@ -305,5 +311,6 @@ void moz2d_draw_target_transform_pop(DrawTarget* drawTarget) {
 
 	Matrix transform = stack->top();
 	stack->pop();
+
 	drawTarget->SetTransform(transform);
 }
