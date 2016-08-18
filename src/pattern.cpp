@@ -7,12 +7,29 @@
 
 #include "pattern.h"
 
+/* --------------------------------------------------- */
+/* --------------------- C O L O R ------------------- */
+/* --------------------------------------------------- */
 Pattern* moz2d_pattern_color_create(Color *color) {
 	return new ColorPattern(*color);
 }
 
 Pattern* moz2d_pattern_color_create_rgba(Float red, Float green, Float blue, Float alpha) {
 	return new ColorPattern(Color(red, green, blue, alpha));
+}
+
+void moz2d_pattern_color_get_color(ColorPattern* aPattern, Color* aColor) {
+	aColor->r = aPattern->mColor.r;
+	aColor->g = aPattern->mColor.g;
+	aColor->b = aPattern->mColor.b;
+	aColor->a = aPattern->mColor.a;
+}
+
+void moz2d_pattern_color_set_color_rgba(ColorPattern* aPattern, Float red, Float green, Float blue, Float alpha) {
+	aPattern->mColor.r = red;
+	aPattern->mColor.g = green;
+	aPattern->mColor.b = blue;
+	aPattern->mColor.a = alpha;
 }
 
 Pattern* moz2d_pattern_linear_gradient_create(Point *aBegin, Point *anEnd, GradientStops *aStops, Matrix *aMatrix) {
