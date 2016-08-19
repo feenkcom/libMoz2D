@@ -44,6 +44,32 @@ void moz2d_draw_target_delete(DrawTarget *drawTarget) {
 	delete drawTarget;
 }
 
+SourceSurface* moz2d_draw_target_create_surface_for_data (
+		DrawTarget* drawTarget,
+		unsigned char *aData,
+        int32_t width,
+        int32_t height,
+        int32_t aStride,
+        SurfaceFormat aFormat) {
+
+	int32_t size = width * height;
+	for (int32_t i = 0; i < size; i++) {
+		int32_t index = i * 4;
+		int32_t alpha = aData[index+3];
+
+		int32_t red = (int32_t)(aData[index] / 255.0 * alpha);
+		int32_t green = (int32_t)(aData[index+1] / 255.0 * alpha);
+		int32_t blue = (int32_t)(aData[index+2] / 255.0 * alpha);
+
+		aData[index] = red;
+		aData[index+1] = green;
+		aData[index+2] = blue;
+		aData[index+3] = alpha;
+	}
+
+	return drawTarget->CreateSourceSurfaceFromData(aData, IntSize(width, height), aStride, aFormat).take();
+}
+
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */
 /* --------------------------------------------------- */
@@ -107,6 +133,20 @@ int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget) {
 	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
 	RefPtr<DataSourceSurface> mDataSnapshot = snapshot->GetDataSurface();
 	return mDataSnapshot->Stride();
+}
+
+void moz2d_source_surface_get_size(SourceSurface *aSourceSurface, IntSize* aSize) {
+	IntSize size = aSourceSurface->GetSize();
+	aSize->width = size.width;
+	aSize->height = size.height;
+}
+
+SurfaceFormat moz2d_source_surface_get_format(SourceSurface *aSourceSurface) {
+	return aSourceSurface->GetFormat();
+}
+
+SurfaceType moz2d_source_surface_get_type(SourceSurface *aSourceSurface) {
+	return aSourceSurface->GetType();
 }
 
 /* --------------------------------------------------- */

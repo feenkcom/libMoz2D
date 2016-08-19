@@ -50,6 +50,14 @@ DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, int32_t widt
  */
 void moz2d_draw_target_delete(DrawTarget *drawTarget);
 
+SourceSurface* moz2d_draw_target_create_surface_for_data (
+		DrawTarget* drawTarget,
+		unsigned char *aData,
+        int32_t width,
+        int32_t height,
+        int32_t aStride,
+        SurfaceFormat aFormat);
+
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */
 /* --------------------------------------------------- */
@@ -93,6 +101,18 @@ SurfaceFormat moz2d_draw_target_get_surface_format (DrawTarget *drawTarget);
  */
 void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize);
 
+/**
+ * Store a size (extent) of source surface in size argument
+ */
+void moz2d_source_surface_get_size(SourceSurface *aSourceSurface, IntSize* aSize);
+/**
+ * Return a surface format (pixel format)
+ */
+SurfaceFormat moz2d_source_surface_get_format(SourceSurface *aSourceSurface);
+/**
+ * Return a surface type
+ */
+SurfaceType moz2d_source_surface_get_type(SourceSurface *aSourceSurface);
 
 void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA);
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
