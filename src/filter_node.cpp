@@ -35,12 +35,24 @@ void moz2d_filter_node_set_attribute_bool(FilterNode *filterNode, uint32_t aInde
 	filterNode->SetAttribute(aIndex, value);
 }
 
-void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, float width, float height) {
+void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, Float width, Float height) {
 	filterNode->SetAttribute(aIndex, Size(width, height));
+}
+
+void moz2d_filter_node_set_attribute_int_size(FilterNode *filterNode, uint32_t aIndex, int32_t width, int32_t height) {
+	filterNode->SetAttribute(aIndex, IntSize(width, height));
 }
 
 void moz2d_filter_node_set_attribute_int_rect(FilterNode *filterNode, uint32_t aIndex, int32_t x, int32_t y, int32_t width, int32_t height) {
 	filterNode->SetAttribute(aIndex, IntRect(x, y, width, height));
+}
+
+void moz2d_filter_node_set_attribute_color(FilterNode *filterNode, uint32_t aIndex, Float r, Float g, Float b, Float a) {
+	filterNode->SetAttribute(aIndex, Color(r,g,b,a));
+}
+
+void moz2d_filter_node_set_attribute_float_array(FilterNode *filterNode, uint32_t aIndex, const Float* aFloats, uint32_t aSize) {
+	filterNode->SetAttribute(aIndex, aFloats, aSize);
 }
 
 /*

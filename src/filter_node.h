@@ -32,8 +32,11 @@ void moz2d_filter_node_set_input_surface(FilterNode *filterNode, uint32_t aIndex
 void moz2d_filter_node_set_attribute_float(FilterNode *filterNode, uint32_t aIndex, Float value);
 void moz2d_filter_node_set_attribute_int(FilterNode *filterNode, uint32_t aIndex, uint32_t value);
 void moz2d_filter_node_set_attribute_bool(FilterNode *filterNode, uint32_t aIndex, bool value);
-void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, float width, float height);
+void moz2d_filter_node_set_attribute_size(FilterNode *filterNode, uint32_t aIndex, Float width, Float height);
+void moz2d_filter_node_set_attribute_int_size(FilterNode *filterNode, uint32_t aIndex, int32_t width, int32_t height);
 void moz2d_filter_node_set_attribute_int_rect(FilterNode *filterNode, uint32_t aIndex, int32_t x, int32_t y, int32_t width, int32_t height);
+void moz2d_filter_node_set_attribute_color(FilterNode *filterNode, uint32_t aIndex, Float r, Float g, Float b, Float a);
+void moz2d_filter_node_set_attribute_float_array(FilterNode *filterNode, uint32_t aIndex, const Float* aFloats, uint32_t aSize);
 
 uint32_t moz2d_filter_node_turbulence_software_get_num_octaves(FilterNodeTurbulenceSoftware *filterNode);
 uint32_t moz2d_filter_node_turbulence_software_get_seed(FilterNodeTurbulenceSoftware *filterNode);
