@@ -55,6 +55,14 @@ void moz2d_filter_node_set_attribute_float_array(FilterNode *filterNode, uint32_
 	filterNode->SetAttribute(aIndex, aFloats, aSize);
 }
 
+void moz2d_filter_node_set_attribute_matrix(FilterNode *filterNode, uint32_t aIndex, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32) {
+	filterNode->SetAttribute(aIndex, Matrix(a11, a12, a21, a22, a31, a32));
+}
+
+void moz2d_filter_node_set_attribute_point_3d(FilterNode *filterNode, uint32_t aIndex, Float x, Float y, Float z) {
+	filterNode->SetAttribute(aIndex, Point3D(x,y,z));
+}
+
 /*
  * We need to access private field for debug purposes
  */
