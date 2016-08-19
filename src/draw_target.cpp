@@ -52,7 +52,19 @@ SourceSurface* moz2d_draw_target_create_surface_for_data (
         int32_t aStride,
         SurfaceFormat aFormat) {
 
+	return drawTarget->CreateSourceSurfaceFromData(aData, IntSize(width, height), aStride, aFormat).take();
+}
+
+SourceSurface* moz2d_draw_target_create_surface_for_data_form (
+		DrawTarget* drawTarget,
+		unsigned char *aData,
+        int32_t width,
+        int32_t height,
+        int32_t aStride,
+        SurfaceFormat aFormat) {
+
 	int32_t size = width * height;
+	unsigned char *data = new unsigned char[size];
 	for (int32_t i = 0; i < size; i++) {
 		int32_t index = i * 4;
 		int32_t alpha = aData[index+3];
@@ -61,14 +73,17 @@ SourceSurface* moz2d_draw_target_create_surface_for_data (
 		int32_t green = (int32_t)(aData[index+1] / 255.0 * alpha);
 		int32_t blue = (int32_t)(aData[index+2] / 255.0 * alpha);
 
-		aData[index] = red;
-		aData[index+1] = green;
-		aData[index+2] = blue;
-		aData[index+3] = alpha;
+		data[index] = red;
+		data[index+1] = green;
+		data[index+2] = blue;
+		data[index+3] = alpha;
 	}
 
-	return drawTarget->CreateSourceSurfaceFromData(aData, IntSize(width, height), aStride, aFormat).take();
+	SourceSurface* surface = moz2d_draw_target_create_surface_for_data(drawTarget, data, width, height, aStride, aFormat);
+	delete[] data;
+	return surface;
 }
+
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */

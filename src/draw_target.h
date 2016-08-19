@@ -58,6 +58,14 @@ SourceSurface* moz2d_draw_target_create_surface_for_data (
         int32_t aStride,
         SurfaceFormat aFormat);
 
+SourceSurface* moz2d_draw_target_create_surface_for_data_form (
+		DrawTarget* drawTarget,
+		unsigned char *aData,
+        int32_t width,
+        int32_t height,
+        int32_t aStride,
+        SurfaceFormat aFormat);
+
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */
 /* --------------------------------------------------- */
