@@ -10,14 +10,18 @@
 #include "gfxContext.h"
 
 
-void moz2d_text_run_draw(DrawTarget* drawTarget, gfxTextRun* aTextRun, float x, float y) {
+void moz2d_text_run_draw(DrawTarget* drawTarget, gfxTextRun* aTextRun, float x, float y, DrawMode drawMode, DrawOptions* drawOptions, StrokeOptions* strokeOptions, float r, float g, float b, float a) {
 	Matrix transform = drawTarget->GetTransform();
 
 	RefPtr<gfxContext> aContext = gfxContext::CreatePreservingTransformOrNull(drawTarget);
 
-	gfxTextRun::DrawParams aParams = gfxTextRun::DrawParams (aContext);
-	aTextRun->Draw(gfxTextRun::Range(aTextRun), gfxPoint(x,y),aParams);
+	gfxTextRun::DrawParams aParams = gfxTextRun::DrawParams(aContext);
+	aParams.drawOpts = drawOptions;
+	aParams.strokeOpts = strokeOptions;
+	aParams.textStrokeColor = NS_RGBA((unsigned char)(r*255), (unsigned char)(g*255), (unsigned char)(b*255),(unsigned char)(a*255));
+	aParams.drawMode = drawMode;
 
+	aTextRun->Draw(gfxTextRun::Range(aTextRun), gfxPoint(x,y),aParams);
 
 	drawTarget->SetTransform(transform);
 }

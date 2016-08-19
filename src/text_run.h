@@ -17,8 +17,20 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-void moz2d_text_run_draw(DrawTarget* drawTarget, gfxTextRun* aTextRun, float x, float y);
-uint32_t moz2d_text_run_break_and_measure(
+void moz2d_text_run_draw(
+		DrawTarget* drawTarget,
+		gfxTextRun* aTextRun,
+		float x,
+		float y,
+		DrawMode drawMode,
+		DrawOptions* drawOptions,
+		StrokeOptions* strokeOptions,
+		float r,
+		float g,
+		float b,
+		float a);
+
+uint32_t moz2d_text_run_break_and_measure (
 		gfxTextRun* aTextRun,
 		uint32_t aStart,
 		uint32_t aMaxLength,
