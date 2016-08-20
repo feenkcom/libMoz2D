@@ -7,6 +7,7 @@ include_directories(${MOZ_TOP_PATH}/modules/freetype2/include)
 include_directories(${MOZ_TOP_PATH}/gfx/skia)
 include_directories(${MOZ_TOP_PATH}/gfx/skia/skia/include/config)
 include_directories(${MOZ_TOP_PATH}/gfx/skia/skia/include/core)
+include_directories(${MOZ_TOP_PATH}/ipc/chromium/src)
 
 add_subdirectory(telemetry)
 add_subdirectory(preferences)
@@ -15,7 +16,7 @@ add_subdirectory(undefined)
 
 set(SRC
 	draw_target.cpp draw_options.cpp filter_node.cpp color.cpp rect.cpp
-	pattern.cpp path.cpp point.cpp text.cpp
+	pattern.cpp path.cpp point.cpp text.cpp gl.cpp
     font_style.cpp font_family_name.cpp font_family_list.cpp
 	font_group.cpp text_run.cpp source_surface.cpp)
 

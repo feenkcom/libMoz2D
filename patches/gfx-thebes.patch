@@ -1158,7 +1158,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -       status == nsIGfxInfo::FEATURE_STATUS_OK);
 -  }
 -  return false;
-+  return mPreferredCanvasBackend == BackendType::SKIA;
++  return true;
  }
  
  void

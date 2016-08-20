@@ -23,13 +23,23 @@ DrawTarget* moz2d_draw_target_create (int32_t width, int32_t height, SurfaceForm
 	return gfxPlatform::GetPlatform()->CreateOffscreenCanvasDrawTarget(IntSize(width, height), aFormat).take();
 }
 
-DrawTarget* moz2d_draw_target_create_type (BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
-	if (aBackend == BackendType::SKIA) {
-		mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
-		if (skiaGlue)
-			return Factory::CreateDrawTargetSkiaWithGrContext(skiaGlue->GetGrContext(), IntSize(width, height), aFormat).take();
+DrawTarget* moz2d_draw_target_create_type (ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
+	if ((int8_t)aBackend >= (int8_t)BackendType::BACKEND_LAST) {
+		switch(aBackend) {
+			case ExtendedBackendType::SKIA_GL:
+				mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
+				if (skiaGlue) {
+					// if skia glue was succesfully created, use it
+					return Factory::CreateDrawTargetSkiaWithGrContext(skiaGlue->GetGrContext(), IntSize(width, height), aFormat).take();
+				}
+				else {
+					// otherwise fallback to software skia
+					aBackend = ExtendedBackendType::SKIA;
+				}
+			break;
+		}
 	}
-	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
+	return Factory::CreateDrawTarget((BackendType)(int8_t)aBackend, IntSize(width, height), aFormat).take();
 }
 
 DrawTarget* moz2d_draw_target_create_for_data_type (BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized) {

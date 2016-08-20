@@ -17,9 +17,26 @@ typedef void* CColorPattern;
 
 using namespace mozilla::gfx;
 
+enum class ExtendedBackendType : int8_t {
+  NONE = 0,
+  DIRECT2D, // Used for version independent D2D objects.
+  COREGRAPHICS,
+  COREGRAPHICS_ACCELERATED,
+  CAIRO,
+  SKIA,
+  RECORDING,
+  DIRECT2D1_1,
+  SKIA_GL,
+
+  // Add new entries above this line.
+  BACKEND_LAST
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
 /* --------------------------------------------------- */
 /* ----------------- C R E A T I O N ----------------- */
@@ -33,7 +50,7 @@ DrawTarget* moz2d_draw_target_create(int32_t width, int32_t height, SurfaceForma
 /**
  * Create a new draw target of aBackend type and aFormat pixel format
  */
-DrawTarget* moz2d_draw_target_create_type(BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
+DrawTarget* moz2d_draw_target_create_type(ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
 
 /**
  * Create a new draw target for data (pixels) of aBackend type
