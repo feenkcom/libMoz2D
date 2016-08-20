@@ -59,6 +59,15 @@ void moz2d_filter_node_set_attribute_matrix(FilterNode *filterNode, uint32_t aIn
 	filterNode->SetAttribute(aIndex, Matrix(a11, a12, a21, a22, a31, a32));
 }
 
+void moz2d_filter_node_set_attribute_matrix5x4(FilterNode *filterNode, uint32_t aIndex, const Float* a) {
+	filterNode->SetAttribute(aIndex, Matrix5x4(
+		a[0],  a[5],  a[10],  a[15],
+		a[1],  a[6],  a[11],  a[16],
+		a[2],  a[7],  a[12],  a[17],
+		a[3],  a[8],  a[13],  a[18],
+		a[4],  a[9],  a[14],  a[19]));
+}
+
 void moz2d_filter_node_set_attribute_point_3d(FilterNode *filterNode, uint32_t aIndex, Float x, Float y, Float z) {
 	filterNode->SetAttribute(aIndex, Point3D(x,y,z));
 }

@@ -94,6 +94,9 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 	return surface;
 }
 
+DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height) {
+	 return drawTarget->CreateSimilarDrawTarget(IntSize(width, height), drawTarget->GetFormat()).take();
+}
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */
