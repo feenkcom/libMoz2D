@@ -62,10 +62,8 @@ DrawTarget* moz2d_draw_target_create_for_data_type(BackendType aBackend, unsigne
  */
 DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat);
 
-/**
- * Deletes draw target and frees memory
- */
-void moz2d_draw_target_delete(DrawTarget *drawTarget);
+DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height);
+
 
 SourceSurface* moz2d_draw_target_create_surface_for_data (
 		DrawTarget* drawTarget,
@@ -82,8 +80,6 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
         int32_t height,
         int32_t aStride,
         SurfaceFormat aFormat);
-
-DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height);
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */

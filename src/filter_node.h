@@ -26,7 +26,6 @@ extern "C" {
 #endif
 
 FilterNode* moz2d_filter_node_create(DrawTarget *drawTarget, FilterType filterType);
-void moz2d_filter_node_delete(FilterNode *filterNode);
 void moz2d_filter_node_set_input_filter(FilterNode *filterNode, uint32_t aIndex, FilterNode* aSourceFilter);
 void moz2d_filter_node_set_input_surface(FilterNode *filterNode, uint32_t aIndex, SourceSurface* aSurface);
 void moz2d_filter_node_set_attribute_float(FilterNode *filterNode, uint32_t aIndex, Float value);

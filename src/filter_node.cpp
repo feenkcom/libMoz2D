@@ -11,10 +11,6 @@ FilterNode* moz2d_filter_node_create(DrawTarget* drawTarget, FilterType filterTy
 	return drawTarget->CreateFilter(filterType).take();
 }
 
-void moz2d_filter_node_delete(FilterNode* filterNode) {
-	delete filterNode;
-}
-
 void moz2d_filter_node_set_input_filter(FilterNode *filterNode, uint32_t aIndex, FilterNode* aSourceFilter) {
 	filterNode->SetInput(aIndex, aSourceFilter);
 }

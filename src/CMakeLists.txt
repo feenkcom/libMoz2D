@@ -16,8 +16,8 @@ add_subdirectory(undefined)
 
 set(SRC
 	draw_target.cpp draw_options.cpp filter_node.cpp color.cpp rect.cpp
-	pattern.cpp path.cpp point.cpp text.cpp gl.cpp
+	pattern.cpp path.cpp point.cpp text.cpp gl.cpp ref_ptr.cpp
     font_style.cpp font_family_name.cpp font_family_list.cpp
-	font_group.cpp text_run.cpp source_surface.cpp)
+	font_group.cpp text_run.cpp source_surface.cpp debug.cpp)
 
 add_library(wrapper OBJECT ${SRC})

@@ -19,6 +19,8 @@ using namespace mozilla::gfx;
 /* ----------------- C R E A T I O N ----------------- */
 /* --------------------------------------------------- */
 
+/* --------------- D R A W -- T A R G E T ------------ */
+
 DrawTarget* moz2d_draw_target_create (int32_t width, int32_t height, SurfaceFormat aFormat) {
 	return gfxPlatform::GetPlatform()->CreateOffscreenCanvasDrawTarget(IntSize(width, height), aFormat).take();
 }
@@ -50,9 +52,11 @@ DrawTarget* moz2d_draw_target_create_for_data (unsigned char* aData, int32_t wid
 	return gfxPlatform::GetPlatform()->CreateDrawTargetForData(aData, IntSize(width, height), aStride, aFormat).take();
 }
 
-void moz2d_draw_target_delete(DrawTarget *drawTarget) {
-	delete drawTarget;
+DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height) {
+	 return drawTarget->CreateSimilarDrawTarget(IntSize(width, height), drawTarget->GetFormat()).take();
 }
+
+/* --------------- S O U R C E -- S U R F A C E ------------ */
 
 SourceSurface* moz2d_draw_target_create_surface_for_data (
 		DrawTarget* drawTarget,
@@ -74,19 +78,20 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
         SurfaceFormat aFormat) {
 
 	int32_t size = width * height;
-	unsigned char *data = new unsigned char[size];
+	// every pixel takes 4 uchars, so we need to multiply size by 4
+	unsigned char *data = new unsigned char[ 4 * size ];
 	for (int32_t i = 0; i < size; i++) {
 		int32_t index = i * 4;
-		int32_t alpha = aData[index+3];
+		int32_t alpha = aData[index + 3];
 
 		int32_t red = (int32_t)(aData[index] / 255.0 * alpha);
-		int32_t green = (int32_t)(aData[index+1] / 255.0 * alpha);
-		int32_t blue = (int32_t)(aData[index+2] / 255.0 * alpha);
+		int32_t green = (int32_t)(aData[index + 1] / 255.0 * alpha);
+		int32_t blue = (int32_t)(aData[index + 2] / 255.0 * alpha);
 
 		data[index] = red;
-		data[index+1] = green;
-		data[index+2] = blue;
-		data[index+3] = alpha;
+		data[index + 1] = green;
+		data[index + 2] = blue;
+		data[index + 3] = alpha;
 	}
 
 	SourceSurface* surface = moz2d_draw_target_create_surface_for_data(drawTarget, data, width, height, aStride, aFormat);
@@ -94,9 +99,6 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 	return surface;
 }
 
-DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height) {
-	 return drawTarget->CreateSimilarDrawTarget(IntSize(width, height), drawTarget->GetFormat()).take();
-}
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */
