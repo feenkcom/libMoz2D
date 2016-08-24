@@ -1,4 +1,4 @@
-# Moz2D
+# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D)
 Scripts to compile `gfx` part of Mozilla Firefox as single shared library
 
 Compile shared library (32 bit):
@@ -15,37 +15,15 @@ Utilities:<br>
 
 ### Ubuntu / Travis
 
-Node.js:<br>
-`sudo apt-get install nodejs`
+The following packages are required to build 64bit plugin
 
-Yasm:<br>
-`sudo apt-get install yasm`
-
-Autoconf2.13:<br>
-`sudo apt-get install autoconf2.13`
-
-libgtk2.0-dev:<br>
-`sudo apt-get install libgtk2.0-dev`
-
-libgtk-3-dev:<br>
-`sudo apt-get install libgtk-3-dev`
-
-libgconf2-dev:<br>
-`sudo apt-get install libgconf2-dev`
-
-libglib2.0-dev:<br>
-`sudo apt-get install libglib2.0-dev`
-
-Alsa:<br>
-`sudo apt-get install libasound2-dev`
+	sudo apt-get install yasm autoconf2.13 libgtk2.0-dev libgtk-3-dev libgconf2-dev libglib2.0-dev libasound2-dev libpulse-dev
 
 #### 32bit
 
-gcc-multilib:<br>
-`sudo apt-get install gcc-multilib`
+32bit build requires a few additional packages
 
-g++-multilib:<br>
-`sudo apt-get install g++-multilib`
+	sudo apt-get install gcc-multilib g++-multilib
 
 ### ArchLinux
 Node.js:<br>
