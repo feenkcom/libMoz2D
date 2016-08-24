@@ -1,1 +1,10 @@
+language: cpp, node_js
+
+sudo: required
+dist: trusty
+
+os:
+- linux
+- osx
+
 script: ./build.sh
