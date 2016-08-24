@@ -16,9 +16,9 @@ Utilities:<br>
 ### Ubuntu / Travis
 
 The following packages are required to build 64bit plugin
-
-	sudo apt-get install yasm autoconf2.13 libgtk2.0-dev libgtk-3-dev libgconf2-dev libglib2.0-dev libasound2-dev libpulse-dev
-
+```
+	sudo apt-get install yasm autoconf2.13 libgtk2.0-dev libgtk-3-dev libgconf2-dev libglib2.0-dev libasound2-dev libpulse-dev libx11-dev libxcb1-dev libxcb-shm0-dev
+```
 #### 32bit
 
 32bit build requires a few additional packages
