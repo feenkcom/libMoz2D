@@ -21,8 +21,8 @@ Node.js:<br>
 Autoconf2.13:<br>
 `sudo apt-get install autoconf2.13`
 
-libgtk-2-dev:<br>
-`sudo apt-get install libgtk-2-dev`
+libgtk2.0-dev:<br>
+`sudo apt-get install libgtk2.0-dev`
 
 libgtk-3-dev:<br>
 `sudo apt-get install libgtk-3-dev`
