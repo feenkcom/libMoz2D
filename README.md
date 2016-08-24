@@ -27,8 +27,11 @@ libgtk2.0-dev:<br>
 libgtk-3-dev:<br>
 `sudo apt-get install libgtk-3-dev`
 
-gconf-2.0:<br>
-`sudo apt-get install gconf-2.0`
+libgconf2-dev:<br>
+`sudo apt-get install libgconf2-dev`
+
+libglib2.0-dev:<br>
+`sudo apt-get install libglib2.0-dev`
 
 #### 32bit
 
