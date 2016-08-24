@@ -36,6 +36,9 @@ libgconf2-dev:<br>
 libglib2.0-dev:<br>
 `sudo apt-get install libglib2.0-dev`
 
+Alsa:<br>
+`sudo apt-get install libasound2-dev`
+
 #### 32bit
 
 gcc-multilib:<br>
