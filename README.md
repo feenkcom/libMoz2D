@@ -15,8 +15,14 @@ Utilities:<br>
 
 ### Ubuntu / Travis
 
+Node.js:<br>
+`sudo apt-get install nodejs`
+
 Autoconf2.13:<br>
 `sudo apt-get install autoconf2.13`
+
+libgtk-2-dev:<br>
+`sudo apt-get install libgtk-2-dev`
 
 libgtk-3-dev:<br>
 `sudo apt-get install libgtk-3-dev`
@@ -25,6 +31,9 @@ libgtk-3-dev:<br>
 
 gcc-multilib:<br>
 `sudo apt-get install gcc-multilib`
+
+g++-multilib:<br>
+`sudo apt-get install g++-multilib`
 
 ### ArchLinux
 Node.js:<br>
