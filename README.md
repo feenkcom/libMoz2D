@@ -18,7 +18,7 @@ Utilities:<br>
 The following packages are required to build 64bit plugin
 
 	sudo apt-get install yasm autoconf2.13 libgtk2.0-dev libgtk-3-dev libgconf2-dev libglib2.0-dev
-	sudo apt-get install libasound2-dev libpulse-dev libx11-dev libxcb1-dev libxcb-shm0-dev libxext-dev libxt-dev
+	sudo apt-get install libasound2-dev libpulse-dev libx11-dev libxcb1-dev libxcb-shm0-dev libxext-dev libxt-dev libx11-xcb-dev
 
 #### 32bit
 
