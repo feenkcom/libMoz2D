@@ -24,5 +24,7 @@ if [ ! -d ${DIRECTORY} ]; then
   exit 3
 fi
 
+set -e
+
 cd ${DIRECTORY}
-eval ${COMMAND} 1>&2
+eval ${COMMAND}

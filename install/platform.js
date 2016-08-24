@@ -409,14 +409,18 @@ function Platform() {
     };
 
     _this.patches = function () {
-        return _(fs.readdirSync(_this.config().build.patches)).map(function(item) {
-            return _this.config().build.patches + '/' + item;
+        return _(fs.readdirSync(_this.patchesPath())).map(function(item) {
+            return _this.patchesPath() + '/' + item;
         }).filter(function(item) {
                 try { return fs.statSync(item).isFile(); }
                 catch (e) { return false; }
             }).filter(function(file) {
                 return file.endsWith('.patch');
             });
+    };
+
+    _this.patchesPath = function () {
+        return _this.config().build.patches;
     };
 
     /**
@@ -441,8 +445,11 @@ function Platform() {
         return _this.config().build.bin;
     };
 
-    _this.log = function (object) {
-        console.log(object);
+    _this.log = function () {
+        var size = _.values(arguments).length;
+        if (size == 1) console.log(arguments[0]);
+        if (size == 2) console.log(arguments[0], arguments[1]);
+        if (size == 3) console.log(arguments[0], arguments[1], arguments[2]);
     };
 
     /**
