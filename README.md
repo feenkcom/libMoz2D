@@ -18,6 +18,9 @@ Utilities:<br>
 Node.js:<br>
 `sudo apt-get install nodejs`
 
+Yasm:<br>
+`sudo apt-get install yasm`
+
 Autoconf2.13:<br>
 `sudo apt-get install autoconf2.13`
 
