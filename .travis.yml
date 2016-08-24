@@ -4,7 +4,10 @@ sudo: required
 dist: trusty
 
 os:
-- linux
-- osx
+  - linux
+  - osx
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get autoconf2.13; fi
 
 script: ./build.sh

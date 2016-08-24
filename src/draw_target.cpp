@@ -26,7 +26,7 @@ DrawTarget* moz2d_draw_target_create (int32_t width, int32_t height, SurfaceForm
 }
 
 DrawTarget* moz2d_draw_target_create_type (ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
-	if ((int8_t)aBackend >= (int8_t)BackendType::BACKEND_LAST) {
+	if ((int8_t)aBackend >= (int8_t)BackendType::DIRECT2D1_1) {
 		switch(aBackend) {
 			case ExtendedBackendType::SKIA_GL:
 				mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();

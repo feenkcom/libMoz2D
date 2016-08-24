@@ -31,7 +31,7 @@ set(SRC
     ${MOZ_TOP_OBJ_PATH}/ipc/ipdl/GraphicsMessages.cpp
     nsContentUtils.cpp nsJS.cpp nsServices.cpp nsTextRunTransformationsFixed.cpp
     PGPU.cpp nsAppRunner.cpp nsPresContext.cpp GPUProcessManager.cpp nsFont.cpp
-    nsMemoryReporterManager.cpp ShaderProgram.cpp gfxPlatform.cpp SVGContextPaint.cpp
+    nsMemoryReporterManager.cpp ShaderProgram.cpp gfxPlatform.cpp
     nsWidget.cpp)
 
 add_library(undefined OBJECT ${SRC})

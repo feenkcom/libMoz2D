@@ -39,7 +39,7 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 			aLength,
 			&params,
 			aTextRunFactoryFlags,
-			nullptr)).take();
+			nullptr)).release();
 }
 
 gfxTextRun* moz2d_font_group_make_text_run_utf16 (
@@ -62,5 +62,5 @@ gfxTextRun* moz2d_font_group_make_text_run_utf16 (
 			aLength,
 			&params,
 			aTextRunFactoryFlags,
-			nullptr)).take();
+			nullptr)).release();
 }
