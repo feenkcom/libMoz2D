@@ -8,6 +8,6 @@ os:
   - osx
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get autoconf2.13; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install autoconf2.13; fi
 
 script: ./build.sh
