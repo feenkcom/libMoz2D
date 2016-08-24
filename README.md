@@ -13,6 +13,16 @@ Tools:<br>
 Utilities:<br>
 `wget` `patch` `which` `tar`
 
+### Ubuntu / Travis
+
+Autoconf2.13:<br>
+`sudo apt-get install autoconf2.13`
+
+#### 32bit
+
+gcc-multilib:<br>
+`sudo apt-get install gcc-multilib`
+
 ### ArchLinux
 Node.js:<br>
 `yaourt -S nodejs`
