@@ -92,7 +92,7 @@ module.exports = {
             }
         },
         libraries: {
-            mac: [ 'libs/mac/*.dylib' ],
+            mac: [ ],
             linux: [ ],
             win: [ ]
         },
@@ -188,7 +188,6 @@ module.exports = {
         cross_compile: true,
         modules: {
             enabled: [
-                'tree-freetype',
                 'optimize=-O2'
             ],
             disabled: [
