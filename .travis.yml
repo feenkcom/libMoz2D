@@ -6,8 +6,8 @@ os:
   - linux
 
 env:
-  - ARCH="i386"
-  - ARCH="x86_64"
+  - ARCH="i386" OUTPUT="libMoz2D.so" RELEASE="libMoz2D.i386.so"
+  - ARCH="x86_64" OUTPUT="libMoz2D.so" RELEASE="libMoz2D.x86_64.so"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -23,3 +23,15 @@ before_install:
     fi 
 
 script: ./build.sh --arch ${ARCH}
+
+before_deploy:
+  - cp -f "$TRAVIS_BUILD_DIR/build/$OUTPUT" "$TRAVIS_BUILD_DIR/build/$RELEASE";
+
+deploy:
+  provider: releases
+  api_key: "31a8729a0e0e74e96c08b321e3ef0f1ccc7642bc"
+  file: "$TRAVIS_BUILD_DIR/build/$RELEASE"
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
