@@ -29,7 +29,7 @@ before_deploy:
 
 deploy:
   provider: releases
-  api_key: "31a8729a0e0e74e96c08b321e3ef0f1ccc7642bc"
+  api_key: "$GITHUB_OAUTH"
   file: "$TRAVIS_BUILD_DIR/build/$RELEASE"
   overwrite: true
   skip_cleanup: true
