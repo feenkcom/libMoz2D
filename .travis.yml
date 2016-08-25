@@ -14,7 +14,7 @@ before_install:
       sudo apt-get install yasm libasound2-dev libpulse-dev libx11-dev libxcb1-dev libxcb-shm0-dev libxext-dev libxt-dev libx11-xcb-dev;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$ARCH" == "i386" ]]; then
-      sudo apt-get install gcc-multilib g++-multilib libx11-dev:i386 libext-dev:i386;
+      sudo apt-get install gcc-multilib g++-multilib libx11-dev:i386;
     fi 
 
 script: ./build.sh --arch "$ARCH"
