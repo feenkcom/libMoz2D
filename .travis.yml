@@ -7,8 +7,8 @@ os:
   - osx
 
 env:
-  - ARCH="i386" OUTPUT="libMoz2D.so" RELEASE="libMoz2D.i386.so"
-  - ARCH="x86_64" OUTPUT="libMoz2D.so" RELEASE="libMoz2D.x86_64.so"
+  - ARCH="i386"
+  - ARCH="x86_64"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
