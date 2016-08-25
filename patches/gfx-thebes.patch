@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
 --- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -13,138 +13,8 @@
  
  SoftwareVsyncSource::SoftwareVsyncSource()
@@ -142,7 +142,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp g
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
 --- gfx/thebes/SoftwareVsyncSource.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-24 15:23:24.000000000 +0200
 @@ -14,32 +14,6 @@
  #include "nsISupportsImpl.h"
  #include "VsyncSource.h"
@@ -193,7 +193,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx
  #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
 --- gfx/thebes/VsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -8,146 +8,3 @@
  #include "nsXULAppAPI.h"
  #include "mozilla/VsyncDispatcher.h"
@@ -343,7 +343,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebe
 -} //namespace mozilla
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
 --- gfx/thebes/VsyncSource.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.h	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.h	2016-08-24 15:23:24.000000000 +0200
 @@ -13,8 +13,6 @@
  #include "nsISupportsImpl.h"
  
@@ -412,7 +412,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-
  };
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
 --- gfx/thebes/gfxFont.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -167,25 +167,8 @@
  }
  
@@ -466,7 +466,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-pa
  {
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
 --- gfx/thebes/gfxFont.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.h	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-08-24 15:23:24.000000000 +0200
 @@ -276,7 +276,7 @@
      size_t mShapedWords; // memory used by the per-font shapedWord caches
  };
@@ -500,7 +500,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patc
      void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
 --- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-24 15:23:24.000000000 +0200
 @@ -71,6 +71,8 @@
  #include <time.h>
  #include <dlfcn.h>
@@ -547,7 +547,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm
      table.Put(key, familyEntry);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
 --- gfx/thebes/gfxPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-24 15:15:45.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -184,218 +184,6 @@
  #include "mozilla/gfx/SourceSurfaceCairo.h"
  using namespace mozilla::gfx;
@@ -1462,7 +1462,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
 --- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.h	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-08-24 15:23:24.000000000 +0200
 @@ -272,10 +272,6 @@
      static bool AsyncPanZoomEnabled();
  
@@ -1487,7 +1487,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
 --- gfx/thebes/gfxPlatformFontList.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -24,6 +24,7 @@
  #include "mozilla/Telemetry.h"
  #include "mozilla/TimeStamp.h"
@@ -1602,9 +1602,262 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp g
      }
      NS_ASSERTION(mLangService, "no language service!");
      return mLangService;
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
+--- gfx/thebes/gfxPlatformGtk.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-25 11:28:40.000000000 +0200
+@@ -647,248 +647,10 @@
+ 
+ #ifdef GL_PROVIDER_GLX
+ 
+-class GLXVsyncSource final : public VsyncSource
+-{
+-public:
+-  GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-    mGlobalDisplay = new GLXDisplay();
+-  }
+-
+-  virtual ~GLXVsyncSource()
+-  {
+-    MOZ_ASSERT(NS_IsMainThread());
+-  }
+-
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return *mGlobalDisplay;
+-  }
+-
+-  class GLXDisplay final : public VsyncSource::Display
+-  {
+-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(GLXDisplay)
+-
+-  public:
+-    GLXDisplay() : mGLContext(nullptr)
+-                 , mXDisplay(nullptr)
+-                 , mSetupLock("GLXVsyncSetupLock")
+-                 , mVsyncThread("GLXVsyncThread")
+-                 , mVsyncTask(nullptr)
+-                 , mVsyncEnabledLock("GLXVsyncEnabledLock")
+-                 , mVsyncEnabled(false)
+-    {
+-    }
+-
+-    // Sets up the display's GL context on a worker thread.
+-    // Required as GLContexts may only be used by the creating thread.
+-    // Returns true if setup was a success.
+-    bool Setup()
+-    {
+-      MonitorAutoLock lock(mSetupLock);
+-      MOZ_ASSERT(NS_IsMainThread());
+-      if (!mVsyncThread.Start())
+-        return false;
+-
+-      RefPtr<Runnable> vsyncSetup = NewRunnableMethod(this, &GLXDisplay::SetupGLContext);
+-      mVsyncThread.message_loop()->PostTask(vsyncSetup.forget());
+-      // Wait until the setup has completed.
+-      lock.Wait();
+-      return mGLContext != nullptr;
+-    }
+-
+-    // Called on the Vsync thread to setup the GL context.
+-    void SetupGLContext()
+-    {
+-        MonitorAutoLock lock(mSetupLock);
+-        MOZ_ASSERT(!NS_IsMainThread());
+-        MOZ_ASSERT(!mGLContext, "GLContext already setup!");
+-
+-        // Create video sync timer on a separate Display to prevent locking the
+-        // main thread X display.
+-        mXDisplay = XOpenDisplay(nullptr);
+-        if (!mXDisplay) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        // Most compositors wait for vsync events on the root window.
+-        Window root = DefaultRootWindow(mXDisplay);
+-        int screen = DefaultScreen(mXDisplay);
+-
+-        ScopedXFree<GLXFBConfig> cfgs;
+-        GLXFBConfig config;
+-        int visid;
+-        if (!gl::GLContextGLX::FindFBConfigForWindow(mXDisplay, screen, root,
+-                                                     &cfgs, &config, &visid)) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext = gl::GLContextGLX::CreateGLContext(
+-            gl::CreateContextFlags::NONE,
+-            gl::SurfaceCaps::Any(),
+-            nullptr,
+-            false,
+-            mXDisplay,
+-            root,
+-            config,
+-            false);
+-
+-        if (!mGLContext) {
+-          lock.NotifyAll();
+-          return;
+-        }
+-
+-        mGLContext->MakeCurrent();
+-
+-        // Test that SGI_video_sync lets us get the counter.
+-        unsigned int syncCounter = 0;
+-        if (gl::sGLXLibrary.xGetVideoSync(&syncCounter) != 0) {
+-          mGLContext = nullptr;
+-        }
+-
+-        lock.NotifyAll();
+-    }
+-
+-    virtual void EnableVsync() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      MOZ_ASSERT(mGLContext, "GLContext not setup!");
+-
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      if (mVsyncEnabled) {
+-        return;
+-      }
+-      mVsyncEnabled = true;
+-
+-      // If the task has not nulled itself out, it hasn't yet realized
+-      // that vsync was disabled earlier, so continue its execution.
+-      if (!mVsyncTask) {
+-        mVsyncTask = NewRunnableMethod(this, &GLXDisplay::RunVsync);
+-        RefPtr<Runnable> addrefedTask = mVsyncTask;
+-        mVsyncThread.message_loop()->PostTask(addrefedTask.forget());
+-      }
+-    }
+-
+-    virtual void DisableVsync() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      mVsyncEnabled = false;
+-    }
+-
+-    virtual bool IsVsyncEnabled() override
+-    {
+-      MonitorAutoLock lock(mVsyncEnabledLock);
+-      return mVsyncEnabled;
+-    }
+-
+-    virtual void Shutdown() override
+-    {
+-      MOZ_ASSERT(NS_IsMainThread());
+-      DisableVsync();
+-
+-      // Cleanup thread-specific resources before shutting down.
+-      RefPtr<Runnable> shutdownTask = NewRunnableMethod(this, &GLXDisplay::Cleanup);
+-      mVsyncThread.message_loop()->PostTask(shutdownTask.forget());
+-
+-      // Stop, waiting for the cleanup task to finish execution.
+-      mVsyncThread.Stop();
+-    }
+-
+-  private:
+-    virtual ~GLXDisplay()
+-    {
+-    }
+-
+-    void RunVsync()
+-    {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext->MakeCurrent();
+-
+-      unsigned int syncCounter = 0;
+-      gl::sGLXLibrary.xGetVideoSync(&syncCounter);
+-      for (;;) {
+-        {
+-          MonitorAutoLock lock(mVsyncEnabledLock);
+-          if (!mVsyncEnabled) {
+-            mVsyncTask = nullptr;
+-            return;
+-          }
+-        }
+-
+-        TimeStamp lastVsync = TimeStamp::Now();
+-        bool useSoftware = false;
+-
+-        // Wait until the video sync counter reaches the next value by waiting
+-        // until the parity of the counter value changes.
+-        unsigned int nextSync = syncCounter + 1;
+-        int status;
+-        if ((status = gl::sGLXLibrary.xWaitVideoSync(2, nextSync % 2, &syncCounter)) != 0) {
+-          gfxWarningOnce() << "glXWaitVideoSync returned " << status;
+-          useSoftware = true;
+-        }
+-
+-        if (syncCounter == (nextSync - 1)) {
+-          gfxWarningOnce() << "glXWaitVideoSync failed to increment the sync counter.";
+-          useSoftware = true;
+-        }
+-
+-        if (useSoftware) {
+-          double remaining = (1000.f / 60.f) -
+-            (TimeStamp::Now() - lastVsync).ToMilliseconds();
+-          if (remaining > 0) {
+-            PlatformThread::Sleep(remaining);
+-          }
+-        }
+-
+-        lastVsync = TimeStamp::Now();
+-        NotifyVsync(lastVsync);
+-      }
+-    }
+-
+-    void Cleanup() {
+-      MOZ_ASSERT(!NS_IsMainThread());
+-
+-      mGLContext = nullptr;
+-      XCloseDisplay(mXDisplay);
+-    }
+-
+-    // Owned by the vsync thread.
+-    RefPtr<gl::GLContextGLX> mGLContext;
+-    _XDisplay* mXDisplay;
+-    Monitor mSetupLock;
+-    base::Thread mVsyncThread;
+-    RefPtr<Runnable> mVsyncTask;
+-    Monitor mVsyncEnabledLock;
+-    bool mVsyncEnabled;
+-  };
+-private:
+-  // We need a refcounted VsyncSource::Display to use chromium IPC runnables.
+-  RefPtr<GLXDisplay> mGlobalDisplay;
+-};
+-
+ already_AddRefed<gfx::VsyncSource>
+ gfxPlatformGtk::CreateHardwareVsyncSource()
+ {
+-  // Only use GLX vsync when the OpenGL compositor is being used.
+-  // The extra cost of initializing a GLX context while blocking the main
+-  // thread is not worth it when using basic composition.
+-  if (gfxConfig::IsEnabled(Feature::HW_COMPOSITING)) {
+-    if (gl::sGLXLibrary.SupportsVideoSync()) {
+-      RefPtr<VsyncSource> vsyncSource = new GLXVsyncSource();
+-      VsyncSource::Display& display = vsyncSource->GetGlobalDisplay();
+-      if (!static_cast<GLXVsyncSource::GLXDisplay&>(display).Setup()) {
+-        NS_WARNING("Failed to setup GLContext, falling back to software vsync.");
+-        return gfxPlatform::CreateHardwareVsyncSource();
+-      }
+-      return vsyncSource.forget();
+-    }
+-    NS_WARNING("SGI_video_sync unsupported. Falling back to software vsync.");
+-  }
+-  return gfxPlatform::CreateHardwareVsyncSource();
++  return nullptr;
+ }
+ 
+ bool
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
 --- gfx/thebes/gfxPlatformMac.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -374,211 +374,10 @@
    return true;
  }
@@ -1820,7 +2073,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/th
  void
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
 --- gfx/thebes/gfxPrefs.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -38,14 +38,7 @@
  
  gfxPrefs::gfxPrefs()
@@ -1855,7 +2108,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-p
  void gfxPrefs::PrefAddVarCache(bool* aVariable,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
 --- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -40,38 +40,28 @@
  
  mozilla::gfx::UserDataKey gfxTextContextPaint::sUserDataKey;
@@ -2217,7 +2470,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  size_t
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes-patched/gfxTextRun.cpp
 --- gfx/thebes/gfxTextRun.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -3244,7 +3244,6 @@
          mMissingFonts[i] = 0;
      }
@@ -2229,7 +2482,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
 --- gfx/thebes/gfxUserFontSet.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -472,80 +472,6 @@
                                                        &bypassCache);
  
@@ -2459,7 +2712,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/th
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
 --- gfx/thebes/gfxUtils.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxUtils.cpp	2016-08-24 15:10:15.000000000 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-08-24 15:23:24.000000000 +0200
 @@ -1334,106 +1334,6 @@
      return imageBuffer;
  }
