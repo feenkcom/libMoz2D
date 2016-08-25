@@ -5,11 +5,9 @@ dist: trusty
 
 os:
   - linux
-
-matrix:
-  include:
-  - env: ARCH="i386"
-  - end: ARCH="x86_64"
+env:
+  - ARCH="i386"
+#  - ARCH="x86_64"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -19,7 +17,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$ARCH" == "i386" ]]; then
           sudo apt-get install gcc-multilib g++-multilib libx11-dev:i386 libext-dev:i386;
-        fi
+        fi;
       fi 
 
 script: ./build.sh --arch "$ARCH"
