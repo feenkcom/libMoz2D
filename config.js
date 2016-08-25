@@ -102,7 +102,7 @@ module.exports = {
                     general: '-mssse3 -msse4.1',
                     mac: '',
                     win: '',
-                    linux: ''
+                    linux: '-fPIC'
                 },
                 i386: {
                     linux: ''
