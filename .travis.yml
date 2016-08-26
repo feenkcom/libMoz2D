@@ -12,8 +12,9 @@ env:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update & brew upgrade;
+      brew update;
       brew tap homebrew/versions;
+      brew unlink node; brew unlink mercurial; brew unlink cmake;
       brew install node yasm mercurial cmake gawk ccache autoconf213;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
