@@ -2,7 +2,7 @@
     "package": {
         "name": "auto-upload",
         "repo": "Moz2D",
-        "subject": "myBintrayUser",
+        "subject": "AliakseiSyrel",
         "desc": "I was pushed completely automatically",
         "licenses": ["MPL-2.0", "MIT"],
         "labels": ["vector graphics", "2d"],
