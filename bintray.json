@@ -23,7 +23,7 @@
 
     "files": [
       { "includePattern": "build/(.*\\.so)", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
-      { "includePattern": "build/(.*\\.dylib)", "uploadPattern": "mac/$1", "matrixParams": { "override": 1 }}
+      { "includePattern": "build/(.*\\.dylib)", "uploadPattern": "mac/$1", "matrixParams": { "override": 1 }},
       { "includePattern": "build/(.*\\.dll)", "uploadPattern": "win/$1", "matrixParams": { "override": 1 }}
     ],
     "publish": true,
