@@ -34,4 +34,3 @@ deploy:
   file: "bintray.json"
   user: "AliakseiSyrel"
   key: ${BINTRAY_API_KEY}
-  dry-run: true
