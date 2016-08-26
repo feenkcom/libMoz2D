@@ -33,8 +33,13 @@ before_install:
 
 script: ./build.sh --arch ${ARCH}
 
+before_deploy:
+  - mkdir -p "bin/$ARCH"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp libMoz2D.so "bin/$ARCH/"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp libMoz2D.dylib "bin/$ARCH/"; fi
+
 deploy:
   provider: bintray
   file: "bintray.json"
-  user: "AliakseiSyrel"
+  user: "syrel"
   key: ${BINTRAY_API_KEY}
