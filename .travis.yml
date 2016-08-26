@@ -27,3 +27,10 @@ before_install:
     fi 
 
 script: ./build.sh --arch ${ARCH}
+
+deploy:
+  provider: bintray
+  file: "bintray.json"
+  user: "AliakseiSyrel"
+  key: ${BINTRAY_API_KEY}
+  dry-run: true

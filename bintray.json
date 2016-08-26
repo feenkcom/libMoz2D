@@ -1,0 +1,30 @@
+{
+    "package": {
+        "name": "auto-upload",
+        "repo": "Moz2D",
+        "subject": "myBintrayUser",
+        "desc": "I was pushed completely automatically",
+        "licenses": ["MPL-2.0", "MIT"],
+        "labels": ["vector graphics", "2d"],
+        "public_download_numbers": false,
+        "public_stats": false
+    },
+
+    "version": {
+        "name": "1.0",
+        "desc": "This is a version",
+        "released": "2015-01-04",
+        "vcs_tag": "0.5",
+        "attributes": [{"name": "VerAtt1", "values" : ["VerVal1"], "type": "string"},
+                       {"name": "VerAtt2", "values" : [1, 3.3, 5], "type": "number"},
+                       {"name": "VerAtt3", "values" : ["2015-01-01T19:43:37+0100"], "type": "date"}],
+        "gpgSign": false
+    },
+
+    "files": [
+      { "includePattern": "build/(.*\.so)", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
+      { "includePattern": "build/(.*\.dylib)", "uploadPattern": "mac/$1", "matrixParams": { "override": 1 }}
+      { "includePattern": "build/(.*\.dll)", "uploadPattern": "win/$1", "matrixParams": { "override": 1 }}
+    ],
+    "publish": true,
+}
