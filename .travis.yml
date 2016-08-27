@@ -14,9 +14,10 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update;
       brew tap homebrew/versions;
+      brew doctor;
       brew unlink node; brew unlink mercurial; brew unlink cmake;
       brew install llvm36;
-      brew link llvm36;
+      brew unlink llvm36 && brew link llvm36;
       brew switch llvm 3.6.2;
       brew install node yasm mercurial cmake gawk ccache autoconf213;
     fi
