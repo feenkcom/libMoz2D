@@ -1,9 +1,14 @@
-# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D)
+# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
 Scripts to compile `gfx` part of Mozilla Firefox as single shared library
+
 
 Compile shared library (32 bit):
 
-`./build.sh`
+`./build.sh --arch i386`
+
+Or 64 bit:
+
+`./build.sh --arch x86_64`
 
 Binary will be in `build/` folder
 
