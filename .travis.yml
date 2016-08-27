@@ -1,6 +1,8 @@
 language: cpp
 sudo: required
+
 dist: xenial
+osx_image: xcode8
 
 os:
   - linux
@@ -14,16 +16,9 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       echo "Updating Homebrew...";
       brew update;
-      echo "Upgrading Homebrew...";
-      brew upgrade;
       brew tap homebrew/versions;
-      echo "Fixing Homebrew...";
-      brew doctor;
       sudo chown -R $(whoami) /usr/local;
       brew unlink node; brew unlink mercurial; brew unlink cmake;
-      brew install llvm36;
-      brew unlink llvm36 && brew link llvm36;
-      brew switch llvm 3.6.2;
       brew install node yasm mercurial cmake gawk ccache autoconf213;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
