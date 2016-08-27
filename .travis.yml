@@ -18,7 +18,7 @@ before_install:
       brew update;
       brew tap homebrew/versions;
       sudo chown -R $(whoami) /usr/local;
-      brew unlink node; brew unlink mercurial; brew unlink cmake;
+      brew unlink node; brew unlink mercurial; brew unlink cmake; brew unlink autoconf;
       brew install node yasm mercurial cmake gawk ccache autoconf213;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
