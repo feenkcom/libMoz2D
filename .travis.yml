@@ -41,6 +41,9 @@ before_deploy:
   - mkdir -p "bin/v$MOZ_VERSION/$ARCH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/v$MOZ_VERSION/$ARCH/"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/v$MOZ_VERSION/$ARCH/"; fi
+  - ls -la
+  - echo "cd in bin/v$MOZ_VERSION/$ARCH"
+  - ( cd bin/v$MOZ_VERSION/$ARCH && ls -la )
 
 deploy:
   provider: bintray
