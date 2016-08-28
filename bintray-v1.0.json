@@ -10,6 +10,8 @@
     },
 
     "files": [
+      { "includePattern": "bin/([\w.]+)/([\w.]+)/(\w+\.so))", "uploadPattern": "linux/$1/$2/$3", "matrixParams": { "override": 1 }},
+      { "includePattern": "bin/((?:[\w.]+\/)(?:[\w.]+\/)(?:\w+\.so))", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/((?:(?:[\w.]+\/){1,3})(?:\w+\.so))", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/((?:(?:[\w.]+\/){1,3})(?:\w+\.dylib))", "uploadPattern": "osx/$1", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/((?:(?:[\w.]+\/){1,3})(?:\w+\.dll))", "uploadPattern": "win/$1", "matrixParams": { "override": 1 }}
