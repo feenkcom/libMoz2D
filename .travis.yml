@@ -38,9 +38,9 @@ before_install:
 script: ./build.sh --arch ${ARCH}
 
 before_deploy:
-  - mkdir -p "bin/$ARCH"
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/$ARCH/"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/$ARCH/"; fi
+  - mkdir -p "bin/v$MOZ_VERSION/$ARCH"
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/v$MOZ_VERSION/$ARCH/"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/v$MOZ_VERSION/$ARCH/"; fi
 
 deploy:
   provider: bintray
