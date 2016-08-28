@@ -44,6 +44,6 @@ before_deploy:
 
 deploy:
   provider: bintray
-  file: "bintray.json"
+  file: "bintray-v${MOZ_VERSION}.json"
   user: "syrel"
   key: ${BINTRAY_API_KEY}

@@ -1,0 +1,18 @@
+{
+    "package": {
+        "name": "libMoz2D",
+        "repo": "Moz2D",
+        "subject": "syrel"
+    },
+
+    "version": {
+        "name": "1.0"
+    },
+
+    "files": [
+      { "includePattern": "bin/(.*)/(.*\\.so)", "uploadPattern": "v1.0/linux/$1/$2", "matrixParams": { "override": 1 }},
+      { "includePattern": "bin/(.*)/(.*\\.dylib)", "uploadPattern": "v1.0/osx/$1/$2", "matrixParams": { "override": 1 }},
+      { "includePattern": "bin/(.*)/(.*\\.dll)", "uploadPattern": "v1.0/win/$1/$2", "matrixParams": { "override": 1 }}
+    ],
+    "publish": true
+}
