@@ -14,7 +14,6 @@
       { "includePattern": "bin/((?:[a-zA-Z0-9.]+\/){1,3})([a-zA-Z0-9]+\\.so)", "uploadPattern": "linux-test2/$1/$2", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/([a-zA-Z0-9.]+)/([a-zA-Z0-9.]+)/([a-zA-Z0-9]+\\.so)", "uploadPattern": "linux-test3/$1/$2/$3", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/v1.0/([a-zA-Z0-9.]+)/([a-zA-Z0-9]+\\.so)", "uploadPattern": "linux-test4/v1.0/$1/$2", "matrixParams": { "override": 1 }},
-      { "includePattern": "bin/v1.0/([a-zA-Z0-9.]+)/libMoz2D.so", "uploadPattern": "linux-test5/v1.0/$1/libMoz2D.so", "matrixParams": { "override": 1 }}, 
       { "includePattern": "bin/([\w.]+)/([\w.]+)/(\w+\.so)", "uploadPattern": "linux/$1/$2/$3", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/((?:[\w.]+\/)(?:[\w.]+\/)(?:\w+\.so))", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
       { "includePattern": "bin/((?:(?:[\w.]+\/){1,3})(?:\w+\.so))", "uploadPattern": "linux/$1", "matrixParams": { "override": 1 }},
