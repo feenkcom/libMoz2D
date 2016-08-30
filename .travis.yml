@@ -42,6 +42,7 @@ before_install:
       
       echo "Installing GTK-2.0...";
       sudo apt-get install libglib2.0-dev:i386;
+      sudo apt-get install libgirepository-1.0-1:i386;
       sudo apt-get install gir1.2-glib-2.0:i386;
       sudo apt-get install gir1.2-atk-1.0:i386;
       sudo apt-get install libatk1.0-dev:i386;
