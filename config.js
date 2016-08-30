@@ -102,7 +102,7 @@ module.exports = {
                     general: '-mssse3 -msse4.1',
                     mac: '',
                     win: '',
-                    linux: '-fPIC'
+                    linux: '-fPIC -lX11 -lXrender -lfontconfig -lgdk-3'
                 },
                 i386: {
                     linux: ''
@@ -116,7 +116,7 @@ module.exports = {
                     general: '-mssse3 -msse4.1 -fexceptions',
                     mac: '',
                     win: '',
-                    linux: '-fPIC'
+                    linux: '-fPIC -lX11 -lXrender -lfontconfig -lgdk-3'
                 },
                 i386: {
                     linux: ''
@@ -141,10 +141,12 @@ module.exports = {
                 }
             },
             linker: {
-                general: '',
-                mac: '-framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore -framework IOKit',
-                win: '',
-                linux: ''
+                cross: {
+                    general: '',
+                    mac: '-framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore -framework IOKit',
+                    win: '',
+                    linux: ''
+                }
             },
             sources: [
                 {

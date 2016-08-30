@@ -197,11 +197,11 @@ function Platform() {
     };
 
     _this.generalLinkerFlags = function () {
-        return _this.string(_this.config().build.flags.linker.general);
+        return _this.generalFlags('linker');
     };
 
     _this.platformLinkerFlags = function () {
-        return _this.string(_this.platform(_this.config().build.flags.linker));
+        return _this.platformFlags('linker');
     };
 
     _this.sourcesFlags = function () {
