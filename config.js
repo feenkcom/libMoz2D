@@ -116,7 +116,7 @@ module.exports = {
                 'gdk-x11-2.0',
                 'atk-1.0',
                 'gdk_pixbuf-2.0',
-                'gtk-3.0',
+                'gtk-3',
                 'gdk-3',
                 'gobject-2.0',
                 'pango-1.0',
