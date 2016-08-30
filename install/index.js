@@ -16,6 +16,18 @@ if (!_.isUndefined(options['--arch']))
 var builder = Platform.getPlatform().builder();
 builder.stage('Welcome!');
 builder.success(builder.tab('I will build a ' + Platform.getPlatform().arch() + ' version of Moz2D library'));
+
+if (!_.isUndefined(options['--do'])) {
+    switch(options['--do']) {
+        case "compile":
+            builder.compile();
+        break;
+        default:
+            builder.error("Unknown operation: " + options['--do']);
+    }
+    process.exit(0);
+}
+
 builder.download();
 builder.extract();
 builder.patch();

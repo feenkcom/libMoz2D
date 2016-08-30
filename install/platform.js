@@ -325,6 +325,7 @@ function Platform() {
      * @return {Array.<Object>}
      */
     _this.libraries = function () {
+        throw new Error('Subclass responsibility!');
         return _this.array(_this.platform(_this.config().build.libraries));
     };
 

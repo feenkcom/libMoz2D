@@ -92,8 +92,8 @@ module.exports = {
             }
         },
         libraries: {
-            mac: [ ],
-            linux: [ ],
+            mac: [ 'CoreFoundation', 'OpenGL', 'IOSurface', 'Cocoa', 'CoreServices', 'CoreGraphics', 'CoreText', 'QuartzCore', 'IOKit'  ],
+            linux: [ 'dl', 'X11', 'X11-xcb', 'xcb', 'xcb-shm', 'Xt', 'Xext', 'Xrender', 'fontconfig', 'gtk-x11-2.0', 'gdk-x11-2.0', 'atk-1.0', 'gdk_pixbuf-2.0', 'gtk-3.0', 'gdk-3', 'gobject-2.0', 'pango-1.0', 'pangocairo-1.0', 'glib-2.0' ],
             win: [ ]
         },
         flags: {
@@ -102,7 +102,7 @@ module.exports = {
                     general: '-mssse3 -msse4.1',
                     mac: '',
                     win: '',
-                    linux: '-fPIC -lX11 -lXrender -lfontconfig -lgdk-3'
+                    linux: '-fPIC'
                 },
                 i386: {
                     linux: ''
@@ -116,7 +116,7 @@ module.exports = {
                     general: '-mssse3 -msse4.1 -fexceptions',
                     mac: '',
                     win: '',
-                    linux: '-fPIC -lX11 -lXrender -lfontconfig -lgdk-3'
+                    linux: '-fPIC'
                 },
                 i386: {
                     linux: ''
@@ -143,9 +143,9 @@ module.exports = {
             linker: {
                 cross: {
                     general: '',
-                    mac: '-framework CoreFoundation -framework OpenGL -framework IOSurface -framework Cocoa -framework CoreServices -framework CoreGraphics -framework CoreText -framework QuartzCore -framework IOKit',
+                    mac: '',
                     win: '',
-                    linux: ''
+                    linux: '-Wl,--no-undefined'
                 }
             },
             sources: [
@@ -181,8 +181,8 @@ module.exports = {
         options: {
             i386: {
                 linux: [
-                    '--target=i686-pc-linux',
-                    '--x-libraries=/usr/lib32'
+                    '--target=i386-linux-gnu',
+                    '--x-libraries=/usr/lib/i386-linux-gnu'
                 ]
             }
 
