@@ -25,7 +25,7 @@ before_install:
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
-      curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
+      curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -;
       sudo apt-get install nodejs yasm autoconf2.13;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" && "$ARCH" == "x86_64" ]]; then
@@ -40,7 +40,7 @@ before_install:
       export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig/;
       sudo apt-get install gcc-multilib g++-multilib;
       
-      echo "Installing GTK-2.0..."
+      echo "Installing GTK-2.0...";
       sudo apt-get install libglib2.0-dev:i386;
       sudo apt-get install libatk1.0-dev:i386;
       sudo apt-get install libcairo2-dev:i386;
@@ -48,7 +48,7 @@ before_install:
       sudo apt-get install libpango1.0-dev:i386;
       sudo apt-get install libgtk2.0-dev:i386;
       
-      echo "Installing GTK-3.0..."
+      echo "Installing GTK-3.0...";
       sudo apt-get install libxkbcommon-dev:i386 libgtk-3-dev:i386;
       sudo apt-get install libfreetype6-dev:i386 libgconf2-dev:i386;
       sudo apt-get install libasound2-dev:i386 libpulse-dev:i386;
