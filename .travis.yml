@@ -38,7 +38,6 @@ before_install:
       sudo dpkg --add-architecture i386;
       sudo apt-get update;
       export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig/;
-      sudo apt-get install gcc-multilib g++-multilib;
       
       echo "Installing GTK-2.0...";
       sudo apt-get install libglib2.0-dev:i386;
@@ -59,6 +58,9 @@ before_install:
       sudo apt-get install libasound2-dev:i386 libpulse-dev:i386;
       sudo apt-get install libxt-dev:i386 libxext-dev:i386 libxcb-shm0-dev:i386 libx11-xcb-dev:i386;
       sudo apt-get autoremove;
+      
+      echo "Installing gcc and g++ multilib";
+      sudo apt-get install gcc-multilib g++-multilib;
     fi 
 
 script:
