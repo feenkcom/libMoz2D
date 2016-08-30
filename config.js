@@ -209,8 +209,8 @@ module.exports = {
         options: {
             i386: {
                 linux: [
-                    '--target=i386-linux-gnu',
-                    '--x-libraries=/usr/lib/i386-linux-gnu'
+                    '--target=i686-pc-linux-gnu',
+                    '--x-libraries=/usr/lib32'
                 ]
             }
 
