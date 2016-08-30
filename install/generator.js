@@ -179,7 +179,9 @@ module.exports = function Generator() {
     };
 
     _this.generatePlatformLibraries = function (aPlatform) {
-        return 'file(GLOB LIBRARIES "' + _this.merge(aPlatform.libraries(), ' ') + '")\n';
+        return _this.merge(aPlatform.libraries(), '\n', function(lib) {
+            return 'set(LIBRARIES ${LIBRARIES} "'+ lib +'")';
+        }) + '\n';
     };
 
     _this.generatePlatformLinkLibraries = function () {

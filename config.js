@@ -92,8 +92,36 @@ module.exports = {
             }
         },
         libraries: {
-            mac: [ 'CoreFoundation', 'OpenGL', 'IOSurface', 'Cocoa', 'CoreServices', 'CoreGraphics', 'CoreText', 'QuartzCore', 'IOKit'  ],
-            linux: [ 'dl', 'X11', 'X11-xcb', 'xcb', 'xcb-shm', 'Xt', 'Xext', 'Xrender', 'fontconfig', 'gtk-x11-2.0', 'gdk-x11-2.0', 'atk-1.0', 'gdk_pixbuf-2.0', 'gtk-3.0', 'gdk-3', 'gobject-2.0', 'pango-1.0', 'pangocairo-1.0', 'glib-2.0' ],
+            mac: [
+                'CoreFoundation',
+                'OpenGL',
+                'IOSurface',
+                'Cocoa',
+                'CoreServices',
+                'CoreGraphics',
+                'CoreText',
+                'QuartzCore',
+                'IOKit' ],
+            linux: [
+                'dl',
+                'X11',
+                'X11-xcb',
+                'xcb',
+                'xcb-shm',
+                'Xt',
+                'Xext',
+                'Xrender',
+                'fontconfig',
+                'gtk-x11-2.0',
+                'gdk-x11-2.0',
+                'atk-1.0',
+                'gdk_pixbuf-2.0',
+                'gtk-3.0',
+                'gdk-3',
+                'gobject-2.0',
+                'pango-1.0',
+                'pangocairo-1.0',
+                'glib-2.0' ],
             win: [ ]
         },
         flags: {

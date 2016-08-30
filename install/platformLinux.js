@@ -37,6 +37,10 @@ function PlatformLinux() { // subclass Platform
         return new BuilderLinux({platform: _this});
     };
 
+    _this.libraries = function () {
+        return _this.platformLibraries();
+    };
+
     return _this;
 }
 

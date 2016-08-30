@@ -5,6 +5,9 @@
 Platform = require('./platform.js');
 Builder = require('./builder.js');
 
+_ = require('libs/underscore.js');
+override = require('libs/override.js');
+
 function BuilderMac(args) {
     var _this = new Builder(args);
 
@@ -36,6 +39,22 @@ function PlatformMac() { // subclass Platform
     _this.builder = function () {
         return new BuilderMac({platform: _this});
     };
+
+    /**
+     * On OSX there are no libraries, they are Frameworks
+     * and have to be defined as linker flags in form
+     * -framework %name%
+     * @return {Array}
+     */
+    _this.libraries = function () {
+        return [];
+    };
+
+    _this.linkerFlags = override(_this, _this.linkerFlags, function() {
+        return _.map(_this.platformLibraries(), function(lib) {
+            return '-framework ' + lib;
+        });
+    });
 
     return _this;
 }
