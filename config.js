@@ -173,7 +173,7 @@ module.exports = {
                     general: '',
                     mac: '',
                     win: '',
-                    linux: '-Wl,--no-undefined'
+                    linux: '' //'-Wl,--no-undefined'
                 }
             },
             sources: [
