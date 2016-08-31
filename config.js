@@ -186,7 +186,7 @@ module.exports = {
         },
         defines: {
             general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR',
-            linux: '-DMOZ_TREE_CAIRO'
+            linux: '-DMOZ_TREE_CAIRO -DCAIRO_HAS_FC_FONT'
         },
         undefines: {
             general: [
