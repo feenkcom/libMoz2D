@@ -54,6 +54,7 @@ module.exports = {
 
                 'config/external/nspr/libc',
                 'config/external/nspr/pr',
+                'config/external/nspr/ds',
                 'config/external/icu/common',
                 'config/external/icu/stubdata',
                 'config/external/icu/i18n',
@@ -64,7 +65,6 @@ module.exports = {
                 'mozglue/misc'
             ],
             mac: [
-                'config/external/nspr/ds',
                 'intl/locale/mac'
             ],
             linux: [
@@ -112,6 +112,7 @@ module.exports = {
                 'Xext',
                 'Xrender',
                 'fontconfig',
+                'freetype',
                 'gtk-x11-2.0',
                 'gdk-x11-2.0',
                 'atk-1.0',
@@ -173,7 +174,7 @@ module.exports = {
                     general: '',
                     mac: '',
                     win: '',
-                    linux: '' //'-Wl,--no-undefined'
+                    linux: '-Wl,--no-undefined'
                 }
             },
             sources: [
@@ -199,7 +200,10 @@ module.exports = {
             '${MOZ_TOP_OBJ_PATH}/dist/include',
             '${MOZ_TOP_OBJ_PATH}/dist/include/nspr',
             '${MOZ_TOP_PATH}/intl/locale'
-        ]
+        ],
+        excludes: {
+            linux: [ 'nsprpub/lib/ds/plvrsion.c' ]
+        }
     },
 
     config: {
@@ -217,36 +221,41 @@ module.exports = {
         },
         cross_compile: true,
         modules: {
-            enabled: [
-                'optimize=-O2'
-            ],
-            disabled: [
-                'debug',
-                'sandbox',
-                'printing',
-                'gio',
-                'dbus',
-                'synth-speechd',
-                'websms-backend',
-                'dbm',
-                'accessibility',
-                'webrtc',
-                'webspeech',
-                'webspeechtestbackend',
-                'permissions',
-                'negotiateauth',
-                'pref-extensions',
-                'system-extension-dirs',
-                'gamepad',
-                'crashreporter',
-                'updater',
-                'parental-controls',
-                'content-sandbox',
-                'mozril-geoloc',
-                'necko-wifi',
-                'cookies',
-                'ctypes'
-            ]
+				general: {
+					enabled: [
+               	'optimize=-O2'
+            	],
+            	disabled: [
+               	'debug',
+               	'sandbox',
+               	'printing',
+               	'gio',
+               	'dbus',
+               	'synth-speechd',
+               	'websms-backend',
+               	'dbm',
+               	'accessibility',
+               	'webrtc',
+               	'webspeech',
+               	'webspeechtestbackend',
+               	'permissions',
+               	'negotiateauth',
+               	'pref-extensions',
+               	'system-extension-dirs',
+               	'gamepad',
+               	'crashreporter',
+               	'updater',
+               	'parental-controls',
+               	'content-sandbox',
+               	'mozril-geoloc',
+               	'necko-wifi',
+               	'cookies',
+               	'ctypes'
+            	]
+				},
+				linux: {
+					enabled: [ 'tree-freetype' ]				
+				}     		
         }
     },
     // visitor pattern

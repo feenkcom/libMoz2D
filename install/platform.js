@@ -211,6 +211,20 @@ function Platform() {
     _this.includes = function () {
         return _this.array(_this.config().build.includes);
     };
+    
+    _this.excludes = function () {
+        var excludes = _this.generalExcludes();
+        excludes = excludes.concat(_this.platformExcludes());
+        return excludes;
+    };
+    
+    _this.generalExcludes = function () {
+        return _this.array(_this.config().build.excludes.general);
+    };
+    
+    _this.platformExcludes = function () {
+        return _this.array(_this.platform(_this.config().build.excludes));    
+    };
 
     _this.config = function () {
         return Config;
@@ -247,11 +261,31 @@ function Platform() {
     };
 
     _this.enabledModules = function () {
-        return _this.array(_this.config().config.modules.enabled);
+        var enabled = _this.generalEnabledModules();
+        enabled = enabled.concat(_this.platformEnabledModules());
+        return enabled;
+    };
+    
+    _this.generalEnabledModules = function () {
+    	  return _this.array(_this.object(_this.config().config.modules.general).enabled);
+    };
+    
+    _this.platformEnabledModules = function () {
+        return _this.array(_this.object(_this.platform(_this.config().config.modules)).enabled);
     };
 
     _this.disabledModules = function () {
-        return _this.array(_this.config().config.modules.disabled);
+        var disabled = _this.generalDisabledModules();
+        disabled = disabled.concat(_this.platformDisabledModules());
+        return disabled;
+    };
+    
+    _this.generalDisabledModules = function () {
+    	  return _this.array(_this.object(_this.config().config.modules.general).disabled);
+    };
+    
+    _this.platformDisabledModules = function () {
+        return _this.array(_this.object(_this.platform(_this.config().config.modules)).disabled);
     };
 
     _this.mozconfig = function () {

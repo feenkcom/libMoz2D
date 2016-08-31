@@ -2,6 +2,7 @@ build/
 mozilla-central*/
 *.tar.gz
 *_tmp
+*~
 .idea/
 
 /CMakeLists.txt

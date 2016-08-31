@@ -132,3 +132,9 @@ JSAutoCompartment::JSAutoCompartment(JSContext* cx, JSScript* target MOZ_GUARD_O
 // Needed by mozilla::dom::TextEncoder::Encode
 JSAutoCompartment::~JSAutoCompartment() {
 	STUB("~JSAutoCompartment");}
+
+bool
+JS::GCCellPtr::mayBeOwnedByOtherRuntime() const
+{
+    return false;
+}

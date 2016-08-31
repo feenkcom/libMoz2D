@@ -44,6 +44,18 @@ module.exports = function Generator() {
         result = _(aPackage.unifiedSources()).reduce(function(memo, source){
             return memo + ' ${PROJECT_SOURCE_DIR}/'+aPackage.fullObjectPath()+'/'+source; }, result);
         result += ')\n';
+        
+        var toExclude = _.filter(aPackage.sources(), function (source) {
+            return _.some(Platform.getPlatform().excludes(), function (exclude) {
+            	return (aPackage.fullSourcePath()+'/'+ source).indexOf(exclude) !== -1;
+            });        
+        });
+        
+        if (toExclude.length > 0) {
+        		result = _(toExclude).reduce(function(memo, source){
+            	return memo + ' "${PROJECT_SOURCE_DIR}/'+aPackage.fullSourcePath()+'/'+source +'"';
+        		}, result + 'list(REMOVE_ITEM ' + _this.generatePackageSourceVariable(aPackage)) + ')\n';
+        }
         return result;
     };
 

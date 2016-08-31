@@ -184,8 +184,9 @@ function Builder (_args) {
             new Generator().generate(pkg);
             _this.log(_this.tab('Converted ' + pkg.fullObjectPath() + '/' + pkg.makefile() + ' (' + pkg.library() + ')'));
         });
-        new Generator().generate(platform);
-        _this.log(_this.tab('Generated root CMakeLists.txt'));
+        var rootCmake = new Generator().generate(platform);
+        _this.success(_this.tab('Generated root CMakeLists.txt'));
+        _this.log(_this.tab(_this.tab(rootCmake)));
         _this.success(_this.tab('Done'));
     };
 

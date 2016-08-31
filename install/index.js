@@ -22,6 +22,9 @@ if (!_.isUndefined(options['--do'])) {
         case "compile":
             builder.compile();
         break;
+        case "export":
+            builder.export();
+        break;
         default:
             builder.error("Unknown operation: " + options['--do']);
     }
