@@ -185,7 +185,8 @@ module.exports = {
             ]
         },
         defines: {
-            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR'
+            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR',
+            linux: '-DMOZ_TREE_CAIRO'
         },
         undefines: {
             general: [

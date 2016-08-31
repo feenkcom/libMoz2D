@@ -51,9 +51,9 @@ function PlatformMac() { // subclass Platform
     };
 
     _this.linkerFlags = override(_this, _this.linkerFlags, function() {
-        return this.super() + _.reduce(_this.platformLibraries(), function(memo, lib) {
+        return _.reduce(_this.platformLibraries(), function(memo, lib) {
             return memo + ' -framework ' + lib;
-        });
+        }, this.super());
     });
 
     return _this;
