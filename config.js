@@ -174,7 +174,7 @@ module.exports = {
                     general: '',
                     mac: '',
                     win: '',
-                    linux: '-Wl,--no-undefined'
+                    linux: ''//'-Wl,--no-undefined'
                 }
             },
             sources: [
@@ -186,7 +186,7 @@ module.exports = {
         },
         defines: {
             general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR',
-            linux: '-DMOZ_TREE_CAIRO -DCAIRO_HAS_FC_FONT'
+            linux: ''
         },
         undefines: {
             general: [
