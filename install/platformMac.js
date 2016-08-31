@@ -5,8 +5,8 @@
 Platform = require('./platform.js');
 Builder = require('./builder.js');
 
-_ = require('libs/underscore.js');
-override = require('libs/override.js');
+_ = require('./libs/underscore.js');
+override = require('./libs/override.js');
 
 function BuilderMac(args) {
     var _this = new Builder(args);
