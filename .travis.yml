@@ -68,13 +68,13 @@ script:
 
 before_deploy:
   - mkdir -p "bin/v$MOZ_VERSION/$ARCH"
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/v$MOZ_VERSION/$ARCH/"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/v$MOZ_VERSION/$ARCH/"; fi
-  - echo "Library should be in bin/v$MOZ_VERSION/$ARCH"
-  - ( cd bin/v$MOZ_VERSION/$ARCH && ls -la )
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/$MOZ_VERSION/$ARCH/"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/$MOZ_VERSION/$ARCH/"; fi
+  - echo "Library should be in bin/$MOZ_VERSION/$ARCH"
+  - ( cd bin/$MOZ_VERSION/$ARCH && ls -la )
 
 deploy:
   provider: bintray
-  file: "bintray-v${MOZ_VERSION}.json"
+  file: "bintray-${MOZ_VERSION}.json"
   user: "syrel"
   key: ${BINTRAY_API_KEY}
