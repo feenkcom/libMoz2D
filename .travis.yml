@@ -67,7 +67,7 @@ script:
   - ./build.sh --arch ${ARCH}
 
 before_deploy:
-  - mkdir -p "bin/v$MOZ_VERSION/$ARCH"
+  - mkdir -p "bin/$MOZ_VERSION/$ARCH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cp build/libMoz2D.so "bin/$MOZ_VERSION/$ARCH/"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cp build/libMoz2D.dylib "bin/$MOZ_VERSION/$ARCH/"; fi
   - echo "Library should be in bin/$MOZ_VERSION/$ARCH"
