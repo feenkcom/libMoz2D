@@ -13,3 +13,9 @@ nsPresContext::AppUnitsPerDevPixel() const
 {
   return mozilla::Preferences::GetInt("gfx.app_units_per_dev_pixel");
 }
+
+gfxUserFontSet*
+nsPresContext::GetUserFontSet()
+{
+  return nullptr;
+}

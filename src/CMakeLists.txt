@@ -1,5 +1,6 @@
 add_definitions(-DMOZILLA_INTERNAL_API)
 
+include_directories(${MOZ_TOP_PATH})
 include_directories(${MOZ_TOP_PATH}/gfx)
 include_directories(${MOZ_TOP_PATH}/gfx/cairo/cairo/src)
 include_directories(${MOZ_TOP_OBJ_PATH}/gfx/cairo/cairo/src)

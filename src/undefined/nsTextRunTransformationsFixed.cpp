@@ -21,3 +21,4 @@ using namespace mozilla::gfx;
 using namespace mozilla;
 
 #include "layout/generic/nsTextRunTransformations.cpp"
+#include "layout/generic/MathMLTextRunFactory.cpp"

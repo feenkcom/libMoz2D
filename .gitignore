@@ -11,3 +11,5 @@ mozilla-central*/
 
 /.project
 /.settings
+
+.DS_Store

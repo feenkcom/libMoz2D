@@ -15,9 +15,16 @@ gfxFontGroup* moz2d_font_group_create (
 		gfxTextPerfMetrics* aTextPerf,
 		gfxUserFontSet *aUserFontSet,
 		float aDevToCssSize) {
-	return gfxPlatform::GetPlatform()->CreateFontGroup(*aFontFamilyList, aStyle, aTextPerf, aUserFontSet, aDevToCssSize);
+	gfxFontGroup* fontGroup = gfxPlatform::GetPlatform()->CreateFontGroup(*aFontFamilyList, aStyle, aTextPerf, aUserFontSet, aDevToCssSize);
+	// Need to increase reference, because my caller gets ownership over font group
+	fontGroup->AddRef();
+	return fontGroup;
 }
 
+void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical) {
+	*aMetrics = aFontGroup->GetFirstValidFont()->GetMetrics(isVertical ? gfxFont::Orientation::eVertical : gfxFont::Orientation::eHorizontal);
+	aMetrics->underlineOffset = aFontGroup->GetUnderlineOffset();
+}
 
 gfxTextRun* moz2d_font_group_make_text_run_ascii (
 		DrawTarget* drawTarget,

@@ -10,6 +10,7 @@
 
 #include "2d/2D.h"
 #include "gfxTextRun.h"
+#include "gfxFont.h"
 #include "gfxFontFamilyList.h"
 
 using namespace mozilla;
@@ -25,6 +26,8 @@ gfxFontGroup* moz2d_font_group_create (
 		gfxTextPerfMetrics* aTextPerf,
 		gfxUserFontSet* aUserFontSet,
 		float aDevToCssSize);
+
+void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical);
 
 /**
  * Text run creation helper for clients that don't want to pass

@@ -1,4 +1,8 @@
 include_directories(${MOZ_TOP_PATH})
+include_directories(${MOZ_TOP_PATH}/layout)
+include_directories(${MOZ_TOP_PATH}/layout/generic)
+include_directories(${MOZ_TOP_PATH}/layout/style)
+include_directories(${MOZ_TOP_PATH}/dom/base)
 include_directories(${MOZ_TOP_OBJ_PATH})
 include_directories(${MOZ_TOP_PATH}/xpcom)
 include_directories(${MOZ_TOP_OBJ_PATH}/xpcom)
@@ -32,7 +36,7 @@ set(SRC
     nsContentUtils.cpp nsJS.cpp nsServices.cpp nsTextRunTransformationsFixed.cpp
     PGPU.cpp nsAppRunner.cpp nsPresContext.cpp GPUProcessManager.cpp nsFont.cpp
     nsMemoryReporterManager.cpp ShaderProgram.cpp gfxPlatform.cpp nsSVGUtils.cpp
-    nsWidget.cpp)
+    nsWidget.cpp nsFakePresContext.cpp)
 
 add_library(undefined OBJECT ${SRC})
 
