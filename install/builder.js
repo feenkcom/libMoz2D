@@ -38,7 +38,7 @@ function Builder (_args) {
         }
         // --no-check-certificate is required because on windows it fails to locally verify issuer's authority
         var cmd = 'wget --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
-        execSilent(cmd, { stdio: ['pipe', 'ignore', process.stderr] });
+        _this.execSilent(cmd, { stdio: ['pipe', 'ignore', process.stderr] });
         execSync('mv -fv '+platform.sourcesArchive()+'_tmp ' + platform.sourcesArchive(), { stdio: ['pipe', 'pipe', process.stderr] });
         platform.log('Downloaded as ' + platform.sourcesArchive());
     };
