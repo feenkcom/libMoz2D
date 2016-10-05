@@ -5,6 +5,7 @@
 
 fs = require('fs');
 _ = require('./libs/underscore.js');
+var os = require('os');
 
 DEFINES = 'DEFINES';
 LIBRARY_NAME = 'LIBRARY_NAME';
@@ -67,7 +68,7 @@ module.exports = function Parser(_args) {
     _this.parseLibName = function () {
         var libName =  _(contents).find(function(line) { return line.trim().startsWith(LIBRARY_NAME)} );
         if (_.isUndefined(libName))
-            throw new Error('Library names is not specified!');
+            throw new Error('Library names is not specified!' + os.EOL + 'Makefile dump ('+_this.fullFilePath()+'):' + os.EOL + _this.merge(contents, os.EOL, function(each){ return '		' + each; }));
         return _this.trimAfter(libName, ':=');
     };
 
@@ -214,5 +215,13 @@ module.exports = function Parser(_args) {
         return result;
     };
 
+    _this.merge = function(array, _delimiter, _transform) {
+        var delimiter = _.isUndefined(_delimiter) ? ' ' : _delimiter;
+        var transform = _.isUndefined(_transform) ? _.identity : _transform;
+
+        return _(array).reduce(function(memo, each, index) {
+            return memo + (index > 0 ? delimiter : '') + transform(each);
+        }, '');
+    };
     _this.initialize(_args);
 };
