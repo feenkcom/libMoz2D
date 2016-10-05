@@ -20,7 +20,8 @@ module.exports = {
         bin: 'build',
         makefile: 'backend.mk',
         mozilla_config: 'mozilla-config.h',
-        url: 'https://hg.mozilla.org/mozilla-central/archive/FIREFOX_AURORA_50_BASE',
+        url: 'https://hg.mozilla.org/mozilla-central/archive/',
+        version: 'FIREFOX_AURORA_50_BASE',
         format: '.tar.gz',
         arch: 'i386', // i386, x86_64
         packages: {

@@ -471,11 +471,11 @@ function Platform() {
     };
 
     _this.sourcesURL = function () {
-        return _this.config().build.url + _this.config().build.format;
+        return _this.config().build.url + _this.config().build.version + _this.config().build.format;
     };
 
     _this.sourcesArchive = function () {
-        return _this.sources() + _this.config().build.format;
+        return _this.config().build.version + _this.config().build.format;
     };
 
     _this.patches = function () {
