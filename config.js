@@ -279,7 +279,10 @@ module.exports = {
 				},
 				linux: {
 					enabled: [ 'tree-freetype' ]				
-				}     		
+				},
+				win: {
+					disabled: [ 'compile-environment' ]
+				}
         }
     },
     // visitor pattern
