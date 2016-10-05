@@ -19,12 +19,15 @@ builder.success(builder.tab('I will build a ' + Platform.getPlatform().arch() + 
 
 if (!_.isUndefined(options['--do'])) {
     switch(options['--do']) {
+		case "download":
+            builder.download();
+			break;
         case "compile":
             builder.compile();
-        break;
+			break;
         case "export":
             builder.export();
-        break;
+			break;
         default:
             builder.error("Unknown operation: " + options['--do']);
     }
