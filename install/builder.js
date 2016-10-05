@@ -33,7 +33,7 @@ function Builder (_args) {
     _this.download = function () {
         _this.stage('Downloading sources...');
         if (_this.isDownloaded()) {
-            platform.log('   Achieve exists, no need to download');
+            platform.log('   Archive exists, no need to download');
             return;
         }
         // --no-check-certificate is required because on windows it fails to locally verify issuer's authority
