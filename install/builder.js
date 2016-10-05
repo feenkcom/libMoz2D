@@ -37,8 +37,8 @@ function Builder (_args) {
             return;
         }
         // --no-check-certificate is required because on windows it fails to locally verify issuer's authority
-        var cmd = 'wget --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
-        execSync(cmd, { stdio: ['pipe', 'ignore', process.stderr] });
+        var cmd = 'wget -q --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
+        execSync(cmd, { stdio: ['pipe', 'pipe', process.stderr] });
         execSync('mv -fv '+platform.sourcesArchive()+'_tmp ' + platform.sourcesArchive(), { stdio: ['pipe', 'pipe', process.stderr] });
         platform.log('Downloaded as ' + platform.sourcesArchive());
     };
