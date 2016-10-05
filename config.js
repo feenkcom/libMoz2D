@@ -56,7 +56,6 @@ module.exports = {
                 'config/external/nspr/pr',
                 'config/external/nspr/ds',
                 'config/external/icu/common',
-                'config/external/icu/stubdata',
                 'config/external/icu/i18n',
 
                 'intl/locale',
@@ -65,10 +64,15 @@ module.exports = {
                 'mozglue/misc'
             ],
             mac: [
-                'intl/locale/mac'
+                'intl/locale/mac',
+                'config/external/icu/stubdata',
             ],
             linux: [
-                'intl/locale/unix'
+                'intl/locale/unix',
+                'config/external/icu/stubdata'
+            ],
+			win: [
+                'config/external/icu/data'
             ]
         },
         bindings: {
@@ -210,15 +214,33 @@ module.exports = {
     config: {
         status: 'config.status',
         mozconfig: '.mozconfig',
-        flags: '-j4',
+        flags: '',
         options: {
             i386: {
                 linux: [
                     '--target=i686-pc-linux-gnu',
                     '--x-libraries=/usr/lib32'
-                ]
+                ],
+				win: [
+					//'--target=i686-px-mingw32',
+					//'--prefix=/mingw64'
+				]
+            },
+			x86_64: {
+				win: [
+					'--target=x86_64-pc-mingw32',
+					'--host=x86_64-pc-mingw32'
+				]
+			}
+        },
+		exports: {
+            cross: {
+				win: [
+					'CC="clang-cl.exe"',
+					'CXX="clang-cl.exe"',
+					'LD="lld.exe"'
+				]
             }
-
         },
         cross_compile: true,
         modules: {

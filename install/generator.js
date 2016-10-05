@@ -204,6 +204,7 @@ module.exports = function Generator() {
         var platform = Platform.getPlatform();
         var conf = _this.generateConfigCrossCompile(platform);
         conf += _this.generateConfigObjDir(platform);
+        conf += _this.generateConfigExports(platform) + '\n';
         conf += _this.generateConfigMakeFlags(platform) + '\n';
         conf += _this.generateConfigOptions(platform) + '\n';
         conf += _this.generateConfigModules(platform);
@@ -224,9 +225,15 @@ module.exports = function Generator() {
     };
     
     _this.generateConfigOptions = function (aPlatform) {
-	return _this.merge(aPlatform.configOptions(), '\n', function(option){
-	  return 'ac_add_options ' + option;
-	}) + '\n';
+		return _this.merge(aPlatform.configOptions(), '\n', function(option){
+			return 'ac_add_options ' + option;
+		}) + '\n';
+    };
+	
+	_this.generateConfigExports = function (aPlatform) {
+		return _this.merge(aPlatform.configExports(), '\n', function(each){
+			return 'export ' + each;
+		}) + '\n';
     };
 
     _this.generateConfigModules = function (aPlatform) {

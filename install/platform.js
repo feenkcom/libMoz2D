@@ -237,6 +237,7 @@ function Platform() {
     _this.configOptions = function () {
         return _this.generalConfigOptions().concat(_this.platformConfigOptions());
     };
+	
     /**
      * Return an array containing config options
      * that are common for all platforms
@@ -252,12 +253,39 @@ function Platform() {
     /**
      * Return a platform specific config options
      */
-    _this.platformConfigOptions = function (type) {
+    _this.platformConfigOptions = function () {
         // options cross target, current platform
         var options = _this.array(_this.platform(_this.object((_this.object(_this.config().config.options)).cross)));
         // options current target, current platform
         options = options.concat(_this.array(_this.platform(_this.object(_this.target(_this.object(_this.config().config.options))))));
         return options;
+    };
+	
+	_this.configExports = function () {
+        return _this.generalConfigExports().concat(_this.platformConfigExports());
+    };
+
+	/**
+     * Return an array containing environment variables
+     * that are common for all platforms
+     */
+    _this.generalConfigExports = function () {
+        // exports cross target, general platform
+        var exports = _this.array(_this.object((_this.object(_this.config().config.exports)).cross).general);
+        // exports current target, general platform
+        exports = exports.concat(_this.array(_this.object(_this.target(_this.object(_this.config().config.exports))).general));
+        return exports;
+    };
+
+	/**
+     * Return a platform specific config exports
+     */
+    _this.platformConfigExports = function () {
+        // exports cross target, current platform
+        var exports = _this.array(_this.platform(_this.object((_this.object(_this.config().config.exports)).cross)));
+        // exports current target, current platform
+        exports = exports.concat(_this.array(_this.platform(_this.object(_this.target(_this.object(_this.config().config.exports))))));
+        return exports;
     };
 
     _this.enabledModules = function () {

@@ -161,8 +161,8 @@ function Builder (_args) {
         _this.success(_this.tab('Done'));
 
         _this.stage('Generating ipdl sources...');
-        _this.exec('make recurse_pre-export', platform.objects());
-        _this.exec('make mozilla-config.h buildid.h source-repo.h', platform.objects());
+        _this.exec('mozmake recurse_pre-export', platform.objects());
+        _this.exec('mozmake mozilla-config.h buildid.h source-repo.h', platform.objects());
 
         _this.stage('Undefining defines...');
         var mozillaConfig = fs.openSync(platform.mozillaConfigH(), 'a');
@@ -172,7 +172,7 @@ function Builder (_args) {
         });
         fs.closeSync(mozillaConfig);
 
-        _this.exec('make recurse_export', platform.objects());
+        _this.exec('mozmake recurse_export', platform.objects());
         _this.success(_this.tab('Done'));
 
         new Generator().write(_this.configCheckFile(), JSON.stringify(platform.config()));

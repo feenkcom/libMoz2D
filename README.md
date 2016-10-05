@@ -1,4 +1,4 @@
-﻿# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
+# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
 Scripts to compile `gfx` part of Mozilla Firefox as single shared library
 
 
@@ -57,5 +57,9 @@ First [install MingGW](https://sourceforge.net/projects/mingw/files/) and follow
 Additional packages are required, install them by executing:<br>
 `mingw-get install msys-unzip msys-wget msys-zip msys-tar msys-patch`<br>
 MSYS also needs to be added to the PATH variable, by default it is `C:\MinGW\msys\1.0\bin;C:\MinGW\msys\1.0\local\bin`
+
+Install [vcsetup.exe](http://go.microsoft.com/?linkid=7729279).
+Install [LLVM 32bit](http://llvm.org/pre-releases/win-snapshots/LLVM-4.0.0-r282394-win32.exe) or [LLVM 64bit](http://llvm.org/pre-releases/win-snapshots/LLVM-4.0.0-r282394-win64.exe)
+
 
 Installation scripts require latest version of [Node.js](https://nodejs.org/en/).
