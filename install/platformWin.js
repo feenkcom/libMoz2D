@@ -22,6 +22,10 @@ function BuilderWin(args) {
         _this.exec('cmake .. -G "Unix Makefiles"', _this.platform().output());
         _this.exec('make',_this.platform().output());
     };
+	
+	_this.make = function(target, directory) {
+		_this.exec('mozmake ' + target, directory);
+	};
 
     return _this;
 }

@@ -40,7 +40,7 @@ function Builder (_args) {
         var cmd = 'wget -q --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
         execSync(cmd, { stdio: ['pipe', 'pipe', process.stderr] });
         execSync('mv -fv '+platform.sourcesArchive()+'_tmp ' + platform.sourcesArchive(), { stdio: ['pipe', 'pipe', process.stderr] });
-        platform.log('Downloaded as ' + platform.sourcesArchive());
+        platform.log(_this.tab('Downloaded as ' + platform.sourcesArchive()));
     };
 
     /**
@@ -161,8 +161,8 @@ function Builder (_args) {
         _this.success(_this.tab('Done'));
 
         _this.stage('Generating ipdl sources...');
-        _this.exec('mozmake recurse_pre-export', platform.objects());
-        _this.exec('mozmake mozilla-config.h buildid.h source-repo.h', platform.objects());
+        _this.make('recurse_pre-export', platform.objects());
+        _this.make('mozilla-config.h buildid.h source-repo.h', platform.objects());
 
         _this.stage('Undefining defines...');
         var mozillaConfig = fs.openSync(platform.mozillaConfigH(), 'a');
@@ -172,11 +172,18 @@ function Builder (_args) {
         });
         fs.closeSync(mozillaConfig);
 
-        _this.exec('mozmake recurse_export', platform.objects());
+        _this.make('recurse_export', platform.objects());
         _this.success(_this.tab('Done'));
 
         new Generator().write(_this.configCheckFile(), JSON.stringify(platform.config()));
     };
+	
+	/**
+	 *	Override in order to use different `make`
+	 */
+	_this.make = function(target, directory) {
+		_this.exec('make ' + target, directory);
+	};
 
     _this.export = function () {
         _this.stage('Parsing makefiles...');
