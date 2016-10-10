@@ -1,4 +1,4 @@
-# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
+# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [![Build status](https://ci.appveyor.com/api/projects/status/b3bjd40ckj4e8n52/branch/master?svg=true)](https://ci.appveyor.com/project/syrel/moz2d/branch/master) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
 Scripts to compile `gfx` part of Mozilla Firefox as single shared library
 
 
