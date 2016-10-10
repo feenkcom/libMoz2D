@@ -17,13 +17,13 @@ struct gfxPlatformFontListExposer : gfxPlatformFontList {
 };
 
 nsIAtom* private_moz2d_language_to_atom (const char* anOSLang) {
-	nsILanguageAtomService* langService = (dynamic_cast<gfxPlatformFontListExposer*>(gfxPlatformFontList::PlatformFontList())->*&gfxPlatformFontListExposer::GetLangService)();
+	nsILanguageAtomService* langService = (static_cast<gfxPlatformFontListExposer*>(gfxPlatformFontList::PlatformFontList())->*&gfxPlatformFontListExposer::GetLangService)();
 
 	nsCString aOSLang = nsCString(anOSLang);
 	nsIAtom* langAtom = nsGkAtoms::x_western;
 	nsCString aFcLang = nsCString("");
 
-	(dynamic_cast<gfxPlatformFontListExposer*>(gfxPlatformFontList::PlatformFontList())->*&gfxPlatformFontListExposer::TryLangForGroup)(aOSLang, langAtom,aFcLang);
+	(static_cast<gfxPlatformFontListExposer*>(gfxPlatformFontList::PlatformFontList())->*&gfxPlatformFontListExposer::TryLangForGroup)(aOSLang, langAtom,aFcLang);
 	nsIAtom *atom = langService->LookupLanguage(aFcLang);
 
 	if (!atom) atom = langAtom;

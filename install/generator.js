@@ -40,6 +40,9 @@ module.exports = function Generator() {
 
     _this.generatePackageSources = function (aPackage) {
         var result = _(aPackage.sources()).reduce(function(memo, source){
+			// source may be already defined as absolute path
+			if (fs.existsSync(source))
+				return memo + ' ' + source;
             return memo + ' ${PROJECT_SOURCE_DIR}/'+aPackage.fullSourcePath()+'/'+source; }, 'set('+_this.generatePackageSourceVariable(aPackage));
         result = _(aPackage.unifiedSources()).reduce(function(memo, source){
             return memo + ' ${PROJECT_SOURCE_DIR}/'+aPackage.fullObjectPath()+'/'+source; }, result);
@@ -53,7 +56,10 @@ module.exports = function Generator() {
         
         if (toExclude.length > 0) {
         		result = _(toExclude).reduce(function(memo, source){
-            	return memo + ' "${PROJECT_SOURCE_DIR}/'+aPackage.fullSourcePath()+'/'+source +'"';
+					// source may be already defined as absolute path
+					if (fs.existsSync(source))
+						return memo + ' ' + source;
+					return memo + ' "${PROJECT_SOURCE_DIR}/'+aPackage.fullSourcePath()+'/'+source +'"';
         		}, result + 'list(REMOVE_ITEM ' + _this.generatePackageSourceVariable(aPackage)) + ')\n';
         }
         return result;

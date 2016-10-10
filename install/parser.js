@@ -93,7 +93,10 @@ module.exports = function Parser(_args) {
             });
         }).map(function(line) {
             return _this.trimAfter(line, '+=');
-        }).filter(function(source){
+		// one line may contain multiple sources
+        }).map(function(line) {
+            return line.split(" ");
+        }).flatten().filter(function(source){
             return !source.startsWith('$');
         }).value();
     };

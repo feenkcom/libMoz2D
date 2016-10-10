@@ -74,7 +74,6 @@ module.exports = {
             ],
             win: [
                 'intl/locale/windows'
-                //'config/external/icu/data'
             ]
         },
         bindings: {
