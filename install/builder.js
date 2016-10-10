@@ -60,7 +60,9 @@ function Builder (_args) {
         _this.exec('mkdir ' + platform.sources() + '_tmp');
 
         try{
-            _this.exec('tar -zxf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components  1 --checkpoint=.1000 ');
+			var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 2>&1 | awk \'!(NR%5000)\'';
+			_this.exec(command);
+			
         } catch(e) {
             platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
         }

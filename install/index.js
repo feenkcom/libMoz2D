@@ -22,11 +22,17 @@ if (!_.isUndefined(options['--do'])) {
 		case "download":
             builder.download();
 			break;
-        case "compile":
-            builder.compile();
+		case "extract":
+            builder.extract();
+			break;
+		case "patch":
+            builder.patch();
 			break;
         case "export":
             builder.export();
+			break;
+        case "compile":
+            builder.compile();
 			break;
         default:
             builder.error("Unknown operation: " + options['--do']);

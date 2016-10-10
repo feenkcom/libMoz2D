@@ -1,6 +1,418 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
+--- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-10-10 22:11:45.000000000 +0200
+@@ -13,138 +13,8 @@
+ 
+ SoftwareVsyncSource::SoftwareVsyncSource()
+ {
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mGlobalDisplay = new SoftwareDisplay();
+ }
+ 
+ SoftwareVsyncSource::~SoftwareVsyncSource()
+ {
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mGlobalDisplay = nullptr;
+-}
+-
+-SoftwareDisplay::SoftwareDisplay()
+-  : mVsyncEnabled(false)
+-{
+-  // Mimic 60 fps
+-  MOZ_ASSERT(NS_IsMainThread());
+-  const double rate = 1000.0 / (double) gfxPlatform::GetSoftwareVsyncRate();
+-  mVsyncRate = mozilla::TimeDuration::FromMilliseconds(rate);
+-  mVsyncThread = new base::Thread("SoftwareVsyncThread");
+-  MOZ_RELEASE_ASSERT(mVsyncThread->Start(), "GFX: Could not start software vsync thread");
+-}
+-
+-SoftwareDisplay::~SoftwareDisplay() {}
+-
+-void
+-SoftwareDisplay::EnableVsync()
+-{
+-  MOZ_ASSERT(mVsyncThread->IsRunning());
+-  if (NS_IsMainThread()) {
+-    if (mVsyncEnabled) {
+-      return;
+-    }
+-    mVsyncEnabled = true;
+-
+-    mVsyncThread->message_loop()->PostTask(
+-      NewRunnableMethod(this, &SoftwareDisplay::EnableVsync));
+-    return;
+-  }
+-
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  NotifyVsync(mozilla::TimeStamp::Now());
+-}
+-
+-void
+-SoftwareDisplay::DisableVsync()
+-{
+-  MOZ_ASSERT(mVsyncThread->IsRunning());
+-  if (NS_IsMainThread()) {
+-    if (!mVsyncEnabled) {
+-      return;
+-    }
+-    mVsyncEnabled = false;
+-
+-    mVsyncThread->message_loop()->PostTask(
+-      NewRunnableMethod(this, &SoftwareDisplay::DisableVsync));
+-    return;
+-  }
+-
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  if (mCurrentVsyncTask) {
+-    mCurrentVsyncTask->Cancel();
+-    mCurrentVsyncTask = nullptr;
+-  }
+-}
+-
+-bool
+-SoftwareDisplay::IsVsyncEnabled()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  return mVsyncEnabled;
+-}
+-
+-bool
+-SoftwareDisplay::IsInSoftwareVsyncThread()
+-{
+-  return mVsyncThread->thread_id() == PlatformThread::CurrentId();
+-}
+-
+-void
+-SoftwareDisplay::NotifyVsync(mozilla::TimeStamp aVsyncTimestamp)
+-{
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-
+-  mozilla::TimeStamp displayVsyncTime = aVsyncTimestamp;
+-  mozilla::TimeStamp now = mozilla::TimeStamp::Now();
+-  // Posted tasks can only have integer millisecond delays
+-  // whereas TimeDurations can have floating point delays.
+-  // Thus the vsync timestamp can be in the future, which large parts
+-  // of the system can't handle, including animations. Force the timestamp to be now.
+-  if (aVsyncTimestamp > now) {
+-    displayVsyncTime = now;
+-  }
+-
+-  Display::NotifyVsync(displayVsyncTime);
+-
+-  // Prevent skew by still scheduling based on the original
+-  // vsync timestamp
+-  ScheduleNextVsync(aVsyncTimestamp);
+-}
+-
+-mozilla::TimeDuration
+-SoftwareDisplay::GetVsyncRate()
+-{
+-  return mVsyncRate;
+-}
+-
+-void
+-SoftwareDisplay::ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp)
+-{
+-  MOZ_ASSERT(IsInSoftwareVsyncThread());
+-  mozilla::TimeStamp nextVsync = aVsyncTimestamp + mVsyncRate;
+-  mozilla::TimeDuration delay = nextVsync - mozilla::TimeStamp::Now();
+-  if (delay.ToMilliseconds() < 0) {
+-    delay = mozilla::TimeDuration::FromMilliseconds(0);
+-    nextVsync = mozilla::TimeStamp::Now();
+-  }
+-
+-  mCurrentVsyncTask =
+-    NewCancelableRunnableMethod<mozilla::TimeStamp>(this,
+-                                                    &SoftwareDisplay::NotifyVsync,
+-                                                    nextVsync);
+-
+-  RefPtr<Runnable> addrefedTask = mCurrentVsyncTask;
+-  mVsyncThread->message_loop()->PostDelayedTask(
+-    addrefedTask.forget(),
+-    delay.ToMilliseconds());
+-}
+-
+-void
+-SoftwareDisplay::Shutdown()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  DisableVsync();
+-  mVsyncThread->Stop();
+-  delete mVsyncThread;
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
+--- gfx/thebes/SoftwareVsyncSource.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-10-10 22:11:45.000000000 +0200
+@@ -14,32 +14,6 @@
+ #include "nsISupportsImpl.h"
+ #include "VsyncSource.h"
+ 
+-class SoftwareDisplay final : public mozilla::gfx::VsyncSource::Display
+-{
+-  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(SoftwareDisplay)
+-
+-public:
+-  SoftwareDisplay();
+-  virtual void EnableVsync() override;
+-  virtual void DisableVsync() override;
+-  virtual bool IsVsyncEnabled() override;
+-  bool IsInSoftwareVsyncThread();
+-  virtual void NotifyVsync(mozilla::TimeStamp aVsyncTimestamp) override;
+-  virtual mozilla::TimeDuration GetVsyncRate() override;
+-  void ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp);
+-  void Shutdown() override;
+-
+-protected:
+-  ~SoftwareDisplay();
+-
+-private:
+-  mozilla::TimeDuration mVsyncRate;
+-  // Use a chromium thread because nsITimers* fire on the main thread
+-  base::Thread* mVsyncThread;
+-  RefPtr<mozilla::CancelableRunnable> mCurrentVsyncTask; // only access on vsync thread
+-  bool mVsyncEnabled; // Only access on main thread
+-}; // SoftwareDisplay
+-
+ // Fallback option to use a software timer to mimic vsync. Useful for gtests
+ // To mimic a hardware vsync thread, we create a dedicated software timer
+ // vsync thread.
+@@ -49,14 +23,6 @@
+   SoftwareVsyncSource();
+   ~SoftwareVsyncSource();
+ 
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    MOZ_ASSERT(mGlobalDisplay != nullptr);
+-    return *mGlobalDisplay;
+-  }
+-
+-private:
+-  RefPtr<SoftwareDisplay> mGlobalDisplay;
+ };
+ 
+ #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
+--- gfx/thebes/VsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.cpp	2016-10-10 22:11:45.000000000 +0200
+@@ -8,146 +8,3 @@
+ #include "nsXULAppAPI.h"
+ #include "mozilla/VsyncDispatcher.h"
+ #include "MainThreadUtils.h"
+-
+-namespace mozilla {
+-namespace gfx {
+-
+-void
+-VsyncSource::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // Just use the global display until we have enough information to get the
+-  // corresponding display for compositor.
+-  GetGlobalDisplay().AddCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
+-}
+-
+-void
+-VsyncSource::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // See also AddCompositorVsyncDispatcher().
+-  GetGlobalDisplay().RemoveCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
+-}
+-
+-RefPtr<RefreshTimerVsyncDispatcher>
+-VsyncSource::GetRefreshTimerVsyncDispatcher()
+-{
+-  MOZ_ASSERT(XRE_IsParentProcess());
+-  // See also AddCompositorVsyncDispatcher().
+-  return GetGlobalDisplay().GetRefreshTimerVsyncDispatcher();
+-}
+-
+-VsyncSource::Display::Display()
+-  : mDispatcherLock("display dispatcher lock")
+-  , mRefreshTimerNeedsVsync(false)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mRefreshTimerVsyncDispatcher = new RefreshTimerVsyncDispatcher();
+-}
+-
+-VsyncSource::Display::~Display()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MutexAutoLock lock(mDispatcherLock);
+-  mRefreshTimerVsyncDispatcher = nullptr;
+-  mCompositorVsyncDispatchers.Clear();
+-}
+-
+-void
+-VsyncSource::Display::NotifyVsync(TimeStamp aVsyncTimestamp)
+-{
+-  // Called on the vsync thread
+-  MutexAutoLock lock(mDispatcherLock);
+-
+-  for (size_t i = 0; i < mCompositorVsyncDispatchers.Length(); i++) {
+-    mCompositorVsyncDispatchers[i]->NotifyVsync(aVsyncTimestamp);
+-  }
+-
+-  mRefreshTimerVsyncDispatcher->NotifyVsync(aVsyncTimestamp);
+-}
+-
+-TimeDuration
+-VsyncSource::Display::GetVsyncRate()
+-{
+-  // If hardware queries fail / are unsupported, we have to just guess.
+-  return TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-}
+-
+-void
+-VsyncSource::Display::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MOZ_ASSERT(aCompositorVsyncDispatcher);
+-  { // scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    if (!mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
+-      mCompositorVsyncDispatchers.AppendElement(aCompositorVsyncDispatcher);
+-    }
+-  }
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  MOZ_ASSERT(aCompositorVsyncDispatcher);
+-  { // Scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    if (mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
+-      mCompositorVsyncDispatchers.RemoveElement(aCompositorVsyncDispatcher);
+-    }
+-  }
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::NotifyRefreshTimerVsyncStatus(bool aEnable)
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  mRefreshTimerNeedsVsync = aEnable;
+-  UpdateVsyncStatus();
+-}
+-
+-void
+-VsyncSource::Display::UpdateVsyncStatus()
+-{
+-  MOZ_ASSERT(NS_IsMainThread());
+-  // WARNING: This function SHOULD NOT BE CALLED WHILE HOLDING LOCKS
+-  // NotifyVsync grabs a lock to dispatch vsync events
+-  // When disabling vsync, we wait for the underlying thread to stop on some platforms
+-  // We can deadlock if we wait for the underlying vsync thread to stop
+-  // while the vsync thread is in NotifyVsync.
+-  bool enableVsync = false;
+-  { // scope lock
+-    MutexAutoLock lock(mDispatcherLock);
+-    enableVsync = !mCompositorVsyncDispatchers.IsEmpty() || mRefreshTimerNeedsVsync;
+-  }
+-
+-  if (enableVsync) {
+-    EnableVsync();
+-  } else {
+-    DisableVsync();
+-  }
+-
+-  if (IsVsyncEnabled() != enableVsync) {
+-    NS_WARNING("Vsync status did not change.");
+-  }
+-}
+-
+-RefPtr<RefreshTimerVsyncDispatcher>
+-VsyncSource::Display::GetRefreshTimerVsyncDispatcher()
+-{
+-  return mRefreshTimerVsyncDispatcher;
+-}
+-
+-void
+-VsyncSource::Shutdown()
+-{
+-  GetGlobalDisplay().Shutdown();
+-}
+-
+-} //namespace gfx
+-} //namespace mozilla
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
+--- gfx/thebes/VsyncSource.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.h	2016-10-10 22:11:45.000000000 +0200
+@@ -13,8 +13,6 @@
+ #include "nsISupportsImpl.h"
+ 
+ namespace mozilla {
+-class RefreshTimerVsyncDispatcher;
+-class CompositorVsyncDispatcher;
+ 
+ namespace gfx {
+ 
+@@ -24,56 +22,6 @@
+ {
+   NS_INLINE_DECL_THREADSAFE_REFCOUNTING(VsyncSource)
+ 
+-  typedef mozilla::RefreshTimerVsyncDispatcher RefreshTimerVsyncDispatcher;
+-  typedef mozilla::CompositorVsyncDispatcher CompositorVsyncDispatcher;
+-
+-public:
+-  // Controls vsync unique to each display and unique on each platform
+-  class Display {
+-    public:
+-      Display();
+-      virtual ~Display();
+-
+-      // Notified when this display's vsync occurs, on the vsync thread
+-      // The aVsyncTimestamp should normalize to the Vsync time that just occured
+-      // However, different platforms give different vsync notification times.
+-      // b2g - The vsync timestamp of the previous frame that was just displayed
+-      // OSX - The vsync timestamp of the upcoming frame, in the future
+-      // Windows: It's messy, see gfxWindowsPlatform.
+-      // Android: TODO
+-      // All platforms should normalize to the vsync that just occured.
+-      // Large parts of Gecko assume TimeStamps should not be in the future such as animations
+-      virtual void NotifyVsync(TimeStamp aVsyncTimestamp);
+-
+-      RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
+-
+-      void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-      void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-      void NotifyRefreshTimerVsyncStatus(bool aEnable);
+-      virtual TimeDuration GetVsyncRate();
+-
+-      // These should all only be called on the main thread
+-      virtual void EnableVsync() = 0;
+-      virtual void DisableVsync() = 0;
+-      virtual bool IsVsyncEnabled() = 0;
+-      virtual void Shutdown() = 0;
+-
+-    private:
+-      void UpdateVsyncStatus();
+-
+-      Mutex mDispatcherLock;
+-      bool mRefreshTimerNeedsVsync;
+-      nsTArray<RefPtr<CompositorVsyncDispatcher>> mCompositorVsyncDispatchers;
+-      RefPtr<RefreshTimerVsyncDispatcher> mRefreshTimerVsyncDispatcher;
+-  };
+-
+-  void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-  void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-
+-  RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
+-  virtual Display& GetGlobalDisplay() = 0; // Works across all displays
+-  void Shutdown();
+-
+ protected:
+   virtual ~VsyncSource() {}
+ };
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFcPlatformFontList.cpp gfx/thebes-patched/gfxFcPlatformFontList.cpp
 --- gfx/thebes/gfxFcPlatformFontList.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxFcPlatformFontList.cpp	2016-08-31 19:17:56.119508064 +0200
++++ gfx/thebes-patched/gfxFcPlatformFontList.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -1638,8 +1638,7 @@
      bool prefFontsUseOnlyGenerics = true;
      uint32_t count;
@@ -13,7 +425,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFcPlatformFontList.cpp
              // Check whether all font.name prefs map to generic keywords
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
 --- gfx/thebes/gfxFont.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.cpp	2016-08-31 17:43:25.057989512 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -167,25 +167,8 @@
  }
  
@@ -67,7 +479,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-pa
  {
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
 --- gfx/thebes/gfxFont.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.h	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-10-10 22:11:45.000000000 +0200
 @@ -276,7 +276,7 @@
      size_t mShapedWords; // memory used by the per-font shapedWord caches
  };
@@ -101,7 +513,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patc
      void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
 --- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-10-10 22:11:45.000000000 +0200
 @@ -71,6 +71,8 @@
  #include <time.h>
  #include <dlfcn.h>
@@ -148,7 +560,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm
      table.Put(key, familyEntry);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
 --- gfx/thebes/gfxPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-10 22:14:18.000000000 +0200
 @@ -184,218 +184,6 @@
  #include "mozilla/gfx/SourceSurfaceCairo.h"
  using namespace mozilla::gfx;
@@ -1005,7 +1417,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
    return true;
  }
  
-@@ -2474,55 +1806,9 @@
+@@ -2474,55 +1806,10 @@
  void
  gfxPlatform::InitOpenGLConfig()
  {
@@ -1060,10 +1472,36 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -  }
 -
 -  return true;
++	return false;
  }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
+--- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-10-10 22:11:45.000000000 +0200
+@@ -272,10 +272,6 @@
+     static bool AsyncPanZoomEnabled();
+ 
+     virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
+-      aObj.DefineProperty("AzureCanvasBackend", GetBackendName(mPreferredCanvasBackend));
+-      aObj.DefineProperty("AzureCanvasAccelerated", UseAcceleratedCanvas());
+-      aObj.DefineProperty("AzureFallbackCanvasBackend", GetBackendName(mFallbackCanvasBackend));
+-      aObj.DefineProperty("AzureContentBackend", GetBackendName(mContentBackend));
+     }
+     void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
+     void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
+@@ -809,10 +805,6 @@
+     int mTileWidth;
+     int mTileHeight;
+ 
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mAzureCanvasBackendCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mApzSupportCollector;
+-    mozilla::widget::GfxInfoCollector<gfxPlatform> mTilesInfoCollector;
+-
+     RefPtr<mozilla::gfx::DrawEventRecorder> mRecorder;
+     RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
+ 
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
 --- gfx/thebes/gfxPlatformFontList.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -24,6 +24,7 @@
  #include "mozilla/Telemetry.h"
  #include "mozilla/TimeStamp.h"
@@ -1180,7 +1618,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp g
      return mLangService;
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
 --- gfx/thebes/gfxPlatformGtk.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-08-31 19:13:28.073484468 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -89,12 +89,11 @@
      }
  
@@ -1465,7 +1903,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/th
  bool
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.h gfx/thebes-patched/gfxPlatformGtk.h
 --- gfx/thebes/gfxPlatformGtk.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.h	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.h	2016-10-10 22:11:45.000000000 +0200
 @@ -114,7 +114,6 @@
  #ifdef MOZ_X11
      virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) override {
@@ -1474,34 +1912,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.h gfx/theb
      }
  #endif
  
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
---- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.h	2016-08-31 17:43:25.061989497 +0200
-@@ -272,10 +272,6 @@
-     static bool AsyncPanZoomEnabled();
- 
-     virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
--      aObj.DefineProperty("AzureCanvasBackend", GetBackendName(mPreferredCanvasBackend));
--      aObj.DefineProperty("AzureCanvasAccelerated", UseAcceleratedCanvas());
--      aObj.DefineProperty("AzureFallbackCanvasBackend", GetBackendName(mFallbackCanvasBackend));
--      aObj.DefineProperty("AzureContentBackend", GetBackendName(mContentBackend));
-     }
-     void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
-     void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
-@@ -809,10 +805,6 @@
-     int mTileWidth;
-     int mTileHeight;
- 
--    mozilla::widget::GfxInfoCollector<gfxPlatform> mAzureCanvasBackendCollector;
--    mozilla::widget::GfxInfoCollector<gfxPlatform> mApzSupportCollector;
--    mozilla::widget::GfxInfoCollector<gfxPlatform> mTilesInfoCollector;
--
-     RefPtr<mozilla::gfx::DrawEventRecorder> mRecorder;
-     RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
- 
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
 --- gfx/thebes/gfxPlatformMac.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -374,211 +374,10 @@
    return true;
  }
@@ -1717,7 +2130,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/th
  void
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
 --- gfx/thebes/gfxPrefs.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPrefs.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxPrefs.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -38,14 +38,7 @@
  
  gfxPrefs::gfxPrefs()
@@ -1752,8 +2165,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-p
  void gfxPrefs::PrefAddVarCache(bool* aVariable,
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
 --- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-08-31 17:43:25.061989497 +0200
-@@ -40,38 +40,28 @@
++++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-10-10 22:14:27.000000000 +0200
+@@ -22,7 +22,6 @@
+ #include "nsIPrincipal.h"
+ #include "mozilla/BasePrincipal.h"
+ #include "mozilla/dom/Element.h"
+-#include "mozilla/LoadInfo.h"
+ #include "nsSVGUtils.h"
+ #include "nsHostObjectProtocolHandler.h"
+ #include "nsContentUtils.h"
+@@ -40,38 +39,28 @@
  
  mozilla::gfx::UserDataKey gfxTextContextPaint::sUserDataKey;
  
@@ -1801,7 +2222,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  }
  
  /*
-@@ -88,102 +78,25 @@
+@@ -88,102 +77,25 @@
  /* static */ int
  gfxSVGGlyphs::CompareIndexEntries(const void *aKey, const void *aEntry)
  {
@@ -1908,7 +2329,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  }
  
  /**
-@@ -194,15 +107,7 @@
+@@ -194,15 +106,7 @@
  void
  gfxSVGGlyphsDocument::FindGlyphElements(Element *aElem)
  {
@@ -1925,7 +2346,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  }
  
  /**
-@@ -275,7 +180,7 @@
+@@ -275,7 +179,7 @@
  Element *
  gfxSVGGlyphsDocument::GetGlyphElement(uint32_t aGlyphId)
  {
@@ -1934,7 +2355,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  }
  
  gfxSVGGlyphsDocument::gfxSVGGlyphsDocument(const uint8_t *aBuffer,
-@@ -283,172 +188,31 @@
+@@ -283,172 +187,31 @@
                                             gfxSVGGlyphs *aSVGGlyphs)
      : mOwner(aSVGGlyphs)
  {
@@ -2114,7 +2535,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/theb
  size_t
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes-patched/gfxTextRun.cpp
 --- gfx/thebes/gfxTextRun.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxTextRun.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxTextRun.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -3244,7 +3244,6 @@
          mMissingFonts[i] = 0;
      }
@@ -2126,7 +2547,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxTextRun.cpp gfx/thebes
  }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
 --- gfx/thebes/gfxUserFontSet.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -472,80 +472,6 @@
                                                        &bypassCache);
  
@@ -2356,7 +2777,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/th
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
 --- gfx/thebes/gfxUtils.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxUtils.cpp	2016-08-31 17:43:25.061989497 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-10-10 22:11:45.000000000 +0200
 @@ -1334,106 +1334,6 @@
      return imageBuffer;
  }
@@ -2464,415 +2885,366 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-p
  FILE *gfxUtils::sDumpPaintFile = stderr;
  
  namespace mozilla {
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
---- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-08-31 17:43:25.065989483 +0200
-@@ -13,138 +13,8 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxWindowsPlatform.cpp gfx/thebes-patched/gfxWindowsPlatform.cpp
+--- gfx/thebes/gfxWindowsPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxWindowsPlatform.cpp	2016-10-10 22:14:53.000000000 +0200
+@@ -454,10 +454,6 @@
+   mHasD3D9DeviceReset = false;
+   mDeviceResetReason = DeviceResetReason::OK;
  
- SoftwareVsyncSource::SoftwareVsyncSource()
- {
--  MOZ_ASSERT(NS_IsMainThread());
--  mGlobalDisplay = new SoftwareDisplay();
+-  imgLoader::NormalLoader()->ClearCache(true);
+-  imgLoader::NormalLoader()->ClearCache(false);
+-  imgLoader::PrivateBrowsingLoader()->ClearCache(true);
+-  imgLoader::PrivateBrowsingLoader()->ClearCache(false);
+   gfxAlphaBoxBlur::ShutdownBlurCache();
+ 
+   InitializeDevices();
+@@ -1349,8 +1345,7 @@
+   // or we don't have a compositor thread.
+   RefPtr<DeviceManagerD3D9> result;
+   if (!mDeviceManager &&
+-      (!gfxPlatform::UsesOffMainThreadCompositing() ||
+-       CompositorThreadHolder::IsInCompositorThread())) {
++      (!gfxPlatform::UsesOffMainThreadCompositing())) {
+     mDeviceManager = new DeviceManagerD3D9();
+     if (!mDeviceManager->Init()) {
+       gfxCriticalError() << "[D3D9] Could not Initialize the DeviceManagerD3D9";
+@@ -1363,16 +1358,6 @@
+   return result.forget();
  }
  
- SoftwareVsyncSource::~SoftwareVsyncSource()
+-ReadbackManagerD3D11*
+-gfxWindowsPlatform::GetReadbackManager()
+-{
+-  if (!mD3D11ReadbackManager) {
+-    mD3D11ReadbackManager = new ReadbackManagerD3D11();
+-  }
+-
+-  return mD3D11ReadbackManager;
+-}
+-
+ bool
+ gfxWindowsPlatform::IsOptimus()
  {
--  MOZ_ASSERT(NS_IsMainThread());
--  mGlobalDisplay = nullptr;
--}
--
--SoftwareDisplay::SoftwareDisplay()
--  : mVsyncEnabled(false)
--{
--  // Mimic 60 fps
--  MOZ_ASSERT(NS_IsMainThread());
--  const double rate = 1000.0 / (double) gfxPlatform::GetSoftwareVsyncRate();
--  mVsyncRate = mozilla::TimeDuration::FromMilliseconds(rate);
--  mVsyncThread = new base::Thread("SoftwareVsyncThread");
--  MOZ_RELEASE_ASSERT(mVsyncThread->Start(), "GFX: Could not start software vsync thread");
--}
--
--SoftwareDisplay::~SoftwareDisplay() {}
--
--void
--SoftwareDisplay::EnableVsync()
--{
--  MOZ_ASSERT(mVsyncThread->IsRunning());
--  if (NS_IsMainThread()) {
--    if (mVsyncEnabled) {
--      return;
--    }
--    mVsyncEnabled = true;
--
--    mVsyncThread->message_loop()->PostTask(
--      NewRunnableMethod(this, &SoftwareDisplay::EnableVsync));
--    return;
+@@ -1719,298 +1704,13 @@
+ bool
+ gfxWindowsPlatform::DwmCompositionEnabled()
+ {
+-  if (!IsVistaOrLater()) {
+-    return false;
 -  }
 -
--  MOZ_ASSERT(IsInSoftwareVsyncThread());
--  NotifyVsync(mozilla::TimeStamp::Now());
--}
+-  MOZ_ASSERT(WinUtils::dwmIsCompositionEnabledPtr);
+-  BOOL dwmEnabled = false;
 -
--void
--SoftwareDisplay::DisableVsync()
--{
--  MOZ_ASSERT(mVsyncThread->IsRunning());
--  if (NS_IsMainThread()) {
--    if (!mVsyncEnabled) {
--      return;
--    }
--    mVsyncEnabled = false;
--
--    mVsyncThread->message_loop()->PostTask(
--      NewRunnableMethod(this, &SoftwareDisplay::DisableVsync));
--    return;
+-  if (FAILED(WinUtils::dwmIsCompositionEnabledPtr(&dwmEnabled))) {
+-    return false;
 -  }
 -
--  MOZ_ASSERT(IsInSoftwareVsyncThread());
--  if (mCurrentVsyncTask) {
--    mCurrentVsyncTask->Cancel();
--    mCurrentVsyncTask = nullptr;
--  }
--}
--
--bool
--SoftwareDisplay::IsVsyncEnabled()
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  return mVsyncEnabled;
--}
--
--bool
--SoftwareDisplay::IsInSoftwareVsyncThread()
--{
--  return mVsyncThread->thread_id() == PlatformThread::CurrentId();
--}
--
--void
--SoftwareDisplay::NotifyVsync(mozilla::TimeStamp aVsyncTimestamp)
--{
--  MOZ_ASSERT(IsInSoftwareVsyncThread());
--
--  mozilla::TimeStamp displayVsyncTime = aVsyncTimestamp;
--  mozilla::TimeStamp now = mozilla::TimeStamp::Now();
--  // Posted tasks can only have integer millisecond delays
--  // whereas TimeDurations can have floating point delays.
--  // Thus the vsync timestamp can be in the future, which large parts
--  // of the system can't handle, including animations. Force the timestamp to be now.
--  if (aVsyncTimestamp > now) {
--    displayVsyncTime = now;
--  }
--
--  Display::NotifyVsync(displayVsyncTime);
--
--  // Prevent skew by still scheduling based on the original
--  // vsync timestamp
--  ScheduleNextVsync(aVsyncTimestamp);
--}
--
--mozilla::TimeDuration
--SoftwareDisplay::GetVsyncRate()
--{
--  return mVsyncRate;
--}
--
--void
--SoftwareDisplay::ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp)
--{
--  MOZ_ASSERT(IsInSoftwareVsyncThread());
--  mozilla::TimeStamp nextVsync = aVsyncTimestamp + mVsyncRate;
--  mozilla::TimeDuration delay = nextVsync - mozilla::TimeStamp::Now();
--  if (delay.ToMilliseconds() < 0) {
--    delay = mozilla::TimeDuration::FromMilliseconds(0);
--    nextVsync = mozilla::TimeStamp::Now();
--  }
--
--  mCurrentVsyncTask =
--    NewCancelableRunnableMethod<mozilla::TimeStamp>(this,
--                                                    &SoftwareDisplay::NotifyVsync,
--                                                    nextVsync);
--
--  RefPtr<Runnable> addrefedTask = mCurrentVsyncTask;
--  mVsyncThread->message_loop()->PostDelayedTask(
--    addrefedTask.forget(),
--    delay.ToMilliseconds());
--}
--
--void
--SoftwareDisplay::Shutdown()
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  DisableVsync();
--  mVsyncThread->Stop();
--  delete mVsyncThread;
+-  return dwmEnabled;
++  return false;
  }
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
---- gfx/thebes/SoftwareVsyncSource.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-08-31 17:43:25.065989483 +0200
-@@ -14,32 +14,6 @@
- #include "nsISupportsImpl.h"
- #include "VsyncSource.h"
  
--class SoftwareDisplay final : public mozilla::gfx::VsyncSource::Display
+-class D3DVsyncSource final : public VsyncSource
 -{
--  NS_INLINE_DECL_THREADSAFE_REFCOUNTING(SoftwareDisplay)
--
 -public:
--  SoftwareDisplay();
--  virtual void EnableVsync() override;
--  virtual void DisableVsync() override;
--  virtual bool IsVsyncEnabled() override;
--  bool IsInSoftwareVsyncThread();
--  virtual void NotifyVsync(mozilla::TimeStamp aVsyncTimestamp) override;
--  virtual mozilla::TimeDuration GetVsyncRate() override;
--  void ScheduleNextVsync(mozilla::TimeStamp aVsyncTimestamp);
--  void Shutdown() override;
 -
--protected:
--  ~SoftwareDisplay();
--
--private:
--  mozilla::TimeDuration mVsyncRate;
--  // Use a chromium thread because nsITimers* fire on the main thread
--  base::Thread* mVsyncThread;
--  RefPtr<mozilla::CancelableRunnable> mCurrentVsyncTask; // only access on vsync thread
--  bool mVsyncEnabled; // Only access on main thread
--}; // SoftwareDisplay
--
- // Fallback option to use a software timer to mimic vsync. Useful for gtests
- // To mimic a hardware vsync thread, we create a dedicated software timer
- // vsync thread.
-@@ -49,14 +23,6 @@
-   SoftwareVsyncSource();
-   ~SoftwareVsyncSource();
- 
--  virtual Display& GetGlobalDisplay() override
+-  class D3DVsyncDisplay final : public VsyncSource::Display
 -  {
--    MOZ_ASSERT(mGlobalDisplay != nullptr);
--    return *mGlobalDisplay;
--  }
--
--private:
--  RefPtr<SoftwareDisplay> mGlobalDisplay;
- };
- 
- #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
---- gfx/thebes/VsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.cpp	2016-08-31 17:43:25.065989483 +0200
-@@ -8,146 +8,3 @@
- #include "nsXULAppAPI.h"
- #include "mozilla/VsyncDispatcher.h"
- #include "MainThreadUtils.h"
--
--namespace mozilla {
--namespace gfx {
--
--void
--VsyncSource::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
--{
--  MOZ_ASSERT(XRE_IsParentProcess());
--  MOZ_ASSERT(NS_IsMainThread());
--  // Just use the global display until we have enough information to get the
--  // corresponding display for compositor.
--  GetGlobalDisplay().AddCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
--}
--
--void
--VsyncSource::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
--{
--  MOZ_ASSERT(XRE_IsParentProcess());
--  MOZ_ASSERT(NS_IsMainThread());
--  // See also AddCompositorVsyncDispatcher().
--  GetGlobalDisplay().RemoveCompositorVsyncDispatcher(aCompositorVsyncDispatcher);
--}
--
--RefPtr<RefreshTimerVsyncDispatcher>
--VsyncSource::GetRefreshTimerVsyncDispatcher()
--{
--  MOZ_ASSERT(XRE_IsParentProcess());
--  // See also AddCompositorVsyncDispatcher().
--  return GetGlobalDisplay().GetRefreshTimerVsyncDispatcher();
--}
--
--VsyncSource::Display::Display()
--  : mDispatcherLock("display dispatcher lock")
--  , mRefreshTimerNeedsVsync(false)
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  mRefreshTimerVsyncDispatcher = new RefreshTimerVsyncDispatcher();
--}
--
--VsyncSource::Display::~Display()
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  MutexAutoLock lock(mDispatcherLock);
--  mRefreshTimerVsyncDispatcher = nullptr;
--  mCompositorVsyncDispatchers.Clear();
--}
--
--void
--VsyncSource::Display::NotifyVsync(TimeStamp aVsyncTimestamp)
--{
--  // Called on the vsync thread
--  MutexAutoLock lock(mDispatcherLock);
--
--  for (size_t i = 0; i < mCompositorVsyncDispatchers.Length(); i++) {
--    mCompositorVsyncDispatchers[i]->NotifyVsync(aVsyncTimestamp);
--  }
--
--  mRefreshTimerVsyncDispatcher->NotifyVsync(aVsyncTimestamp);
--}
--
--TimeDuration
--VsyncSource::Display::GetVsyncRate()
--{
--  // If hardware queries fail / are unsupported, we have to just guess.
--  return TimeDuration::FromMilliseconds(1000.0 / 60.0);
--}
--
--void
--VsyncSource::Display::AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  MOZ_ASSERT(aCompositorVsyncDispatcher);
--  { // scope lock
--    MutexAutoLock lock(mDispatcherLock);
--    if (!mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
--      mCompositorVsyncDispatchers.AppendElement(aCompositorVsyncDispatcher);
--    }
--  }
--  UpdateVsyncStatus();
--}
--
--void
--VsyncSource::Display::RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher)
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  MOZ_ASSERT(aCompositorVsyncDispatcher);
--  { // Scope lock
--    MutexAutoLock lock(mDispatcherLock);
--    if (mCompositorVsyncDispatchers.Contains(aCompositorVsyncDispatcher)) {
--      mCompositorVsyncDispatchers.RemoveElement(aCompositorVsyncDispatcher);
--    }
--  }
--  UpdateVsyncStatus();
--}
--
--void
--VsyncSource::Display::NotifyRefreshTimerVsyncStatus(bool aEnable)
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  mRefreshTimerNeedsVsync = aEnable;
--  UpdateVsyncStatus();
--}
--
--void
--VsyncSource::Display::UpdateVsyncStatus()
--{
--  MOZ_ASSERT(NS_IsMainThread());
--  // WARNING: This function SHOULD NOT BE CALLED WHILE HOLDING LOCKS
--  // NotifyVsync grabs a lock to dispatch vsync events
--  // When disabling vsync, we wait for the underlying thread to stop on some platforms
--  // We can deadlock if we wait for the underlying vsync thread to stop
--  // while the vsync thread is in NotifyVsync.
--  bool enableVsync = false;
--  { // scope lock
--    MutexAutoLock lock(mDispatcherLock);
--    enableVsync = !mCompositorVsyncDispatchers.IsEmpty() || mRefreshTimerNeedsVsync;
--  }
--
--  if (enableVsync) {
--    EnableVsync();
--  } else {
--    DisableVsync();
--  }
--
--  if (IsVsyncEnabled() != enableVsync) {
--    NS_WARNING("Vsync status did not change.");
--  }
--}
--
--RefPtr<RefreshTimerVsyncDispatcher>
--VsyncSource::Display::GetRefreshTimerVsyncDispatcher()
--{
--  return mRefreshTimerVsyncDispatcher;
--}
--
--void
--VsyncSource::Shutdown()
--{
--  GetGlobalDisplay().Shutdown();
--}
--
--} //namespace gfx
--} //namespace mozilla
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
---- gfx/thebes/VsyncSource.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.h	2016-08-31 17:43:25.065989483 +0200
-@@ -13,8 +13,6 @@
- #include "nsISupportsImpl.h"
- 
- namespace mozilla {
--class RefreshTimerVsyncDispatcher;
--class CompositorVsyncDispatcher;
- 
- namespace gfx {
- 
-@@ -24,56 +22,6 @@
- {
-   NS_INLINE_DECL_THREADSAFE_REFCOUNTING(VsyncSource)
- 
--  typedef mozilla::RefreshTimerVsyncDispatcher RefreshTimerVsyncDispatcher;
--  typedef mozilla::CompositorVsyncDispatcher CompositorVsyncDispatcher;
--
--public:
--  // Controls vsync unique to each display and unique on each platform
--  class Display {
+-    NS_INLINE_DECL_THREADSAFE_REFCOUNTING(D3DVsyncDisplay)
 -    public:
--      Display();
--      virtual ~Display();
+-      D3DVsyncDisplay()
+-        : mPrevVsync(TimeStamp::Now())
+-        , mVsyncEnabledLock("D3DVsyncEnabledLock")
+-        , mVsyncEnabled(false)
+-      {
+-        mVsyncThread = new base::Thread("WindowsVsyncThread");
+-        const double rate = 1000 / 60.0;
+-        MOZ_RELEASE_ASSERT(mVsyncThread->Start(), "GFX: Could not start Windows vsync thread");
+-        SetVsyncRate();
+-      }
 -
--      // Notified when this display's vsync occurs, on the vsync thread
--      // The aVsyncTimestamp should normalize to the Vsync time that just occured
--      // However, different platforms give different vsync notification times.
--      // b2g - The vsync timestamp of the previous frame that was just displayed
--      // OSX - The vsync timestamp of the upcoming frame, in the future
--      // Windows: It's messy, see gfxWindowsPlatform.
--      // Android: TODO
--      // All platforms should normalize to the vsync that just occured.
--      // Large parts of Gecko assume TimeStamps should not be in the future such as animations
--      virtual void NotifyVsync(TimeStamp aVsyncTimestamp);
+-      void SetVsyncRate()
+-      {
+-        if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
+-          mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-          return;
+-        }
 -
--      RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
+-        DWM_TIMING_INFO vblankTime;
+-        // Make sure to init the cbSize, otherwise GetCompositionTiming will fail
+-        vblankTime.cbSize = sizeof(DWM_TIMING_INFO);
+-        HRESULT hr = WinUtils::dwmGetCompositionTimingInfoPtr(0, &vblankTime);
+-        if (SUCCEEDED(hr)) {
+-          UNSIGNED_RATIO refreshRate = vblankTime.rateRefresh;
+-          // We get the rate in hertz / time, but we want the rate in ms.
+-          float rate = ((float) refreshRate.uiDenominator
+-                       / (float) refreshRate.uiNumerator) * 1000;
+-          mVsyncRate = TimeDuration::FromMilliseconds(rate);
+-        } else {
+-          mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
+-        }
+-      }
 -
--      void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
--      void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
--      void NotifyRefreshTimerVsyncStatus(bool aEnable);
--      virtual TimeDuration GetVsyncRate();
+-      virtual void Shutdown() override
+-      {
+-        MOZ_ASSERT(NS_IsMainThread());
+-        DisableVsync();
+-        mVsyncThread->Stop();
+-        delete mVsyncThread;
+-      }
 -
--      // These should all only be called on the main thread
--      virtual void EnableVsync() = 0;
--      virtual void DisableVsync() = 0;
--      virtual bool IsVsyncEnabled() = 0;
--      virtual void Shutdown() = 0;
+-      virtual void EnableVsync() override
+-      {
+-        MOZ_ASSERT(NS_IsMainThread());
+-        MOZ_ASSERT(mVsyncThread->IsRunning());
+-        { // scope lock
+-          MonitorAutoLock lock(mVsyncEnabledLock);
+-          if (mVsyncEnabled) {
+-            return;
+-          }
+-          mVsyncEnabled = true;
+-        }
+-
+-        mVsyncThread->message_loop()->PostTask(
+-            NewRunnableMethod(this, &D3DVsyncDisplay::VBlankLoop));
+-      }
+-
+-      virtual void DisableVsync() override
+-      {
+-        MOZ_ASSERT(NS_IsMainThread());
+-        MOZ_ASSERT(mVsyncThread->IsRunning());
+-        MonitorAutoLock lock(mVsyncEnabledLock);
+-        if (!mVsyncEnabled) {
+-          return;
+-        }
+-        mVsyncEnabled = false;
+-      }
+-
+-      virtual bool IsVsyncEnabled() override
+-      {
+-        MOZ_ASSERT(NS_IsMainThread());
+-        MonitorAutoLock lock(mVsyncEnabledLock);
+-        return mVsyncEnabled;
+-      }
+-
+-      virtual TimeDuration GetVsyncRate() override
+-      {
+-        return mVsyncRate;
+-      }
+-
+-      void ScheduleSoftwareVsync(TimeStamp aVsyncTimestamp)
+-      {
+-        MOZ_ASSERT(IsInVsyncThread());
+-        NS_WARNING("DwmComposition dynamically disabled, falling back to software timers");
+-
+-        TimeStamp nextVsync = aVsyncTimestamp + mVsyncRate;
+-        TimeDuration delay = nextVsync - TimeStamp::Now();
+-        if (delay.ToMilliseconds() < 0) {
+-          delay = mozilla::TimeDuration::FromMilliseconds(0);
+-        }
+-
+-        mVsyncThread->message_loop()->PostDelayedTask(
+-            NewRunnableMethod(this, &D3DVsyncDisplay::VBlankLoop),
+-            delay.ToMilliseconds());
+-      }
+-
+-      // Returns the timestamp for the just happened vsync
+-      TimeStamp GetVBlankTime()
+-      {
+-        TimeStamp vsync = TimeStamp::Now();
+-        TimeStamp now = vsync;
+-
+-        DWM_TIMING_INFO vblankTime;
+-        // Make sure to init the cbSize, otherwise
+-        // GetCompositionTiming will fail
+-        vblankTime.cbSize = sizeof(DWM_TIMING_INFO);
+-        HRESULT hr = WinUtils::dwmGetCompositionTimingInfoPtr(0, &vblankTime);
+-        if (!SUCCEEDED(hr)) {
+-            return vsync;
+-        }
+-
+-        LARGE_INTEGER frequency;
+-        QueryPerformanceFrequency(&frequency);
+-
+-        LARGE_INTEGER qpcNow;
+-        QueryPerformanceCounter(&qpcNow);
+-
+-        const int microseconds = 1000000;
+-        int64_t adjust = qpcNow.QuadPart - vblankTime.qpcVBlank;
+-        int64_t usAdjust = (adjust * microseconds) / frequency.QuadPart;
+-        vsync -= TimeDuration::FromMicroseconds((double) usAdjust);
+-
+-        if (IsWin10OrLater()) {
+-          // On Windows 10 and on, DWMGetCompositionTimingInfo, mostly
+-          // reports the upcoming vsync time, which is in the future.
+-          // It can also sometimes report a vblank time in the past.
+-          // Since large parts of Gecko assume TimeStamps can't be in future,
+-          // use the previous vsync.
+-
+-          // Windows 10 and Intel HD vsync timestamps are messy and
+-          // all over the place once in a while. Most of the time,
+-          // it reports the upcoming vsync. Sometimes, that upcoming
+-          // vsync is in the past. Sometimes that upcoming vsync is before
+-          // the previously seen vsync.
+-          // In these error cases, normalize to Now();
+-          if (vsync >= now) {
+-            vsync = vsync - mVsyncRate;
+-            return vsync <= now ? vsync : now;
+-          }
+-        }
+-
+-        // On Windows 7 and 8, DwmFlush wakes up AFTER qpcVBlankTime
+-        // from DWMGetCompositionTimingInfo. We can return the adjusted vsync.
+-        // If we got here on Windows 10, it means we got a weird timestamp.
+-        if (vsync >= now) {
+-            vsync = now;
+-        }
+-        return vsync;
+-      }
+-
+-      void VBlankLoop()
+-      {
+-        MOZ_ASSERT(IsInVsyncThread());
+-        MOZ_ASSERT(sizeof(int64_t) == sizeof(QPC_TIME));
+-
+-        TimeStamp vsync = TimeStamp::Now();
+-        mPrevVsync = TimeStamp();
+-        TimeStamp flushTime = TimeStamp::Now();
+-        TimeDuration longVBlank = mVsyncRate * 2;
+-
+-        for (;;) {
+-          { // scope lock
+-            MonitorAutoLock lock(mVsyncEnabledLock);
+-            if (!mVsyncEnabled) return;
+-          }
+-
+-          // Large parts of gecko assume that the refresh driver timestamp
+-          // must be <= Now() and cannot be in the future.
+-          MOZ_ASSERT(vsync <= TimeStamp::Now());
+-          Display::NotifyVsync(vsync);
+-
+-          // DwmComposition can be dynamically enabled/disabled
+-          // so we have to check every time that it's available.
+-          // When it is unavailable, we fallback to software but will try
+-          // to get back to dwm rendering once it's re-enabled
+-          if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
+-            ScheduleSoftwareVsync(vsync);
+-            return;
+-          }
+-
+-          // Using WaitForVBlank, the whole system dies because WaitForVBlank
+-          // only works if it's run on the same thread as the Present();
+-          HRESULT hr = WinUtils::dwmFlushProcPtr();
+-          if (!SUCCEEDED(hr)) {
+-            // DWMFlush isn't working, fallback to software vsync.
+-            ScheduleSoftwareVsync(TimeStamp::Now());
+-            return;
+-          }
+-
+-          TimeStamp now = TimeStamp::Now();
+-          TimeDuration flushDiff = now - flushTime;
+-          flushTime = now;
+-          if ((flushDiff > longVBlank) || mPrevVsync.IsNull()) {
+-            // Our vblank took longer than 2 intervals, readjust our timestamps
+-            vsync = GetVBlankTime();
+-            mPrevVsync = vsync;
+-          } else {
+-            // Instead of giving the actual vsync time, a constant interval
+-            // between vblanks instead of the noise generated via hardware
+-            // is actually what we want. Most apps just care about the diff
+-            // between vblanks to animate, so a clean constant interval is
+-            // smoother.
+-            vsync = mPrevVsync + mVsyncRate;
+-            if (vsync > now) {
+-              // DWMFlush woke up very early, so readjust our times again
+-              vsync = GetVBlankTime();
+-            }
+-
+-            if (vsync <= mPrevVsync) {
+-              vsync = TimeStamp::Now();
+-            }
+-
+-            mPrevVsync = vsync;
+-          }
+-        } // end for
+-      }
 -
 -    private:
--      void UpdateVsyncStatus();
+-      virtual ~D3DVsyncDisplay()
+-      {
+-        MOZ_ASSERT(NS_IsMainThread());
+-      }
 -
--      Mutex mDispatcherLock;
--      bool mRefreshTimerNeedsVsync;
--      nsTArray<RefPtr<CompositorVsyncDispatcher>> mCompositorVsyncDispatchers;
--      RefPtr<RefreshTimerVsyncDispatcher> mRefreshTimerVsyncDispatcher;
--  };
+-      bool IsInVsyncThread()
+-      {
+-        return mVsyncThread->thread_id() == PlatformThread::CurrentId();
+-      }
 -
--  void AddCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
--  void RemoveCompositorVsyncDispatcher(CompositorVsyncDispatcher* aCompositorVsyncDispatcher);
+-      TimeStamp mPrevVsync;
+-      Monitor mVsyncEnabledLock;
+-      base::Thread* mVsyncThread;
+-      TimeDuration mVsyncRate;
+-      bool mVsyncEnabled;
+-  }; // end d3dvsyncdisplay
 -
--  RefPtr<RefreshTimerVsyncDispatcher> GetRefreshTimerVsyncDispatcher();
--  virtual Display& GetGlobalDisplay() = 0; // Works across all displays
--  void Shutdown();
+-  D3DVsyncSource()
+-  {
+-    mPrimaryDisplay = new D3DVsyncDisplay();
+-  }
 -
- protected:
-   virtual ~VsyncSource() {}
+-  virtual Display& GetGlobalDisplay() override
+-  {
+-    return *mPrimaryDisplay;
+-  }
+-
+-private:
+-  virtual ~D3DVsyncSource()
+-  {
+-  }
+-  RefPtr<D3DVsyncDisplay> mPrimaryDisplay;
+-}; // end D3DVsyncSource
+-
+ already_AddRefed<mozilla::gfx::VsyncSource>
+ gfxWindowsPlatform::CreateHardwareVsyncSource()
+ {
+-  MOZ_RELEASE_ASSERT(NS_IsMainThread(), "GFX: Not in main thread.");
+-  if (!WinUtils::dwmIsCompositionEnabledPtr) {
+-    NS_WARNING("Dwm composition not available, falling back to software vsync");
+-    return gfxPlatform::CreateHardwareVsyncSource();
+-  }
+-
+-  BOOL dwmEnabled = false;
+-  WinUtils::dwmIsCompositionEnabledPtr(&dwmEnabled);
+-  if (!dwmEnabled) {
+-    NS_WARNING("DWM not enabled, falling back to software vsync");
+-    return gfxPlatform::CreateHardwareVsyncSource();
+-  }
+-
+-  RefPtr<VsyncSource> d3dVsyncSource = new D3DVsyncSource();
+-  return d3dVsyncSource.forget();
++  return nullptr;
+ }
+ 
+ bool
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxWindowsPlatform.h gfx/thebes-patched/gfxWindowsPlatform.h
+--- gfx/thebes/gfxWindowsPlatform.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxWindowsPlatform.h	2016-10-10 22:15:09.000000000 +0200
+@@ -218,8 +218,6 @@
+ 
+     bool DwmCompositionEnabled();
+ 
+-    mozilla::layers::ReadbackManagerD3D11* GetReadbackManager();
+-
+     static bool IsOptimus();
+ 
+     bool SupportsApzWheelInput() const override {
+@@ -289,8 +287,6 @@
+     mozilla::Atomic<bool> mHasD3D9DeviceReset;
+     DeviceResetReason mDeviceResetReason;
+ 
+-    RefPtr<mozilla::layers::ReadbackManagerD3D11> mD3D11ReadbackManager;
+-
+     nsTArray<D3D_FEATURE_LEVEL> mFeatureLevels;
  };
+ 
