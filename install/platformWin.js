@@ -19,7 +19,7 @@ function BuilderWin(args) {
     _this.compile = function () {
         _this.platform().log('Compiling shared library...');
         _this.exec('mkdir -p ' + _this.platform().output());
-        _this.exec('cmake .. -G \'Visual Studio 14 2015\'', _this.platform().output());
+        _this.exec('cmake .. -G \'Visual Studio 14 2015' + (_this.platform().is64() ? ' Win64' : '') + '\'', _this.platform().output());
         _this.exec('cmake --build . --target Moz2D --config Release',_this.platform().output());
     };
 	
