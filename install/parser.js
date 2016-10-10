@@ -57,7 +57,13 @@ module.exports = function Parser(_args) {
             return line.trim().startsWith(DEFINES);
         }).map(function(line) {
             return _this.trimAfter(line,'+=').split(' ');
-        }).flatten().value();
+        }).flatten().map(function(define){
+			// remove single quotes from the beginning and the end
+			return define.replace(/\'|\'$/g, "");
+		}).map(function(define){
+			// escape double quotes
+			return define.replace(/"/g, '\\"');
+		}).value();
     };
 
     /**
@@ -68,9 +74,13 @@ module.exports = function Parser(_args) {
     _this.parseLibName = function () {
         var libName =  _(contents).find(function(line) { return line.trim().startsWith(LIBRARY_NAME)} );
         if (_.isUndefined(libName))
-            throw new Error('Library names is not specified!' + os.EOL + 'Makefile dump ('+_this.fullFilePath()+'):' + os.EOL + _this.merge(contents, os.EOL, function(each){ return '		' + each; }));
+            return _this.generateLibName();
         return _this.trimAfter(libName, ':=');
     };
+	
+	_this.generateLibName = function () {
+		return packagePath.replace(/\//g, '_');
+	};
 
     /**
      * Return an array of all sources of all known types (.c .cpp .mm .as)

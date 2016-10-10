@@ -70,7 +70,7 @@ module.exports = function Generator() {
     _this.generatePackageTargetProperties = function (aPackage) {
         var result = 'set_target_properties (' + aPackage.library() +' PROPERTIES COMPILE_FLAGS "';
         result = _(aPackage.targetFlags()).reduce(function(memo, flag){
-            return memo + flag+' '; }, result);
+            return memo + flag.replace(/"/g, '\\"') + ' '; }, result);
         return result +'")\n';
     };
 

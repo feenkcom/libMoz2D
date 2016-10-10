@@ -671,8 +671,6 @@ pref("font.name.monospace.x-tamil", "Latha");
 pref("font.name-list.serif.x-tamil", "Latha");
 pref("font.name-list.monospace.x-tamil", "Latha");
 
-# http://www.alanwood.net/unicode/fonts.html
-
 pref("font.name.serif.x-armn", "Sylfaen");
 pref("font.name.sans-serif.x-armn", "Arial AMU");
 pref("font.name.monospace.x-armn", "Arial AMU");
@@ -930,7 +928,6 @@ pref("intl.imm.vertical_writing.always_assume_not_supported", false);
 //   ATOK 2011: "ATOK 2011" (similarly, e.g., ATOK 2013 is "ATOK 2013")
 pref("intl.imm.japanese.assume_active_tip_name_as", "");
 
-# XP_WIN
 #endif
 
 #ifdef XP_MACOSX

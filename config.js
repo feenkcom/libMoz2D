@@ -3,7 +3,7 @@ module.exports = {
         name: 'Moz2D',
         version: {
             major: 1,
-            minor: 0
+            minor: 1
         },
         cmake: 3.0,
         installer: 'install'
@@ -39,9 +39,9 @@ module.exports = {
                 'gfx/src',
                 'gfx/thebes',
 
+                'modules/zlib/src',
                 'modules/brotli',
                 'modules/woff2',
-                'modules/zlib/src',
 
                 'memory/fallible',
                 'memory/mozalloc',
@@ -72,13 +72,14 @@ module.exports = {
                 'intl/locale/unix',
                 'config/external/icu/stubdata'
             ],
-			win: [
-                'config/external/icu/data'
+            win: [
+                'intl/locale/windows'
+                //'config/external/icu/data'
             ]
         },
         bindings: {
             general: {
-                sources: [ 'src' ],
+                sources: ['src'],
                 packages: [
                     'wrapper',
                     'telemetry',
@@ -88,12 +89,16 @@ module.exports = {
                 ]
             },
             mac: {
-                sources: [ 'src/undefined/mac' ],
-                packages: [ 'undefined_mac' ]
+                sources: ['src/undefined/mac'],
+                packages: ['undefined_mac']
             },
             linux: {
-                sources: [ 'src/undefined/unix' ],
-                packages: [ 'undefined_unix' ]
+                sources: ['src/undefined/unix'],
+                packages: ['undefined_unix']
+            },
+			win: {
+                sources: ['src/undefined/windows'],
+                packages: ['undefined_windows']
             }
         },
         libraries: {
@@ -106,7 +111,8 @@ module.exports = {
                 'CoreGraphics',
                 'CoreText',
                 'QuartzCore',
-                'IOKit' ],
+                'IOKit'
+            ],
             linux: [
                 'dl',
                 'X11',
@@ -127,16 +133,27 @@ module.exports = {
                 'gobject-2.0',
                 'pango-1.0',
                 'pangocairo-1.0',
-                'glib-2.0' ],
-            win: [ ]
+                'glib-2.0'
+            ],
+            win: [
+				'winmm.lib',
+				'wsock32.lib',
+				// GetFileVersionInfoSizeW
+				'version.lib',
+				// ScriptFreeCache
+				'usp10.lib',
+				// Required by cairo print surface
+				'msimg32.lib'
+			]
         },
         flags: {
             c: {
                 cross: {
-                    general: '-mssse3 -msse4.1',
-                    mac: '',
-                    win: '',
-                    linux: '-fPIC'
+                    general: '',
+                    mac: '-mssse3 -msse4.1',
+                    // for some strange reason -FI does not work with CMake
+                    win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
+                    linux: '-mssse3 -msse4.1 -fPIC'
                 },
                 i386: {
                     linux: ''
@@ -147,10 +164,11 @@ module.exports = {
             },
             cxx: {
                 cross: {
-                    general: '-mssse3 -msse4.1 -fexceptions',
-                    mac: '',
-                    win: '',
-                    linux: '-fPIC'
+                    general: '',
+                    mac: '-mssse3 -msse4.1 -fexceptions',
+                    // for some strange reason -FI does not work with CMake
+                    win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
+                    linux: '-mssse3 -msse4.1 -fexceptions -fPIC'
                 },
                 i386: {
                     linux: ''
@@ -179,15 +197,13 @@ module.exports = {
                     general: '',
                     mac: '',
                     win: '',
-                    linux: ''//'-Wl,--no-undefined'
+                    linux: '' //'-Wl,--no-undefined'
                 }
             },
-            sources: [
-                {
-                    source: '${MOZ_TOP_PATH}/xpcom/glue/nsThreadUtils.cpp',
-                    flags: '-DMOZILLA_INTERNAL_API'
-                }
-            ]
+            sources: [{
+                source: '${MOZ_TOP_PATH}/xpcom/glue/nsThreadUtils.cpp',
+                flags: '-DMOZILLA_INTERNAL_API'
+            }]
         },
         defines: {
             general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR',
@@ -200,7 +216,12 @@ module.exports = {
                 'MOZ_LOGGING',
                 'MOZ_MEMORY',
                 'MOZ_ENABLE_PROFILER_SPS'
-            ]
+            ],
+			win: [
+			    // SEH exceptions does not work, disable them
+			    // https://blogs.msdn.microsoft.com/zhanli/2010/06/25/structured-exception-handling-seh-and-c-exception-handling/
+			    'HAVE_SEH_EXCEPTIONS'
+			]
         },
         includes: [
             '${MOZ_TOP_OBJ_PATH}/dist/include',
@@ -208,7 +229,7 @@ module.exports = {
             '${MOZ_TOP_PATH}/intl/locale'
         ],
         excludes: {
-            linux: [ 'nsprpub/lib/ds/plvrsion.c' ]
+            linux: ['nsprpub/lib/ds/plvrsion.c']
         }
     },
 
@@ -221,72 +242,66 @@ module.exports = {
                 linux: [
                     '--target=i686-pc-linux-gnu',
                     '--x-libraries=/usr/lib32'
-                ],
-				win: [
-					//'--target=i686-px-mingw32',
-					//'--prefix=/mingw64'
-				]
+                ]
             },
-			x86_64: {
-				win: [
-					'--target=x86_64-pc-mingw32',
-					'--host=x86_64-pc-mingw32'
-				]
-			}
+            x86_64: {
+                win: [
+                    '--target=x86_64-pc-mingw32',
+                    '--host=x86_64-pc-mingw32'
+                ]
+            }
         },
-		exports: {
+        exports: {
             cross: {
-				win: [
-					'CC="clang-cl.exe"',
-					'CXX="clang-cl.exe"',
-					'LD="lld.exe"'
-				]
+                mac: [],
+                linux: [],
+                win: [ 'AS=yasm.EXE' ]
             }
         },
         cross_compile: true,
         modules: {
-				general: {
-					enabled: [
-               	'optimize=-O2'
-            	],
-            	disabled: [
-               	'debug',
-               	'sandbox',
-               	'printing',
-               	'gio',
-               	'dbus',
-               	'synth-speechd',
-               	'websms-backend',
-               	'dbm',
-               	'accessibility',
-               	'webrtc',
-               	'webspeech',
-               	'webspeechtestbackend',
-               	'permissions',
-               	'negotiateauth',
-               	'pref-extensions',
-               	'system-extension-dirs',
-               	'gamepad',
-               	'crashreporter',
-               	'updater',
-               	'parental-controls',
-               	'content-sandbox',
-               	'mozril-geoloc',
-               	'necko-wifi',
-               	'cookies',
-               	'ctypes'
-            	]
-				},
-				linux: {
-					enabled: [ 'tree-freetype' ]				
-				},
-				win: {
-					disabled: [ 'compile-environment' ]
-				}
+            general: {
+                enabled: [
+                    'optimize=-O2'
+                ],
+                disabled: [
+                    'debug',
+                    'sandbox',
+                    //'printing',
+                    'gio',
+                    'dbus',
+                    'synth-speechd',
+                    'websms-backend',
+                    'dbm',
+                    'accessibility',
+                    'webrtc',
+                    'webspeech',
+                    'webspeechtestbackend',
+                    'permissions',
+                    'negotiateauth',
+                    'pref-extensions',
+                    'system-extension-dirs',
+                    'gamepad',
+                    'crashreporter',
+                    'updater',
+                    'parental-controls',
+                    'content-sandbox',
+                    'mozril-geoloc',
+                    'necko-wifi',
+                    'cookies',
+                    'ctypes'
+                ]
+            },
+            linux: {
+                enabled: ['tree-freetype']
+            },
+            win: {
+                disabled: []
+            }
         }
     },
     // visitor pattern
-    accept: function (visitor) {
+    accept: function(visitor) {
         return visitor.visitConfig(module.exports);
     }
 };

@@ -19,8 +19,8 @@ function BuilderWin(args) {
     _this.compile = function () {
         _this.platform().log('Compiling shared library...');
         _this.exec('mkdir -p ' + _this.platform().output());
-        _this.exec('cmake .. -G "Unix Makefiles"', _this.platform().output());
-        _this.exec('make',_this.platform().output());
+        _this.exec('cmake .. -G \'Visual Studio 14 2015\'', _this.platform().output());
+        _this.exec('cmake --build . --target Moz2D --config Release',_this.platform().output());
     };
 	
 	_this.make = function(target, directory) {
@@ -50,7 +50,7 @@ function PlatformWin() { // subclass Platform
     };
 	
 	_this.libraries = function () {
-        return [];
+        return _this.platformLibraries();
     };
 
     return _this;

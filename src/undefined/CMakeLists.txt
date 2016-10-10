@@ -13,7 +13,7 @@ include_directories(${MOZ_TOP_PATH}/xpcom/build)
 include_directories(${MOZ_TOP_PATH}/ipc/chromium/src)
 include_directories(${MOZ_TOP_OBJ_PATH}/ipc/ipdl/_ipdlheaders)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -include ${MOZ_TOP_PATH}/ipc/chromium/src/base/logging.h -include ${MOZ_TOP_PATH}/xpcom/glue/nsComponentManagerUtils.h")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DIMPL_LIBXUL -I${MOZ_TOP_PATH}/ipc/chromium/src/base/logging.h -I${MOZ_TOP_PATH}/xpcom/glue/nsComponentManagerUtils.h")
 
 set(SRC
     ${MOZ_TOP_PATH}/xpcom/ds/nsCRT.cpp
