@@ -125,10 +125,10 @@ PluggablePropertyProvider* moz2d_text_run_property_provider_create() {
 void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
 		void (*getHyphenationBreaks)(uint32_t, uint32_t, bool *),
-		void (*getHyphensOption)(int8_t*),
+		void (*getHyphensOption)(PropertyCollector*),
 		gfxFloat (*getHyphenWidth)(void),
 		void (*getSpacing)(uint32_t, uint32_t, double*),
-		DrawTarget* (*getDrawTarget)(void),
+		void (*getDrawTarget)(std::uintptr_t*),
 		uint32_t (*getAppUnitsPerDevUnit)(void)) {
 	propertyProvider->SetGetHyphenationBreaks(getHyphenationBreaks);
 	propertyProvider->SetGetHyphensOption(getHyphensOption);
@@ -138,6 +138,10 @@ void moz2d_text_run_property_provider_init (
 	propertyProvider->SetGetAppUnitsPerDevUnit(getAppUnitsPerDevUnit);
 }
 
+void moz2d_text_run_property_collector_set_hyphens_option (PropertyCollector* propertyCollector, int8_t hyphensOption) {
+	propertyCollector->hyphensOption = hyphensOption;
+}
+
 gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyProvider* propertyProvider) {
 	return propertyProvider->GetHyphenWidth();
 }
@@ -145,6 +149,18 @@ gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyPro
 void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * aBreakBefore) {
 	gfxTextRun::Range range(start, end);
 	propertyProvider->GetHyphenationBreaks(range, aBreakBefore);
+}
+
+DrawTarget* moz2d_text_run_property_provider_get_draw_target (PluggablePropertyProvider* propertyProvider) {
+	return (propertyProvider->GetDrawTarget()).take();
+}
+
+bool moz2d_text_run_property_provider_is_valid (PluggablePropertyProvider* propertyProvider) {
+	return propertyProvider->isValid();
+}
+
+int8_t moz2d_text_run_property_provider_get_hyphens_option (PluggablePropertyProvider* propertyProvider) {
+	return propertyProvider->GetHyphensOption();
 }
 
 void moz2d_text_run_measure_text (
@@ -205,7 +221,6 @@ uint32_t moz2d_text_run_break_and_measure (
 			aLastBreak,
 			aCanWordWrap,
 			aBreakPriority);
-
 
 	aMetrics->mAdvanceWidth = metrics->mAdvanceWidth;
 	aMetrics->mAscent = metrics->mAscent;

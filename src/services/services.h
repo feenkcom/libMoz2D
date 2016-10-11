@@ -8,6 +8,8 @@
 #ifndef SERVICES_H_
 #define SERVICES_H_
 
+#include "exports.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,33 +17,33 @@ extern "C" {
 /*
  * Helper method to initialize all needed services at once
  */
-void moz2d_services_init();
+LIBRARY_API void moz2d_services_init();
 
 /*
  * Helper method to shutdown all running services at once
  */
-void moz2d_services_shutdown();
+LIBRARY_API void moz2d_services_shutdown();
 
 /*
  * Initialize Thebes and start platform dependent services
  * such as gfxPlatformList and others
  */
-void moz2d_services_init_platform();
+LIBRARY_API void moz2d_services_init_platform();
 
 /*
  * Shutdown Thebes and free resources
  */
-void moz2d_services_shutdown_platform();
+LIBRARY_API void moz2d_services_shutdown_platform();
 
 /*
  * Initialize nsAtom table and register all atoms
  */
-void moz2d_services_init_atom_table();
+LIBRARY_API void moz2d_services_init_atom_table();
 
 /*
  * Shutdown and clean atom table
  */
-void moz2d_services_shutdown_atom_table();
+LIBRARY_API void moz2d_services_shutdown_atom_table();
 
 #ifdef __cplusplus
 }
