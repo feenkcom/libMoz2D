@@ -8,6 +8,8 @@
 #ifndef DEBUG_H_
 #define DEBUG_H_
 
+#include "exports.h"
+
 /* FOREGROUND */
 #define RST  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -33,7 +35,7 @@
 extern "C" {
 #endif
 
-void moz2d_print_stderr (const char* message);
+LIBRARY_API void moz2d_print_stderr (const char* message);
 
 #ifdef __cplusplus
 }

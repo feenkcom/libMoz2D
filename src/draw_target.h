@@ -8,6 +8,7 @@
 #ifndef DRAW_TARGET_H_
 #define DRAW_TARGET_H_
 
+#include "exports.h"
 #include "2d/2D.h"
 
 typedef void* CDrawTarget;
@@ -45,27 +46,27 @@ extern "C" {
 /**
  * Create a new draw target of a type that fits best for current platform and aFormat pixel format
  */
-DrawTarget* moz2d_draw_target_create(int32_t width, int32_t height, SurfaceFormat aFormat);
+LIBRARY_API DrawTarget* moz2d_draw_target_create(int32_t width, int32_t height, SurfaceFormat aFormat);
 
 /**
  * Create a new draw target of aBackend type and aFormat pixel format
  */
-DrawTarget* moz2d_draw_target_create_type(ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
+LIBRARY_API DrawTarget* moz2d_draw_target_create_type(ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat);
 
 /**
  * Create a new draw target for data (pixels) of aBackend type
  */
-DrawTarget* moz2d_draw_target_create_for_data_type(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized);
+LIBRARY_API DrawTarget* moz2d_draw_target_create_for_data_type(BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized);
 
 /**
  * Create a new draw target for data (pixels) of the type that fits best current platform.
  */
-DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat);
+LIBRARY_API DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat);
 
-DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height);
+LIBRARY_API DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height);
 
 
-SourceSurface* moz2d_draw_target_create_surface_for_data (
+LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_for_data (
 		DrawTarget* drawTarget,
 		unsigned char *aData,
         int32_t width,
@@ -73,7 +74,7 @@ SourceSurface* moz2d_draw_target_create_surface_for_data (
         int32_t aStride,
         SurfaceFormat aFormat);
 
-SourceSurface* moz2d_draw_target_create_surface_for_data_form (
+LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 		DrawTarget* drawTarget,
 		unsigned char *aData,
         int32_t width,
@@ -88,17 +89,17 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 /**
  * Return true if draw target is valid, false otherwise
  */
-bool moz2d_draw_target_is_valid(DrawTarget *drawTarget);
+LIBRARY_API bool moz2d_draw_target_is_valid(DrawTarget *drawTarget);
 
 /**
  * Return true if draw target is recording, false otherwise
  */
-bool moz2d_draw_target_is_recording(DrawTarget *drawTarget);
+LIBRARY_API bool moz2d_draw_target_is_recording(DrawTarget *drawTarget);
 
 /**
  * Return true if subpixel antialias is permitted, false otherwise
  */
-bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget);
+LIBRARY_API bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget);
 
 /* --------------------------------------------------- */
 /* ----------------- A C C E S S I N G --------------- */
@@ -107,41 +108,41 @@ bool moz2d_draw_target_get_permit_subpixel_aa(DrawTarget *drawTarget);
 /**
  * Return a type of draw target (software, hardware, vector)
  */
-DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
+LIBRARY_API DrawTargetType moz2d_draw_target_get_type (DrawTarget *drawTarget);
 
 /**
  * Return a backend type of draw target (cairo, skia, cg, d2d1, etc)
  */
-BackendType moz2d_draw_target_get_backend_type (DrawTarget *drawTarget);
+LIBRARY_API BackendType moz2d_draw_target_get_backend_type (DrawTarget *drawTarget);
 
 /**
  * Return a surface format (pixel format) of draw target
  */
-SurfaceFormat moz2d_draw_target_get_surface_format (DrawTarget *drawTarget);
+LIBRARY_API SurfaceFormat moz2d_draw_target_get_surface_format (DrawTarget *drawTarget);
 
 /**
  * Store a size (extent) of draw target in size argument
  */
-void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize);
+LIBRARY_API void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize);
 
 /**
  * Store a size (extent) of source surface in size argument
  */
-void moz2d_source_surface_get_size(SourceSurface *aSourceSurface, IntSize* aSize);
+LIBRARY_API void moz2d_source_surface_get_size(SourceSurface *aSourceSurface, IntSize* aSize);
 /**
  * Return a surface format (pixel format)
  */
-SurfaceFormat moz2d_source_surface_get_format(SourceSurface *aSourceSurface);
+LIBRARY_API SurfaceFormat moz2d_source_surface_get_format(SourceSurface *aSourceSurface);
 /**
  * Return a surface type
  */
-SurfaceType moz2d_source_surface_get_type(SourceSurface *aSourceSurface);
+LIBRARY_API SurfaceType moz2d_source_surface_get_type(SourceSurface *aSourceSurface);
 
-void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA);
-SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
-void moz2d_draw_target_flush(DrawTarget *drawTarget);
-uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
-int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget);
+LIBRARY_API void moz2d_draw_target_set_permit_subpixel_aa(DrawTarget *drawTarget, bool aPermitSubpixelAA);
+LIBRARY_API SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
+LIBRARY_API void moz2d_draw_target_flush(DrawTarget *drawTarget);
+LIBRARY_API uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
+LIBRARY_API int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget);
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */
@@ -150,28 +151,28 @@ int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget);
  * Pop a clip from the DrawTarget. A pop without a corresponding push will
  * be ignored.
  */
-void moz2d_draw_target_pop_clip(DrawTarget* drawTarget);
+LIBRARY_API void moz2d_draw_target_pop_clip(DrawTarget* drawTarget);
 
 /**
  * Push an axis-aligned rectangular clip to the DrawTarget. This rectangle
  * is specified in user space.
  */
-void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height);
+LIBRARY_API void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height);
 
 /**
  * Push a clip to the DrawTarget.
  */
-void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath);
+LIBRARY_API void moz2d_draw_target_push_clip_path (DrawTarget* drawTarget, Path* aPath);
 
 /**
  * Stores current clipping bounds in device space in rectangle
  */
-void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget, Rect* rectangle);
+LIBRARY_API void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget, Rect* rectangle);
 
 /**
  * Stores current clipping bounds in user space in rectangle
  */
-void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle);
+LIBRARY_API void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle);
 /* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
@@ -179,32 +180,32 @@ void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* recta
 /*
  * Fill
  */
-void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, DrawOptions* drawOptions);
-void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, DrawOptions* drawOptions);
-void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions);
-void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, DrawOptions* drawOptions);
 /*
  * Stroke
  */
-void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 /*
  * Mask
  */
-void moz2d_draw_target_mask_pattern(DrawTarget* drawTarget, Pattern* aSource, Pattern* aMask, DrawOptions* aOptions);
-void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, SourceSurface *aMask, Float offsetX, Float offsetY, DrawOptions* aOptions);
+LIBRARY_API void moz2d_draw_target_mask_pattern(DrawTarget* drawTarget, Pattern* aSource, Pattern* aMask, DrawOptions* aOptions);
+LIBRARY_API void moz2d_draw_target_mask_surface(DrawTarget* drawTarget, Pattern* aSource, SourceSurface *aMask, Float offsetX, Float offsetY, DrawOptions* aOptions);
 
 /*
  * Filter
  */
-void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNode* aFilter, Rect* sourceRect, Float destX, Float destY, DrawOptions* drawOptions);
 
 /*
  * Path
  */
-PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule);
+LIBRARY_API PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule);
 
 /* --------------------------------------------------- */
 /* ----------- T R A N S F O R M A T I O N ----------- */
@@ -213,7 +214,7 @@ PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillR
 /**
  * Return current transformation matrix as components array of 6 elements
  */
-void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array);
+LIBRARY_API void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array);
 
 /**
  * Set a transform on the surface, this transform is applied at drawing time
@@ -232,22 +233,22 @@ void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array);
  * FillRect, try to integrate the translation into FillRect's aRect
  * argument's x/y offset.
  */
-void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
+LIBRARY_API void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
 
 /**
  * Concatenate current transformation with provided one
  */
-void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float a11, float a12, float a21, float a22, float a31, float a32);
+LIBRARY_API void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float a11, float a12, float a21, float a22, float a31, float a32);
 
 /**
  * Push current transform on a stack
  */
-void moz2d_draw_target_transform_push(DrawTarget* drawTarget);
+LIBRARY_API void moz2d_draw_target_transform_push(DrawTarget* drawTarget);
 
 /**
  * Pops current transform from the stack
  */
-void moz2d_draw_target_transform_pop(DrawTarget* drawTarget);
+LIBRARY_API void moz2d_draw_target_transform_pop(DrawTarget* drawTarget);
 
 #ifdef __cplusplus
 }

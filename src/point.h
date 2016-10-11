@@ -8,6 +8,7 @@
 #ifndef POINT_H_
 #define POINT_H_
 
+#include "exports.h"
 #include "2d/Point.h"
 
 using namespace mozilla::gfx;
@@ -16,8 +17,8 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-Float moz2d_size_width (Size *size);
-Float moz2d_size_height (Size *size);
+LIBRARY_API Float moz2d_size_width (Size *size);
+LIBRARY_API Float moz2d_size_height (Size *size);
 
 
 #ifdef __cplusplus

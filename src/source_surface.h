@@ -8,7 +8,7 @@
 #ifndef SOURCE_SURFACE_H_
 #define SOURCE_SURFACE_H_
 
-
+#include "exports.h"
 #include "2d/2D.h"
 
 using namespace mozilla::gfx;
@@ -17,8 +17,8 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-DataSourceSurface* moz2d_data_source_surface_create(SurfaceFormat aFormat, int32_t width, int32_t height, bool isZero);
-DataSourceSurface::MappedSurface* moz2d_source_surface_map(DataSourceSurface* surface, DataSourceSurface::MapType aMapType);
+LIBRARY_API DataSourceSurface* moz2d_data_source_surface_create(SurfaceFormat aFormat, int32_t width, int32_t height, bool isZero);
+LIBRARY_API DataSourceSurface::MappedSurface* moz2d_source_surface_map(DataSourceSurface* surface, DataSourceSurface::MapType aMapType);
 
 #ifdef __cplusplus
 }

@@ -49,11 +49,6 @@ NS_GetServiceManager(nsIServiceManager** aResult)
 }
 
 void
-NS_ABORT_OOM(size_t aSize)
-{
-  STUB("NS_ABORT_OOM");
-}
-void
 NS_SetThreadName(nsIThread* aThread, const nsACString& aName)
 {
 

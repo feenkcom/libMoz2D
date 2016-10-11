@@ -8,6 +8,7 @@
 #ifndef REF_PTR_H_
 #define REF_PTR_H_
 
+#include "exports.h"
 #include "mozilla/RefPtr.h"
 #include "nsISupports.h"
 #include "mozilla/RefCounted.h"
@@ -50,16 +51,16 @@ class AnyPlainRefClass
 extern "C" {
 #endif
 
-void moz2d_plain_ptr_release(AnyPlainRefClass* refPtr);
-bool moz2d_plain_ptr_is_valid(AnyPlainRefClass* refPtr);
+LIBRARY_API void moz2d_plain_ptr_release(AnyPlainRefClass* refPtr);
+LIBRARY_API bool moz2d_plain_ptr_is_valid(AnyPlainRefClass* refPtr);
 
-MozRefCountType moz2d_ref_ptr_count(AnyRefCountedClass* refPtr);
-void moz2d_ref_ptr_add_ref(AnyRefCountedClass* refPtr);
-void moz2d_ref_ptr_release(AnyRefCountedClass* refPtr);
+LIBRARY_API MozRefCountType moz2d_ref_ptr_count(AnyRefCountedClass* refPtr);
+LIBRARY_API void moz2d_ref_ptr_add_ref(AnyRefCountedClass* refPtr);
+LIBRARY_API void moz2d_ref_ptr_release(AnyRefCountedClass* refPtr);
 
-MozRefCountType moz2d_inline_ref_ptr_count(AnyInlineRefCountedClass* refPtr);
-void moz2d_inline_ref_ptr_release(AnyInlineRefCountedClass* refPtr);
-void moz2d_inline_ref_ptr_add_ref(AnyInlineRefCountedClass* refPtr);
+LIBRARY_API MozRefCountType moz2d_inline_ref_ptr_count(AnyInlineRefCountedClass* refPtr);
+LIBRARY_API void moz2d_inline_ref_ptr_release(AnyInlineRefCountedClass* refPtr);
+LIBRARY_API void moz2d_inline_ref_ptr_add_ref(AnyInlineRefCountedClass* refPtr);
 
 #ifdef __cplusplus
 }

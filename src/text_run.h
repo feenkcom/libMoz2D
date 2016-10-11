@@ -8,16 +8,13 @@
 #ifndef TEXT_RUN_H_
 #define TEXT_RUN_H_
 
+#include "exports.h"
 #include "2d/2D.h"
 #include "gfxTextRun.h"
 using namespace mozilla;
 #include "layout/generic/nsTextRunTransformations.h"
 
 using namespace mozilla::gfx;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 class PluggablePropertyProvider : public gfxTextRun::PropertyProvider {
 
@@ -106,9 +103,13 @@ struct TextRunMetrics {
 	gfxFloat mBoundingBoxHeight;
 };
 
-PluggablePropertyProvider* moz2d_text_run_property_provider_create();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void moz2d_text_run_property_provider_init (
+LIBRARY_API PluggablePropertyProvider* moz2d_text_run_property_provider_create();
+
+LIBRARY_API void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
 		void (*getHyphenationBreaks)(uint32_t, uint32_t, bool *),
 		void (*getHyphensOption)(int8_t*),
@@ -117,12 +118,12 @@ void moz2d_text_run_property_provider_init (
 		DrawTarget* (*getDrawTarget)(void),
 		uint32_t (*getAppUnitsPerDevUnit)(void));
 
-gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyProvider* propertyProvider);
-void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * aBreakBefore);
+LIBRARY_API gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyProvider* propertyProvider);
+LIBRARY_API void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * aBreakBefore);
 
-void moz2d_text_run_property_provider_delete (PluggablePropertyProvider* propertyProvider);
+LIBRARY_API void moz2d_text_run_property_provider_delete (PluggablePropertyProvider* propertyProvider);
 
-void moz2d_text_run_draw_pattern (
+LIBRARY_API void moz2d_text_run_draw_pattern (
 		DrawTarget* drawTarget,
 		gfxTextRun* aTextRun,
 		uint32_t start,
@@ -136,7 +137,7 @@ void moz2d_text_run_draw_pattern (
 		Pattern* fillPattern,
 		Pattern* aStrokePattern);
 
-void moz2d_text_run_draw_color (
+LIBRARY_API void moz2d_text_run_draw_color (
 		DrawTarget* drawTarget,
 		gfxTextRun* aTextRun,
 		uint32_t start,
@@ -156,16 +157,16 @@ void moz2d_text_run_draw_color (
 		float strokeB,
 		float strokeA);
 
-void moz2d_text_run_measure_text (
+LIBRARY_API void moz2d_text_run_measure_text (
         DrawTarget *aDrawTarget,
 		gfxTextRun *aTextRun,
         gfxTextRun::PropertyProvider *aProvider,
         TextRunMetrics *aMetrics,
 		gfxFont::BoundingBoxType aBoundingBoxType);
 
-void moz2d_text_run_font_metrics (gfxTextRun* aTextRun, gfxFont::Metrics* aMetrics);
+LIBRARY_API void moz2d_text_run_font_metrics (gfxTextRun* aTextRun, gfxFont::Metrics* aMetrics);
 
-uint32_t moz2d_text_run_break_and_measure (
+LIBRARY_API uint32_t moz2d_text_run_break_and_measure (
 		gfxTextRun* aTextRun,
 		uint32_t aStart,
 		uint32_t aMaxLength,
@@ -182,11 +183,11 @@ uint32_t moz2d_text_run_break_and_measure (
 		bool aCanWordWrap,
 		gfxBreakPriority *aBreakPriority);
 
-uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun);
+LIBRARY_API uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun);
 
-nsTransformingTextRunFactory* moz2d_text_run_create_math_ml_factory();
+LIBRARY_API nsTransformingTextRunFactory* moz2d_text_run_create_math_ml_factory();
 
-gfxTextRun* moz2d_text_run_factory_make_text_run_utf16 (
+LIBRARY_API gfxTextRun* moz2d_text_run_factory_make_text_run_utf16 (
 		nsTransformingTextRunFactory* aTransformingFactory,
 		FontFamilyList* aFontFamilyList,
 		DrawTarget* drawTarget,

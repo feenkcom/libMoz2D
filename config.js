@@ -173,7 +173,8 @@ module.exports = {
                     linux: ''
                 },
                 x86_64: {
-                    linux: '-m64'
+                    linux: '-m64',
+					win: '/DUSE_NS_ABORT_OOM'
                 }
             },
             asm: {
@@ -205,7 +206,7 @@ module.exports = {
             }]
         },
         defines: {
-            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR',
+            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR -DLIBRARY_EXPORTS',
             linux: ''
         },
         undefines: {

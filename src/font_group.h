@@ -8,6 +8,7 @@
 #ifndef FONT_GROUP_H_
 #define FONT_GROUP_H_
 
+#include "exports.h"
 #include "2d/2D.h"
 #include "gfxTextRun.h"
 #include "gfxFont.h"
@@ -20,21 +21,21 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-gfxFontGroup* moz2d_font_group_create (
+LIBRARY_API gfxFontGroup* moz2d_font_group_create (
 		FontFamilyList* aFontFamilyList,
 		gfxFontStyle* aStyle,
 		gfxTextPerfMetrics* aTextPerf,
 		gfxUserFontSet* aUserFontSet,
 		float aDevToCssSize);
 
-void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical);
+LIBRARY_API void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical);
 
 /**
  * Text run creation helper for clients that don't want to pass
  * a full Parameters record.
  * aText must be represented in ASCII format
  */
-gfxTextRun* moz2d_font_group_make_text_run_ascii (
+LIBRARY_API gfxTextRun* moz2d_font_group_make_text_run_ascii (
 		DrawTarget* drawTarget,
 		gfxFontGroup* aFontGroup,
 		const char* aText,
@@ -44,12 +45,12 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 		int32_t aAppUnitsPerDevUnit,
 		uint32_t aTextRunFactoryFlags);
 
-/*
+/**
  * Text run creation helper for clients that don't want to pass
  * a full Parameters record.
  * aText must be represented in UTF16 format
  */
-gfxTextRun* moz2d_font_group_make_text_run_utf16 (
+LIBRARY_API gfxTextRun* moz2d_font_group_make_text_run_utf16 (
 		DrawTarget* drawTarget,
 		gfxFontGroup* aFontGroup,
 		const char16_t* aText,

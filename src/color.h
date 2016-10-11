@@ -8,6 +8,7 @@
 #ifndef COLOR_H_
 #define COLOR_H_
 
+#include "exports.h"
 #include "2d/Types.h"
 
 using namespace mozilla::gfx;
@@ -16,12 +17,12 @@ using namespace mozilla::gfx;
 extern "C" {
 #endif
 
-Color* moz2d_color_create(Float red, Float green, Float blue, Float alpha);
-void moz2d_color_delete(Color *color);
-Float moz2d_color_get_red(Color *color);
-Float moz2d_color_get_green(Color *color);
-Float moz2d_color_get_blue(Color *color);
-Float moz2d_color_get_alpha(Color *color);
+LIBRARY_API Color* moz2d_color_create(Float red, Float green, Float blue, Float alpha);
+LIBRARY_API void moz2d_color_delete(Color *color);
+LIBRARY_API Float moz2d_color_get_red(Color *color);
+LIBRARY_API Float moz2d_color_get_green(Color *color);
+LIBRARY_API Float moz2d_color_get_blue(Color *color);
+LIBRARY_API Float moz2d_color_get_alpha(Color *color);
 
 #ifdef __cplusplus
 }
