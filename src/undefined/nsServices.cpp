@@ -48,7 +48,11 @@ NS_GetServiceManager(nsIServiceManager** aResult)
 	  return NS_ERROR_NOT_INITIALIZED;
 }
 
-
+void
+NS_ABORT_OOM(size_t aSize)
+{
+  STUB("NS_ABORT_OOM");
+}
 void
 NS_SetThreadName(nsIThread* aThread, const nsACString& aName)
 {
