@@ -15,16 +15,6 @@ extern "C" {
 #endif
 
 /*
- * Helper method to initialize all needed services at once
- */
-LIBRARY_API void moz2d_services_init();
-
-/*
- * Helper method to shutdown all running services at once
- */
-LIBRARY_API void moz2d_services_shutdown();
-
-/*
  * Initialize Thebes and start platform dependent services
  * such as gfxPlatformList and others
  */
@@ -44,6 +34,9 @@ LIBRARY_API void moz2d_services_init_atom_table();
  * Shutdown and clean atom table
  */
 LIBRARY_API void moz2d_services_shutdown_atom_table();
+
+LIBRARY_API void moz2d_services_init_gfx_config();
+LIBRARY_API void moz2d_services_shutdown_gfx_config();
 
 #ifdef __cplusplus
 }

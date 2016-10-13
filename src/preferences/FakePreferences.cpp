@@ -49,33 +49,33 @@
 #include "nsString.h"
 
 #include <iostream> // For std::cout
-//#include <new>
+
+#include <iostream>
+#include <fstream>
 
 namespace mozilla {
 
-
 static bool DEBUG = true;
-#define LOG(X) if (DEBUG) std::cout << X << "\n";
+#define LOG(X) if (DEBUG) { std::ofstream log; log.open("PreferencesLog.txt", std::ios::out | std::ios::app); log << X << "\n"; log.close(); };
 
 
 enum {
 	eNoType = 0,
 	eBooleanType = 1,
-	eLongType = 2,
-	eDoubleType = 3,
-	eWStringType = 4,
-	eISupportsType = 5,
-	eStringType = 6
+	eIntType = 2,
+	eFloatType = 3,
+	eStringType = 4,
+	eISupportsType = 5
 };
+
 struct HashEntry : public PLDHashEntryHdr
 {
 	nsCString mEntryName;
-
 	uint8_t mEntryType;
 	union
 	{
-		int32_t mLong;
-		nsCString* mCString;
+		int32_t mInt;
+		nsCString* mString;
 	} mData;
 
 	HashEntry(uint8_t aType, const char* aEntryName)
@@ -90,12 +90,19 @@ struct HashEntry : public PLDHashEntryHdr
 	{
 		Reset(mEntryType);
 		switch (mEntryType) {
-		case eLongType:
-			mData.mLong = aRHS.mData.mLong;
+		case eBooleanType:
+			mData.mInt = aRHS.mData.mInt;
+			break;
+		case eIntType:
+			mData.mInt = aRHS.mData.mInt;
+			break;
+		case eFloatType:
+			NS_ASSERTION(aRHS.mData.mString, "Source entry has no string");
+			mData.mString = new nsCString(*aRHS.mData.mString);
 			break;
 		case eStringType:
-			NS_ASSERTION(aRHS.mData.mCString, "Source entry has no string");
-			mData.mCString = new nsCString(*aRHS.mData.mCString);
+			NS_ASSERTION(aRHS.mData.mString, "Source entry has no string");
+			mData.mString = new nsCString(*aRHS.mData.mString);
 			break;
 		default:
 			NS_ERROR("Unknown type");
@@ -103,24 +110,14 @@ struct HashEntry : public PLDHashEntryHdr
 	}
 
 	~HashEntry() {
-		LOG("[HashEntry] Destroyed " << (mEntryName.get()));
 		Reset(eNoType); }
 
 	void Reset(uint8_t aNewType)
 	{
-		switch (mEntryType) {
-		case eNoType:
-			break;
-		case eLongType:
-			mData.mLong = 0;
-			break;
-		case eStringType:
-			delete mData.mCString;
-			mData.mCString = nullptr;
-			break;
-		default:
-			NS_ERROR("Unknown type");
-		}
+		if (mData.mString)
+			delete mData.mString;
+		mData.mString = nullptr;
+		mData.mInt = 0;
 		mEntryType = aNewType;
 	}
 };
@@ -157,57 +154,18 @@ static HashEntry* GetOrMakeEntry(const char* aName, uint8_t aEntryType)
 	Preferences::ResetAndReadUserPrefs();
 	auto foundEntry = static_cast<HashEntry*>(table->Search((void*)aName));
 	if (foundEntry) { // reuse existing entry
-		LOG("-------------- REWRITE -------------")
 		foundEntry->Reset(aEntryType);
 		return foundEntry;
 	}
 
 	foundEntry = static_cast<HashEntry*>(table->Add((void*)aName, fallible));
 	if (!foundEntry) {
-		LOG("[Pref] Adding new entry failed!")
 		return nullptr;
 	}
 
 	// Use placement new. Our actor does not clobber keyHash, which is important.
 	new (foundEntry) HashEntry(aEntryType, aName);
 	return foundEntry;
-}
-
-static void pref(const char* aName, bool aValue) {
-	LOG("[Init   Bool] "<< aName << ": " << (aValue ? "true" : "false"));
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eLongType);
-	if (!foundEntry) { return; }
-	foundEntry->mData.mLong = aValue;
-	LOG(table->EntryCount());
-}
-static void pref(const char* aName, const char*  aValue) {
-	LOG("[Init String] "<< aName << ": " << "\"" << aValue << "\"");
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
-	if (!foundEntry) { return; }
-	foundEntry->mData.mCString = new nsCString(aValue);
-	LOG(table->EntryCount());
-}
-static void pref(const char* aName, int32_t aValue) {
-	LOG("[Init   Long] "<< aName << ": " << aValue);
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eLongType);
-	if (!foundEntry) { return; }
-	foundEntry->mData.mLong = aValue;
-	LOG(table->EntryCount());
-}
-static void pref(const char* aName, double aValue) {
-	LOG("[Init Double] "<< aName << ": " << aValue);
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
-	if (!foundEntry) { return; }
-	foundEntry->mData.mCString = new nsCString(nsPrintfCString("%f", aValue).get());
-	LOG(table->EntryCount());
-}
-
-static void pref(const char* aName, float aValue) {
-	LOG("[Init  Float] "<< aName << ": " << aValue);
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
-	if (!foundEntry) { return; }
-	foundEntry->mData.mCString = new nsCString(nsPrintfCString("%f", aValue).get());
-	LOG(table->EntryCount());
 }
 
 PLDHashNumber HashKey(const void* aKey)
@@ -310,21 +268,15 @@ static void InitTable()
 	if (table)
 		return;
 
+	if (DEBUG) {
+		std::ofstream log;
+		log.open("PreferencesLog.txt");
+		log.close();
+	}
+	
 	table = new PLDHashTable(&sHashOps, sizeof(HashEntry), 8192);
-	DEBUG = false;
-	#include "all.js"
-	#include "custom.js"
-	DEBUG = true;
-
-//	for (auto iter = table->Iter(); !iter.Done(); iter.Next()) {
-//		auto entry = static_cast<HashEntry*>(iter.Get());
-//		LOG((ToNewCString(entry->mEntryName)) << "  " << (entry->mEntryType));
-//	}
-
 }
 //-----------------------------------------------------------------------------
-
-
 
 Preferences::Preferences()
 : mDirty(false)
@@ -507,16 +459,14 @@ static nsresult openPrefFile(nsIFile* aFile)
 nsresult
 Preferences::GetBool(const char* aName, bool* aRetVal)
 {
-	NS_PRECONDITION(aResult, "aResult must not be NULL");
-
 	HashEntry* foundEntry = GetNamedEntry(aName);
-	if (foundEntry && foundEntry->mEntryType == eLongType) {
-		LOG("[Pref::GetBool In] " << aName << ": " << (((bool)foundEntry->mData.mLong) ? "true" : "false"));
-		*aRetVal = (foundEntry->mData.mLong);
+	if (foundEntry && (foundEntry->mEntryType == eBooleanType || foundEntry->mEntryType == eIntType)) {
+		*aRetVal = (foundEntry->mData.mInt);
+		LOG("[Get BoolIn] " << aName << ": " << (((bool)foundEntry->mData.mInt) ? "true" : "false"));
 		return NS_OK;
 	}
 	*aRetVal = false;
-	LOG("[Pref::GetBool In] " << aName << ": " << "Not found!");
+	LOG("[Get BoolIn] " << aName << ": " << "Not found!");
 	return NS_ERROR_FAILURE;
 }
 
@@ -524,16 +474,14 @@ Preferences::GetBool(const char* aName, bool* aRetVal)
 nsresult
 Preferences::GetInt(const char* aName, int32_t* aRetVal)
 {
-	NS_PRECONDITION(aResult, "aResult must not be NULL");
-
 	HashEntry* foundEntry = GetNamedEntry(aName);
-	if (foundEntry && foundEntry->mEntryType == eLongType) {
-		LOG("[Pref::GetInt In] " << aName << ": " << foundEntry->mData.mLong);
-		*aRetVal = foundEntry->mData.mLong;
+	if (foundEntry && (foundEntry->mEntryType == eBooleanType || foundEntry->mEntryType == eIntType)) {
+		*aRetVal = foundEntry->mData.mInt;
+		LOG("[Get IntIn] " << aName << ": " << foundEntry->mData.mInt);
 		return NS_OK;
 	}
 	*aRetVal = 0;
-	LOG("[Pref::GetInt In] " << aName << ": " << "Not found!");
+	LOG("[Get IntIn] " << aName << ": " << "Not found!");
 	return NS_ERROR_FAILURE;
 }
 
@@ -541,17 +489,24 @@ Preferences::GetInt(const char* aName, int32_t* aRetVal)
 nsresult
 Preferences::GetFloat(const char* aName, float* aRetVal)
 {
-
 	HashEntry* foundEntry = GetNamedEntry(aName);
-	if (foundEntry && foundEntry->mEntryType == eStringType) {
-		LOG("[Pref::GetFloat In] " << aName << ": " << (ToNewCString(*foundEntry->mData.mCString)));
-		nsAdoptingCString result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mCString)));
+	// if entry type is encoded as string, try to convert it to float
+	if (foundEntry && (foundEntry->mEntryType == eStringType || foundEntry->mEntryType == eFloatType)) {
+		nsAdoptingCString result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mString)));
 		nsresult rv = NS_OK;
+		LOG("[Get FloatIn] " << aName << ": " << (foundEntry->mData.mString));
 		*aRetVal = result.ToFloat(&rv);
 		return rv;
 	}
+	// otherwise convert int
+	if (foundEntry && foundEntry->mEntryType == eIntType) {
+		nsresult rv = NS_OK;
+		LOG("[Get FloatIn] " << aName << ": " << (foundEntry->mData.mInt));
+		*aRetVal = foundEntry->mData.mInt;
+		return rv;
+	}
 	*aRetVal = 0.f;
-	LOG("[Pref::GetFloat In] " << aName << ": " << "Not found!");
+	LOG("[Get FloatIn] " << aName << ": " << "Not found!");
 	return NS_ERROR_FAILURE;
 }
 
@@ -562,11 +517,11 @@ Preferences::GetCString(const char* aName)
 	nsAdoptingCString result;
 	HashEntry* foundEntry = GetNamedEntry(aName);
 	if (foundEntry && foundEntry->mEntryType == eStringType) {
-		LOG("[Pref::GetCString] " << aName << ": " << (ToNewCString(*foundEntry->mData.mCString)));
-		result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mCString)));
+		LOG("[Get CString] " << aName << ": \"" << ((foundEntry->mData.mString)->get()) << "\"");
+		result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mString)));
 		return result;
 	}
-	LOG("[Pref::GetCString] " << aName << ": " << "Not found!");
+	LOG("[Get CString] " << aName << ": " << "Not found!");
 	return result;
 }
 
@@ -577,11 +532,11 @@ Preferences::GetString(const char* aName)
 	nsAdoptingString result;
 	HashEntry* foundEntry = GetNamedEntry(aName);
 	if (foundEntry && foundEntry->mEntryType == eStringType) {
-		LOG("[Pref::GetString] " << aName << ": " << (ToNewCString(*foundEntry->mData.mCString)));
-		result = NS_ConvertUTF8toUTF16(ToNewCString(*(foundEntry->mData.mCString)));
+		result = NS_ConvertUTF8toUTF16(ToNewCString(*(foundEntry->mData.mString)));
+		LOG("[Get String] " << aName << ": \"" << ((foundEntry->mData.mString)->get()) << "\"");
 		return result;
 	}
-	LOG("[Pref::GetString] " << aName << ": " << "Not found!");
+	LOG("[Get String] " << aName << ": " << "Not found!");
 	return result;
 }
 
@@ -592,13 +547,13 @@ Preferences::GetCString(const char* aName, nsACString* aRetVal)
 	nsAdoptingCString result;
 	HashEntry* foundEntry = GetNamedEntry(aName);
 	if (foundEntry && foundEntry->mEntryType == eStringType) {
-		LOG("[Pref::GetCString In] " << aName << ": " << (ToNewCString(*foundEntry->mData.mCString)));
-		result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mCString)));
+		result = nsAdoptingCString(ToNewCString(*(foundEntry->mData.mString)));
+		LOG("[Get CStringIn] " << aName << ": \"" << ((foundEntry->mData.mString)->get()) << "\"");
 		*aRetVal = result;
 		return NS_OK;
 	}
 	*aRetVal = result;
-	LOG("[Pref::GetCString In] " << aName << ": " << "Not found!");
+	LOG("[Get CStringIn] " << aName << ": " << "Not found!");
 	return NS_ERROR_FAILURE;
 }
 
@@ -609,127 +564,122 @@ Preferences::GetString(const char* aName, nsAString* aRetVal)
 	nsAdoptingString result;
 	HashEntry* foundEntry = GetNamedEntry(aName);
 	if (foundEntry && foundEntry->mEntryType == eStringType) {
-		LOG("[Pref::GetString In] " << aName << ": " << (ToNewCString(*foundEntry->mData.mCString)));
-		result = NS_ConvertUTF8toUTF16(ToNewCString(*(foundEntry->mData.mCString)));
+		result = NS_ConvertUTF8toUTF16(ToNewCString(*(foundEntry->mData.mString)));
+		LOG("[Get StringIn] " << aName << ": \"" << ((foundEntry->mData.mString)->get()) << "\"");
 		*aRetVal = result;
 		return NS_OK;
 	}
 	*aRetVal = result;
-	LOG("[Pref::GetString In] " << aName << ": " << "Not found!");
+	LOG("[Get StringIn] " << aName << ": " << "Not found!");
 	return NS_ERROR_FAILURE;
 }
 
 // static
 nsAdoptingCString
-Preferences::GetLocalizedCString(const char* aPref)
+Preferences::GetLocalizedCString(const char* aName)
 {
 	nsAdoptingCString result;
 
-	std::cout << "[Pref::GetLocalizedCString] " << aPref << "\n";
+	LOG("[Get LocalizedCString] " << aName << ": " << "Not implemented!");
 
 	return result;
 }
 
 // static
 nsAdoptingString
-Preferences::GetLocalizedString(const char* aPref)
+Preferences::GetLocalizedString(const char* aName)
 {
 	nsAdoptingString result;
 
-	std::cout << "[Pref::GetLocalizedString] " << aPref << "\n";
+	LOG("[Get LocalizedString] " << aName << ": " << "Not implemented!");
 
 	return result;
 }
 
 // static
 nsresult
-Preferences::GetLocalizedCString(const char* aPref, nsACString* aResult)
+Preferences::GetLocalizedCString(const char* aName, nsACString* aResult)
 {
-	NS_PRECONDITION(aResult, "aResult must not be NULL");
-	std::cout << "[Pref::GetLocalizedCString] " << aPref << "\n";
-	return NS_OK;
+	LOG("[Get LocalizedCStringIn] " << aName << ": " << "Not implemented!");
+	return NS_ERROR_FAILURE;
 }
 
 // static
 nsresult
-Preferences::GetLocalizedString(const char* aPref, nsAString* aResult)
+Preferences::GetLocalizedString(const char* aName, nsAString* aResult)
 {
-	NS_PRECONDITION(aResult, "aResult must not be NULL");
-	std::cout << "[Pref::GetLocalizedCString] " << aPref << "\n";
-	return NS_OK;
+
+	LOG("[Get LocalizedStringIn] " << aName << ": " << "Not implemented!");
+	return NS_ERROR_FAILURE;
 }
 
 // static
 nsresult
-Preferences::GetComplex(const char* aPref, const nsIID &aType, void** aResult)
+Preferences::GetComplex(const char* aName, const nsIID &aType, void** aResult)
 {
-	std::cout << "[Pref] " << aPref << "\n";
-	return NS_OK;
+	LOG("[Get ComplexIn] " << aName << ": " << "Not implemented!");
+	return NS_ERROR_FAILURE;
 }
 
 // static
 nsresult
-Preferences::SetCString(const char* aName, const char* aValue)
+Preferences::SetCString(const char* aPref, const char* aValue)
 {
-	LOG("[Pref::SetCString] " << aName << ": " << aValue);
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eStringType);
 	if (!foundEntry) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
-	foundEntry->mData.mCString = new nsCString(aValue);
+	LOG("[Set CString] " << aPref << " : \"" << (aValue) << "\"");
+	foundEntry->mData.mString = new nsCString(aValue);
 	return NS_OK;
 }
 
 // static
 nsresult
-Preferences::SetCString(const char* aName, const nsACString &aValue)
+Preferences::SetCString(const char* aPref, const nsACString &aValue)
 {
-	LOG("[Pref::SetCString] " << aName << ": " << ToNewCString(aValue));
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eStringType);
 	if (!foundEntry) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
-	foundEntry->mData.mCString = new nsCString(ToNewCString(aValue));
+	foundEntry->mData.mString = new nsCString(ToNewCString(aValue));
 	return NS_OK;
 }
 
 // static
 nsresult
-Preferences::SetString(const char* aName, const char16ptr_t aValue)
+Preferences::SetString(const char* aPref, const char16ptr_t aValue)
 {
-	LOG("[Pref::SetString] " << aName << ": " << NS_LossyConvertUTF16toASCII(aValue).get());
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eStringType);
 	if (!foundEntry) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
-	foundEntry->mData.mCString = new nsCString(NS_ConvertUTF16toUTF8(aValue));
+	foundEntry->mData.mString = new nsCString(NS_ConvertUTF16toUTF8(aValue));
 	return NS_OK;
 }
 
 // static
 nsresult
-Preferences::SetString(const char* aName, const nsAString &aValue)
+Preferences::SetString(const char* aPref, const nsAString &aValue)
 {
-	LOG("[Pref::SetString] " << aName << ": " << NS_LossyConvertUTF16toASCII(aValue).get());
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eStringType);
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eStringType);
 	if (!foundEntry) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
-	foundEntry->mData.mCString = new nsCString(NS_ConvertUTF16toUTF8(aValue));
+	foundEntry->mData.mString = new nsCString(NS_ConvertUTF16toUTF8(aValue));
 	return NS_OK;
 }
 
 // static
 nsresult
-Preferences::SetBool(const char* aName, bool aValue)
+Preferences::SetBool(const char* aPref, bool aValue)
 {
-
-	LOG("[Pref::SetBool] " << aName << ": " << aValue);
-	HashEntry* foundEntry = GetOrMakeEntry(aName, eLongType);
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eBooleanType);
 	if (!foundEntry) {
 		return NS_ERROR_OUT_OF_MEMORY;
 	}
-	foundEntry->mData.mLong = aValue;
+	LOG("[Set Bool] " << aPref << " : " << (aValue ? "true" : "false"));
+	foundEntry->mData.mInt = aValue;
 	return NS_OK;
 }
 
@@ -737,7 +687,12 @@ Preferences::SetBool(const char* aName, bool aValue)
 nsresult
 Preferences::SetInt(const char* aPref, int32_t aValue)
 {
-	std::cout << "[Pref] " << aPref << "\n";
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eIntType);
+	if (!foundEntry) {
+		return NS_ERROR_OUT_OF_MEMORY;
+	}
+	LOG("[Set Int] " << aPref << " : " << aValue);
+	foundEntry->mData.mInt = aValue;
 	return NS_OK;
 }
 
@@ -745,7 +700,12 @@ Preferences::SetInt(const char* aPref, int32_t aValue)
 nsresult
 Preferences::SetFloat(const char* aPref, float aValue)
 {
-	std::cout << "[Pref] " << aPref << "\n";
+	HashEntry* foundEntry = GetOrMakeEntry(aPref, eIntType);
+	if (!foundEntry) {
+		return NS_ERROR_OUT_OF_MEMORY;
+	}
+	LOG("[Set Float] " << aPref << " : " << aValue);
+	foundEntry->mData.mString = new nsCString(nsPrintfCString("%f", aValue).get());
 	return NS_OK;
 }
 
@@ -778,8 +738,30 @@ Preferences::HasUserValue(const char* aPref)
 int32_t
 Preferences::GetType(const char* aPref)
 {
-	std::cout << "[Pref] " << aPref << "\n";
-	return 0;
+	HashEntry* foundEntry = GetNamedEntry(aPref);
+	if (!foundEntry) {
+		return PREF_INVALID;
+	}
+	int32_t type = PREF_INVALID;
+	switch (foundEntry->mEntryType) {
+	case eBooleanType:
+		type = PREF_BOOL;
+		break;
+	case eIntType:
+		type = PREF_INT;
+		break;
+	case eFloatType:
+		type = PREF_STRING;
+		break;
+	case eStringType:
+		type = PREF_STRING;
+		break;
+	case eNoType:
+	default:
+		type = PREF_INVALID;
+		break;
+	}
+	return type;
 }
 
 // static

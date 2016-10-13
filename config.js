@@ -96,8 +96,8 @@ module.exports = {
                 packages: ['undefined_unix']
             },
 			win: {
-                sources: ['src/undefined/windows'],
-                packages: ['undefined_windows']
+                sources: ['src/undefined/windows', 'src/win'],
+                packages: ['undefined_windows', 'wrapper_windows']
             }
         },
         libraries: {
@@ -142,7 +142,20 @@ module.exports = {
 				// ScriptFreeCache
 				'usp10.lib',
 				// Required by cairo print surface
-				'msimg32.lib'
+				'msimg32.lib',
+				'kernel32.lib',
+				'shell32.lib',
+				'user32.lib',
+				'gdi32.lib',
+				'advapi32.lib',
+				'd2d1.lib',
+				'psapi.lib',
+				'dbghelp.lib',
+				'dwrite.lib',
+				'dxgi.lib',
+				'd3d9.lib',
+				'd3d10.lib',
+				'd3d11.lib'
 			]
         },
         flags: {

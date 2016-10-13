@@ -11,17 +11,7 @@
 #include "nsAtomService.h"
 #include "nsAtomTable.h"
 #include "gfxPlatform.h"
-
-
-void moz2d_services_init() {
-	moz2d_services_init_atom_table();
-	moz2d_services_init_platform();
-}
-
-void moz2d_services_shutdown() {
-	moz2d_services_shutdown_platform();
-	moz2d_services_shutdown_atom_table();
-}
+#include "gfxConfig.h"
 
 void moz2d_services_init_platform() {
 	gfxPlatform::GetPlatform();
@@ -38,4 +28,12 @@ void moz2d_services_init_atom_table() {
 
 void moz2d_services_shutdown_atom_table() {
 	NS_ShutdownAtomTable();
+}
+
+void moz2d_services_init_gfx_config() {
+	mozilla::gfx::gfxConfig::Init();
+}
+
+void moz2d_services_shutdown_gfx_config() {
+	mozilla::gfx::gfxConfig::Shutdown();
 }
