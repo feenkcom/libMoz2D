@@ -1,3 +1,19 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/DeviceManagerD3D11.cpp gfx/thebes-patched/DeviceManagerD3D11.cpp
+--- gfx/thebes/DeviceManagerD3D11.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/DeviceManagerD3D11.cpp	2016-10-13 19:07:33.000000000 +0200
+@@ -207,11 +207,7 @@
+       }
+ 
+       DXGI_ADAPTER_DESC desc;
+-      if (SUCCEEDED(adapter->GetDesc(&desc)) &&
+-          desc.AdapterLuid.HighPart == parent.AdapterLuid.HighPart &&
+-          desc.AdapterLuid.LowPart == parent.AdapterLuid.LowPart &&
+-          desc.VendorId == parent.VendorId &&
+-          desc.DeviceId == parent.DeviceId)
++      if (SUCCEEDED(adapter->GetDesc(&desc)))
+       {
+         mAdapter = adapter.forget();
+         break;
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
 --- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-10-10 22:11:45.000000000 +0200
@@ -560,7 +576,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm
      table.Put(key, familyEntry);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
 --- gfx/thebes/gfxPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-10 22:14:18.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-13 19:17:22.000000000 +0200
 @@ -184,218 +184,6 @@
  #include "mozilla/gfx/SourceSurfaceCairo.h"
  using namespace mozilla::gfx;
@@ -1207,16 +1223,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
      return nullptr;
  }
  
-@@ -2102,95 +1593,11 @@
- void
- gfxPlatform::InitAcceleration()
- {
--  if (sLayersAccelerationPrefsInitialized) {
--    return;
--  }
--
--  InitCompositorAccelerationPrefs();
--
+@@ -2108,52 +1599,7 @@
+ 
+   InitCompositorAccelerationPrefs();
+ 
 -  // If this is called for the first time on a non-main thread, we're screwed.
 -  // At the moment there's no explicit guarantee that the main thread calls
 -  // this before the compositor thread, but let's at least make the assumption
@@ -1263,47 +1273,11 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -  }
 -
 -  sLayersAccelerationPrefsInitialized = true;
++	sLayersAccelerationPrefsInitialized = true;
  }
  
  void
- gfxPlatform::InitCompositorAccelerationPrefs()
- {
--  const char *acceleratedEnv = PR_GetEnv("MOZ_ACCELERATED");
--
--  FeatureState& feature = gfxConfig::GetFeature(Feature::HW_COMPOSITING);
--
--  // Base value - does the platform allow acceleration?
--  if (feature.SetDefault(AccelerateLayersByDefault(),
--                         FeatureStatus::Blocked,
--                         "Acceleration blocked by platform"))
--  {
--    if (gfxPrefs::LayersAccelerationDisabledDoNotUseDirectly()) {
--      feature.UserDisable("Disabled by pref",
--                          NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_PREF"));
--    } else if (acceleratedEnv && *acceleratedEnv == '0') {
--      feature.UserDisable("Disabled by envvar",
--                          NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_ENV"));
--    }
--  } else {
--    if (acceleratedEnv && *acceleratedEnv == '1') {
--      feature.UserEnable("Enabled by envvar");
--    }
--  }
--
--  // This has specific meaning elsewhere, so we always record it.
--  if (gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly()) {
--    feature.UserForceEnable("Force-enabled by pref");
--  }
--
--  // Safe mode trumps everything.
--  if (InSafeMode()) {
--    feature.ForceDisable(FeatureStatus::Blocked, "Acceleration blocked by safe-mode",
--                         NS_LITERAL_CSTRING("FEATURE_FAILURE_COMP_SAFEMODE"));
--  }
- }
- 
- bool
-@@ -2320,32 +1727,11 @@
+@@ -2320,32 +1766,11 @@
  void
  gfxPlatform::GetApzSupportInfo(mozilla::widget::InfoObject& aObj)
  {
@@ -1336,7 +1310,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  /*static*/ bool
-@@ -2382,80 +1768,26 @@
+@@ -2382,81 +1807,27 @@
  void
  gfxPlatform::GetAcceleratedCompositorBackends(nsTArray<LayersBackend>& aBackends)
  {
@@ -1414,66 +1388,11 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -    GetParentDevicePrefs().useHwCompositing(),
 -    FeatureStatus::Blocked,
 -    "Hardware-accelerated compositing disabled in parent process");
-   return true;
- }
- 
-@@ -2474,55 +1806,10 @@
- void
- gfxPlatform::InitOpenGLConfig()
- {
--  #ifdef XP_WIN
--  // Don't enable by default on Windows, since it could show up in about:support even
--  // though it'll never get used. Only attempt if user enables the pref
--  if (!Preferences::GetBool("layers.prefer-opengl")){
--    return;
--  }
--  #endif
--
--  FeatureState& openGLFeature = gfxConfig::GetFeature(Feature::OPENGL_COMPOSITING);
--
--  // Check to see hw comp supported
--  if (!gfxConfig::IsEnabled(Feature::HW_COMPOSITING)) {
--    openGLFeature.DisableByDefault(FeatureStatus::Unavailable, "Hardware compositing is disabled",
--                           NS_LITERAL_CSTRING("FEATURE_FAILURE_OPENGL_NEED_HWCOMP"));
--    return;
--  }
--
--  #ifdef XP_WIN
--  openGLFeature.SetDefaultFromPref(
--    gfxPrefs::GetLayersPreferOpenGLPrefName(),
--    true,
--    gfxPrefs::GetLayersPreferOpenGLPrefDefault());
--  #else
--    openGLFeature.EnableByDefault();
--  #endif
--
--  nsCString message;
--  nsCString failureId;
--  if (!IsGfxInfoStatusOkay(nsIGfxInfo::FEATURE_OPENGL_LAYERS, &message, failureId)) {
--    openGLFeature.Disable(FeatureStatus::Blacklisted, message.get(), failureId);
--  }
- }
- 
- bool
- gfxPlatform::IsGfxInfoStatusOkay(int32_t aFeature, nsCString* aOutMessage, nsCString& aFailureId)
- {
--  nsCOMPtr<nsIGfxInfo> gfxInfo = services::GetGfxInfo();
--  if (!gfxInfo) {
--    return true;
--  }
--
--  int32_t status;
--  if (NS_SUCCEEDED(gfxInfo->GetFeatureStatus(aFeature, aFailureId, &status)) &&
--      status != nsIGfxInfo::FEATURE_STATUS_OK)
--  {
--    aOutMessage->AssignLiteral("#BLOCKLIST_");
--    aOutMessage->AppendASCII(aFailureId.get());
--    return false;
--  }
--
 -  return true;
 +	return false;
  }
+ 
+ bool
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
 --- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/gfxPlatform.h	2016-10-10 22:11:45.000000000 +0200
@@ -1618,23 +1537,17 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp g
      return mLangService;
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
 --- gfx/thebes/gfxPlatformGtk.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-10-10 22:11:45.000000000 +0200
-@@ -89,12 +89,11 @@
-     }
- 
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-10-13 19:18:10.000000000 +0200
+@@ -91,8 +91,7 @@
      mMaxGenericSubstitutions = UNINITIALIZED_VALUE;
--
-+    printf("before sUseXRender\n");
+ 
  #ifdef MOZ_X11
 -    sUseXRender = (GDK_IS_X11_DISPLAY(gdk_display_get_default())) ?
 -                    mozilla::Preferences::GetBool("gfx.xrender.enabled") : false;
 +    sUseXRender = mozilla::Preferences::GetBool("gfx.xrender.enabled");
  #endif
--
-+    printf("after sUseXRender: %s\n", (sUseXRender ? "true" : "false"));
+ 
      uint32_t canvasMask = BackendTypeBit(BackendType::CAIRO);
-     uint32_t contentMask = BackendTypeBit(BackendType::CAIRO);
- #ifdef USE_SKIA
 @@ -103,15 +102,6 @@
  #endif
      InitBackendPrefs(canvasMask, BackendType::CAIRO,
@@ -2163,6 +2076,18 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-p
  }
  
  void gfxPrefs::PrefAddVarCache(bool* aVariable,
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.h gfx/thebes-patched/gfxPrefs.h
+--- gfx/thebes/gfxPrefs.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPrefs.h	2016-10-13 19:10:06.000000000 +0200
+@@ -346,7 +346,7 @@
+   DECL_GFX_PREF(Live, "gfx.color_management.rendering_intent", CMSRenderingIntent, int32_t, 0);
+ 
+   DECL_GFX_PREF(Once, "gfx.direct2d.disabled",                 Direct2DDisabled, bool, false);
+-  DECL_GFX_PREF(Once, "gfx.direct2d.force-enabled",            Direct2DForceEnabled, bool, false);
++  DECL_GFX_PREF(Once, "gfx.direct2d.force-enabled",            Direct2DForceEnabled, bool, true);
+   DECL_GFX_PREF(Live, "gfx.draw-color-bars",                   CompositorDrawColorBars, bool, false);
+   DECL_GFX_PREF(Once, "gfx.e10s.hide-plugins-for-scroll",      HidePluginsForScroll, bool, true);
+   DECL_GFX_PREF(Once, "gfx.font_rendering.directwrite.force-enabled", DirectWriteFontRenderingForceEnabled, bool, false);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
 --- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-10-10 22:14:27.000000000 +0200
