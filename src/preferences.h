@@ -9,6 +9,7 @@
 #define PREFERENCES_H_
 
 #include "exports.h"
+#include "mozilla/Preferences.h"
 
 #ifdef __cplusplus
 extern "C" {
