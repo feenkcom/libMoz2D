@@ -10,6 +10,7 @@
 #include "nsWindowsHelpers.h"
 #include "nsString.h"
 #include <d3d11.h>
+#include <dxgi.h>
 
 namespace mozilla {
 	template class MozGpuManager<DXGI_ADAPTER_DESC>;

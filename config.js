@@ -65,12 +65,10 @@ module.exports = {
                 'mozglue/misc'
             ],
             mac: [
-                'intl/locale/mac',
-                'config/external/icu/stubdata',
+                'intl/locale/mac'
             ],
             linux: [
-                'intl/locale/unix',
-                'config/external/icu/stubdata'
+                'intl/locale/unix'
             ],
             win: [
                 'intl/locale/windows'
@@ -88,16 +86,16 @@ module.exports = {
                 ]
             },
             mac: {
-                sources: ['src/undefined/mac'],
-                packages: ['undefined_mac']
+                sources: ['src/undefined/mac', 'src/gpu/mac' ],
+                packages: ['undefined_mac', 'gpu_mac' ]
             },
             linux: {
-                sources: ['src/undefined/unix'],
-                packages: ['undefined_unix']
+                sources: ['src/undefined/unix', 'src/gpu/unix'],
+                packages: ['undefined_unix', 'gpu_unix' ]
             },
 			win: {
-                sources: ['src/undefined/windows', 'src/win'],
-                packages: ['undefined_windows', 'wrapper_windows']
+                sources: ['src/undefined/windows', 'src/gpu/windows' ],
+                packages: ['undefined_windows', 'gpu_windows' ]
             }
         },
         libraries: {

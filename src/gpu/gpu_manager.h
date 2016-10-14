@@ -10,9 +10,7 @@
 
 #include "exports.h"
 #include "mozilla/GenericRefCounted.h"
-
 #include <vector>
-#include <dxgi.h>
 
 namespace mozilla {
 	template<class T> class MozGpuManager : public RefCounted<MozGpuManager<T>>

@@ -11,7 +11,7 @@ function BuilderLinux(args) {
     _this.compile = function () {
         _this.platform().log('Compiling shared library...');
         _this.exec('mkdir -p ' + _this.platform().output());
-        _this.exec('cmake ..', _this.platform().output());
+        _this.exec('cmake -DCMAKE_BUILD_TYPE=Release ..', _this.platform().output());
         _this.exec('make',_this.platform().output());
     };
 

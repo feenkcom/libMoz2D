@@ -14,7 +14,7 @@ function BuilderMac(args) {
     _this.compile = function () {
         _this.platform().log('Compiling shared library...');
         _this.exec('mkdir -p ' + _this.platform().output());
-        _this.exec('cmake -DCMAKE_OSX_ARCHITECTURES='+ _this.platform().arch() +' ..', _this.platform().output());
+        _this.exec('cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES='+ _this.platform().arch() +' ..', _this.platform().output());
         _this.exec('make',_this.platform().output());
     };
 
