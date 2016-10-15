@@ -13,12 +13,12 @@ using namespace mozilla::dom;
 
 #include "nsMemoryReporterManager.cpp"
 
+#ifdef XP_UNIX
 void nsMemoryInfoDumper::Initialize() {
 }
+#endif
 
 namespace mozilla {
-
-
 
 namespace dom {
 
@@ -164,12 +164,3 @@ auto MaybeFileDesc::operator==(const MaybeFileDesc& aRhs) const -> bool {
 } // namespace dom
 } // namespace mozilla
 
-//namespace mozilla {
-//
-//nsresult
-//RegisterStrongMemoryReporter(nsIMemoryReporter* aReporter)
-//{
-//  return NS_OK;
-//}
-//
-//}
