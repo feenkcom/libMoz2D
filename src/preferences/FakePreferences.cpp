@@ -49,8 +49,6 @@
 #include "nsString.h"
 
 #include <iostream> // For std::cout
-
-#include <iostream>
 #include <fstream>
 
 namespace mozilla {

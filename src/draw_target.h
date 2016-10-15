@@ -143,6 +143,11 @@ LIBRARY_API SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget);
 LIBRARY_API void moz2d_draw_target_flush(DrawTarget *drawTarget);
 LIBRARY_API uint32_t * moz2d_draw_target_get_data(DrawTarget* drawTarget);
 LIBRARY_API int32_t moz2d_draw_target_get_stride(DrawTarget* drawTarget);
+
+/**
+ * Copies pixels into Form's pixel buffer
+ */
+LIBRARY_API void moz2d_draw_target_as_form(DrawTarget* drawTarget, uint32_t *aData);
 /* --------------------------------------------------- */
 /* ------------------- C L I P P I N G --------------- */
 /* --------------------------------------------------- */

@@ -26,3 +26,7 @@ XRE_IsContentProcess()
 {
   return true;
 }
+
+GeckoProcessType  XRE_GetProcessType  () {
+	return GeckoProcessType_Default;
+}

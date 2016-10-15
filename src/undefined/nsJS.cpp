@@ -138,3 +138,5 @@ JS::GCCellPtr::mayBeOwnedByOtherRuntime() const
 {
     return false;
 }
+
+void xpc_TryUnmarkWrappedGrayObject(nsISupports* aWrappedJS) {}

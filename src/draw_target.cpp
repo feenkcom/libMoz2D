@@ -10,6 +10,7 @@
 #include "2d/Filters.h"
 #include "SkiaGLGlue.h"
 #include "gfxPlatform.h"
+#include "2d/Logging.h"
 
 #include <stack> // std::stack
 
@@ -138,9 +139,6 @@ void moz2d_draw_target_get_size(DrawTarget *drawTarget, IntSize* aSize) {
 	aSize->height = size.height;
 }
 
-
-
-
 SourceSurface* moz2d_draw_target_snapshot(DrawTarget *drawTarget) {
 	return drawTarget->Snapshot().take();
 }
@@ -177,6 +175,29 @@ SurfaceFormat moz2d_source_surface_get_format(SourceSurface *aSourceSurface) {
 
 SurfaceType moz2d_source_surface_get_type(SourceSurface *aSourceSurface) {
 	return aSourceSurface->GetType();
+}
+
+LIBRARY_API void moz2d_draw_target_as_form(DrawTarget* drawTarget, uint32_t *aData) {
+	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
+	RefPtr<DataSourceSurface> dataSurface = snapshot->GetDataSurface();
+	DataSourceSurface::MappedSurface mappingSurface;
+	if (!dataSurface->Map(DataSourceSurface::MapType::WRITE, &mappingSurface)) {
+		gfxCriticalError() << "moz2d_draw_target_as_form failed to map surface";
+	}
+
+	uint32_t* surfaceData = (uint32_t*) mappingSurface.mData;
+	// since data is originally uint8_t
+	int32_t surfaceStride = mappingSurface.mStride / 4;
+	IntSize surfaceSize = dataSurface->GetSize();
+
+	for (int32_t y = 0; y < surfaceSize.height; y++) {
+		for (int32_t x = 0; x < surfaceSize.width; x++) {
+			uint32_t pixel = surfaceData[ y * surfaceStride + x ];
+			aData[ y * surfaceSize.width + x ] = pixel;
+		}
+	}
+
+	dataSurface->Unmap();
 }
 
 /* --------------------------------------------------- */

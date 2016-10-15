@@ -14,25 +14,19 @@
 extern "C" {
 #endif
 
+LIBRARY_API void moz2d_services_init_services();
+LIBRARY_API void moz2d_services_shutdown_services();
 /*
  * Initialize Thebes and start platform dependent services
  * such as gfxPlatformList and others
  */
 LIBRARY_API void moz2d_services_init_platform();
-
-/*
- * Shutdown Thebes and free resources
- */
 LIBRARY_API void moz2d_services_shutdown_platform();
 
 /*
  * Initialize nsAtom table and register all atoms
  */
 LIBRARY_API void moz2d_services_init_atom_table();
-
-/*
- * Shutdown and clean atom table
- */
 LIBRARY_API void moz2d_services_shutdown_atom_table();
 
 LIBRARY_API void moz2d_services_init_gfx_config();
