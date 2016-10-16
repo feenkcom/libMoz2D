@@ -122,15 +122,3 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/2d/Factory.cpp gfx/2d-patched/Fa
        }
        break;
      }
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/2d/unittest/TestDrawTargetBase.cpp gfx/2d-patched/unittest/TestDrawTargetBase.cpp
---- gfx/2d/unittest/TestDrawTargetBase.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/2d-patched/unittest/TestDrawTargetBase.cpp	2016-10-14 15:48:41.000000000 +0200
-@@ -57,7 +57,7 @@
- void
- TestDrawTargetBase::VerifyAllPixels(const Color &aColor)
- {
--  uint32_t *colVal = (uint32_t*)mDataSnapshot->GetData();
-+  uint32_t *colVal = (uint32_t*) mDataSnapshot->GetData();
- 
-   uint32_t expected = RGBAPixelFromColor(aColor);
- 
