@@ -756,3 +756,14 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsThreadUtils.cpp xpcom-p
  }
  #endif
  
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/objs.mozbuild xpcom-patched/glue/objs.mozbuild
+--- xpcom/glue/objs.mozbuild	2016-08-01 09:12:55.000000000 +0200
++++ xpcom-patched/glue/objs.mozbuild	2016-10-16 14:50:24.000000000 +0200
+@@ -9,7 +9,6 @@
+     'FileUtils.cpp',
+     'nsArrayEnumerator.cpp',
+     'nsArrayUtils.cpp',
+-    'nsCategoryCache.cpp',
+     'nsClassInfoImpl.cpp',
+     'nsCOMArray.cpp',
+     'nsComponentManagerUtils.cpp',
