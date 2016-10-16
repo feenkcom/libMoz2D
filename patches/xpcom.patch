@@ -1,4 +1,4 @@
-diff -Naur --exclude '.*' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/base/nsMemoryReporterManager.cpp
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/base/nsMemoryReporterManager.cpp
 --- xpcom/base/nsMemoryReporterManager.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/base/nsMemoryReporterManager.cpp	2016-10-14 18:23:37.000000000 +0200
 @@ -1726,35 +1726,6 @@
@@ -100,7 +100,7 @@ diff -Naur --exclude '.*' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/b
    // If all the child processes (if any) have reported, we can cancel
    // the timer (if started) and finish up.  Otherwise, just return.
    if (s->mNumProcessesRunning == 0) {
-diff -Naur --exclude '.*' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMModule.inc
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMModule.inc
 --- xpcom/build/XPCOMModule.inc	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/build/XPCOMModule.inc	2016-10-15 21:12:19.000000000 +0200
 @@ -1,29 +1,9 @@
@@ -172,7 +172,7 @@ diff -Naur --exclude '.*' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMM
 -    COMPONENT(CYCLE_COLLECTOR_LOGGER, nsCycleCollectorLoggerConstructor)
 -    COMPONENT(MESSAGE_LOOP, nsMessageLoopConstructor)
 -    COMPONENT(STATUS_REPORTER_MANAGER, nsStatusReporterManagerConstructor)
-diff -Naur --exclude '.*' xpcom/components/nsCategoryManager.cpp xpcom-patched/components/nsCategoryManager.cpp
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsCategoryManager.cpp xpcom-patched/components/nsCategoryManager.cpp
 --- xpcom/components/nsCategoryManager.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/components/nsCategoryManager.cpp	2016-10-14 21:40:19.000000000 +0200
 @@ -804,8 +804,6 @@
@@ -194,7 +194,7 @@ diff -Naur --exclude '.*' xpcom/components/nsCategoryManager.cpp xpcom-patched/c
        }
      }
    }
-diff -Naur --exclude '.*' xpcom/components/nsComponentManager.cpp xpcom-patched/components/nsComponentManager.cpp
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.cpp xpcom-patched/components/nsComponentManager.cpp
 --- xpcom/components/nsComponentManager.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/components/nsComponentManager.cpp	2016-10-15 19:12:54.000000000 +0200
 @@ -256,24 +256,7 @@
@@ -663,7 +663,7 @@ diff -Naur --exclude '.*' xpcom/components/nsComponentManager.cpp xpcom-patched/
    return NS_OK;
  }
  
-diff -Naur --exclude '.*' xpcom/components/nsComponentManager.h xpcom-patched/components/nsComponentManager.h
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.h xpcom-patched/components/nsComponentManager.h
 --- xpcom/components/nsComponentManager.h	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/components/nsComponentManager.h	2016-10-15 19:12:05.000000000 +0200
 @@ -183,7 +183,6 @@
@@ -723,7 +723,7 @@ diff -Naur --exclude '.*' xpcom/components/nsComponentManager.h xpcom-patched/co
      bool mChromeOnly;
    };
  
-diff -Naur --exclude '.*' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/glue/nsComponentManagerUtils.cpp
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/glue/nsComponentManagerUtils.cpp
 --- xpcom/glue/nsComponentManagerUtils.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/glue/nsComponentManagerUtils.cpp	2016-10-15 20:32:24.000000000 +0200
 @@ -17,6 +17,8 @@
@@ -743,7 +743,7 @@ diff -Naur --exclude '.*' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/g
    nsComponentManagerImpl* compMgr = nsComponentManagerImpl::gComponentManager;
    if (NS_WARN_IF(!compMgr)) {
      return NS_ERROR_NOT_INITIALIZED;
-diff -Naur --exclude '.*' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThreadUtils.cpp
+diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThreadUtils.cpp
 --- xpcom/glue/nsThreadUtils.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ xpcom-patched/glue/nsThreadUtils.cpp	2016-10-13 21:15:24.000000000 +0200
 @@ -131,7 +131,8 @@
@@ -756,904 +756,3 @@ diff -Naur --exclude '.*' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThre
  }
  #endif
  
-diff -Naur --exclude '.*' xpcom/idl-parser/xpidl/__init__.pyc xpcom-patched/idl-parser/xpidl/__init__.pyc
---- xpcom/idl-parser/xpidl/__init__.pyc	1970-01-01 01:00:00.000000000 +0100
-+++ xpcom-patched/idl-parser/xpidl/__init__.pyc	2016-10-13 21:20:00.000000000 +0200
-@@ -0,0 +1,2 @@
-+Û
-+wˆûWc           @   s   d  S(   N(    (    (    (    sP   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/__init__.pyt   <module>   s    
-\ No newline at end of file
-diff -Naur --exclude '.*' xpcom/idl-parser/xpidl/header.pyc xpcom-patched/idl-parser/xpidl/header.pyc
---- xpcom/idl-parser/xpidl/header.pyc	1970-01-01 01:00:00.000000000 +0100
-+++ xpcom-patched/idl-parser/xpidl/header.pyc	2016-10-13 21:20:00.000000000 +0200
-@@ -0,0 +1,189 @@
-+Û
-+wˆûWc           @   s¶  d  Z  d d l Z d d l Z d d l Z d d l Z d d l Z d d l Z e Z	 e	 rf d Ñ  Z
-+ n	 d Ñ  Z
-+ d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d	 Ñ  Z d
-+ Ñ  Z d d Ñ Z d Ñ  Z d Ñ  Z d d Ñ Z d d Ñ Z d Ñ  Z d Ñ  Z d Z d Z d Z d Z d Z d Z d Z d Ñ  Z d Ñ  Z  d Z! e j" d e j# É Z$ d Z% d  Z& d! Z' d" Z( d# Z) d$ Z* d% Z+ d& Z, d' Z- d( Ñ  Z. d) Ñ  Z/ e0 d* k r¢e/ É  n  d S(+   sG   Print a C++ header file for the IDL files specified on the command lineiˇˇˇˇNc         C   s,   x% | D] } |  j  d | | f É q Wd  S(   Ns   %s%s
-+(   t   write(   t   fdt   clistt   indentt   c(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   printComments   s    c         C   s   d  S(   N(    (   R   R   R   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyR      s    c         C   s   |  d j  É  |  d S(   Ni    i   (   t   upper(   t   str(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   firstCap   s    c         C   s   d t  |  j É S(   Nt   a(   R   t   name(   R	   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeParamName    s    c         C   s8   t  |  É g } |  j r+ | j d d É n  d j | É S(   Ni    t   cxs   , (   R   t   implicit_jscontextt   insertt   join(   R	   t   l(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeParamNames$   s    	c         C   sA   |  j  d  k	 r |  j  p$ t |  j É } d | r6 d p9 d | f S(   Ns   %s%st   Gett   Set(   t
-+   binarynamet   NoneR   R
-+   (   R	   t   getterR   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeNativeName+   s    'c         C   s'   |  j  r | d k r d p d S| Sd S(   s+   macro should be NS_IMETHOD or NS_IMETHODIMPt
-+   NS_IMETHODs   virtual nsresultt   nsresultN(   t	   nostdcall(   R	   t   macro(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeReturnType0   s    	c         C   sZ   d |  j  j | r d p d É t |  É f g } |  j rM | j d d É n  d j | É S(   Ns   %s%st   outt   ini    s   JSContext* cxs   , (   t   realtypet
-+   nativeTypeR   R   R   R   (   R	   R   R   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeParamlist8   s
-+    	R   c         C   sZ   |  j  r d p d } i | d 6t |  | É d 6t |  | É d 6t |  | É d 6} d | S(   Ns   NS_DEPRECATED t    t
-+   deprecatedt
-+   returntypeR   t	   paramlists:   %(deprecated)s%(returntype)s %(binaryname)s(%(paramlist)s)(   R#   R   R   R!   (   R	   R   t   declTypeR#   t   params(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   attributeAsNativeA   s    
-+c         C   s%   |  j  d  k	 r |  j  p$ t |  j É S(   N(   R   R   R   R
-+   (   t   m(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   methodNativeNameJ   s    c         C   sò   |  j  rD |  j rD d | d k r' d p* d |  j j d É j É  f S|  j  rg d | d k rb d pe d S|  j rê d | |  j j d É j É  f S| Sd S(	   s+   macro should be NS_IMETHOD or NS_IMETHODIMPs   %s%sR   s   virtual R"   R   s
-+   %snsresults   %s_(%s)N(   R   t   notxpcomR   R    t   strip(   R)   R   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   methodReturnTypeN   s    		 c         C   s&   d t  |  | É t |  É t |  É f S(   Ns	   %s %s(%s)(   R-   R*   t   paramlistAsNative(   R)   R&   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   methodAsNative[   s    	t   voidc         C   sû  g  |  j  D] } t | É ^ q
-+ } |  j r; | j d É n  |  j rT | j d É n  |  j r≥ |  j j d k r≥ | j t t j	 d d d d  d d d	 g  d
-+ d  d |  j É É É n  t | É t |  j  É k r{t |  j  É d } xó | d k rw|  j  | j rw|  j  | j d k rw|  j  | j } | d k sV| d k sV| d k sV| d k rZPn  | | c d 7<| d 8} q‰ Wn  t | É d k rë| Sd j | É S(   Ns   JSContext* cxs   uint8_t _argcR0   t	   paramtypeR   t   typeR
-+   t   _retvalt   attlistt   locationR   i   i    t   AStringt   ACStringt	   DOMStringt   AUTF8Strings
-+    = nullptrs   , (   R'   t   paramAsNativeR   t   appendt   optional_argcR+   R   R
-+   t   xpidlt   ParamR   t   lent   optionalR1   R2   R   (   R)   t   emptyt   pR   t	   paramItert   t(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyR.   a   s0    "		0c         C   s   d |  j  É  |  j f S(   Ns   %s%s(   R    R
-+   (   RB   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyR:   Ö   s    c         C   s†   g  |  j  D] } | j ^ q
-+ } |  j r8 | j d É n  |  j rQ | j d É n  |  j r} |  j j d k r} | j d É n  t | É d k rì d Sd j | É S(   NR   t   _argcR0   R3   i    R"   s   , (	   R'   R
-+   R   R;   R<   R+   R   R?   R   (   R)   RB   t   names(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   paramlistNamesä   s    		sÄ   /*
-+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM %(filename)s
-+ */
-+
-+#ifndef __gen_%(basename)s_h__
-+#define __gen_%(basename)s_h__
-+sA   
-+#ifndef __gen_%(basename)s_h__
-+#include "%(basename)s.h"
-+#endif
-+s   
-+#include "js/Value.h"
-+s@   
-+#include "mozilla/Assertions.h"
-+#include "mozilla/DebugOnly.h"
-+sp   /* For IDL files that don't want to include root IDL files. */
-+#ifndef NS_NO_VTABLE
-+#define NS_NO_VTABLE
-+#endif
-+s%   
-+#endif /* __gen_%(basename)s_h__ */
-+s+   class %(name)s; /* forward declaration */
-+
-+c         C   s   t  j j |  É j d É d S(   s@   returns the base name of a file with the last extension strippedt   .i    (   t   ost   patht   basenamet
-+   rpartition(   t   f(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   idl_basename¿   s    c   	      C   sK  | j  t i | d 6t | É d 6É t } xQ |  j É  D]C } | sZ t } | j  d É n  | j  t i t | j É d 6É q8 W|  j É  rõ | j  t	 É n  xÜ g  |  j
-+ D] } | j d k r® | ^ q® D]Y } xP g  | j D] } t | t j É r⁄ | ^ q⁄ D]  } | j r¸ | j  t É Pq¸ q¸ Wq« W| j  d É | j  t É xË |  j
-+ D]› } | j d k rcqHn  | j d k rà| j  | j É qHn  | j d k r∏| j  t i | j d 6É qHn  | j d k r⁄t | | É qHn  | j d	 k rHt | | j d
-+ É | j  d | j j d É | j f É qHqHW| j  t i t | É d 6É d  S(   Nt   filenameRK   s   
-+t	   interfacet   includet   cdatat   forwardR
-+   t   typedefR"   s   typedef %s %s;
-+
-+R   (   R    t   headerRN   t   Falset   includest   TrueRQ   RO   t   needsJSTypest   jsvalue_includet   productionst   kindt   memberst
-+   isinstanceR=   t	   Attributet
-+   infalliblet   infallible_includest
-+   header_endt   datat   forward_declR
-+   t   write_interfaceR   t   doccommentsR   R    t   footer(	   t   idlR   RO   t   foundinct   incRB   t   ifaceR)   t   attr(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   print_header≈   sD    %25	s¢   
-+/* starting interface:    %(name)s */
-+#define %(defname)s_IID_STR "%(iid)s"
-+
-+#define %(defname)s_IID \
-+  {0x%(m0)s, 0x%(m1)s, 0x%(m2)s, \
-+    { %(m3joined)s }}
-+
-+s·   (?P<m0>[a-f0-9]{8})-
-+                              (?P<m1>[a-f0-9]{4})-
-+                              (?P<m2>[a-f0-9]{4})-
-+                              (?P<m3>[a-f0-9]{4})-
-+                              (?P<m4>[a-f0-9]{12})$s@    {
-+ public:
-+
-+  NS_DECLARE_STATIC_IID_ACCESSOR(%(defname)s_IID)
-+
-+s©   };
-+
-+  NS_DEFINE_STATIC_IID_ACCESSOR(%(name)s, %(defname)s_IID)
-+
-+/* Use this macro when declaring classes that implement this interface. */
-+#define NS_DECL_%(macroname)s s¿   
-+
-+/* Use this macro when declaring the members of this interface when the
-+   class doesn't implement the interface. This is useful for forwarding. */
-+#define NS_DECL_NON_VIRTUAL_%(macroname)s së   
-+
-+/* Use this macro to declare functions that forward the behavior of this interface to another object. */
-+#define NS_FORWARD_%(macroname)s(_to) s§   
-+
-+/* Use this macro to declare functions that forward the behavior of this interface to another object in a safe way. */
-+#define NS_FORWARD_SAFE_%(macroname)s(_to) s  
-+
-+#if 0
-+/* Use the code below as a template for the implementation class for this interface. */
-+
-+/* Header file */
-+class %(implclass)s : public %(name)s
-+{
-+public:
-+  NS_DECL_ISUPPORTS
-+  NS_DECL_%(macroname)s
-+
-+  %(implclass)s();
-+
-+private:
-+  ~%(implclass)s();
-+
-+protected:
-+  /* additional members */
-+};
-+
-+/* Implementation file */
-+NS_IMPL_ISUPPORTS(%(implclass)s, %(name)s)
-+
-+%(implclass)s::%(implclass)s()
-+{
-+  /* member initializers and constructor code */
-+}
-+
-+%(implclass)s::~%(implclass)s()
-+{
-+  /* destructor code */
-+}
-+
-+se   %(returntype)s %(implclass)s::%(nativeName)s(%(paramList)s)
-+{
-+    return NS_ERROR_NOT_IMPLEMENTED;
-+}
-+s4   /* End of implementation class template. */
-+#endif
-+
-+sŒ     inline %(realtype)s%(nativename)s(%(args)s)
-+  {
-+    %(realtype)sresult;
-+    mozilla::DebugOnly<nsresult> rv = %(nativename)s(%(argnames)s&result);
-+    MOZ_ASSERT(NS_SUCCEEDED(rv));
-+    return result;
-+  }
-+c            s3  à j  d  k r t d É Ç n  á  f d Ü  } á  f d Ü  } á  f d Ü  } à j j É  } à j d d !d k rÅ d | d } n  t j à j j É j	 É  } | d	 | d
-+ } d j
-+ g  t d d d É D] } d | | | d !^ q« É | d <à j d d k rà j d  à j d }	 n d }	 | j i | d 6à j j É  d 6à j d 6à j j d 6|	 d 6É à  j t | É t à  à j d É à  j d É t }
-+ x, à j D]! } t | t j É r¶t }
-+ q¶q¶W|
-+ s·à  j d É n  à j j r˝à  j d É n  à  j à j É à j r-à  j d à j É n  à  j t | É x¡ t j à j d t ÉD]ß \ } } | t j k r| | É qWx| | D]t } | t j k r®| | É qÜ| t j k rƒ| | É qÜ| t j k rÍà  j d | j  É qÜt d | É Ç qÜWqWWà  j t! | É d Ñ  } | à  à t É à  j t" | É | à  à t É à  j t# | É d  á  á f d  Ü } | t d! É à  j t$ | É | t d" d# É à  j t% | É xmà j D]b} t | t j É sºt | t j É rÏqºn  à  j d$ | j& É  É t | t j É r¥à  j t' i |	 d 6t( | d% É d& 6t) | t É d' 6t* | t É d( 6É | j+ sà  j t' i |	 d 6t( | d% É d& 6t) | t É d' 6t* | t É d( 6É qn] t | t j É rà  j t' i |	 d 6t, | d% É d& 6t- | É d' 6t. | d) d Éd( 6É n  à  j d* É qºWà  j t/ É d  S(+   Ns   Interface was not resolved.c            s¨   à  j  d É g  } xo |  D]g } t à  | j d É | j } | j É  } | j d i | j d 6| d 6| j ru d px d d 6É q Wà  j  d	 j | É É à  j  d
-+ É d  S(   Ns	     enum {
-+s     s"       %(name)s = %(value)s%(signed)sR
-+   t   valuet   UR"   t   signeds   ,
-+s   
-+  };
-+
-+(	   R    R   Rf   t   basetypet   getValueR;   R
-+   Rp   R   (   t   gt   enumsR   Rq   Rn   (   R   (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   write_const_decls]  s    	
-+ c            sE   t  à  |  j d É à  j d |  j É  É à  j d t |  É É d  S(   Ns     s     /* %s */
-+s     %s = 0;
-+
-+(   R   Rf   R    t   toIDLR/   (   R)   (   R   (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   write_method_declk  s    c            sÍ   t  à  |  j d É à  j d |  j É  É à  j d t |  t É É |  j r≥ à  j t i |  j j	 d É d 6t
-+ |  d t Éd 6|  j sé d n d	 d
-+ 6|  j s§ d n d d 6É n  |  j sŸ à  j d t |  t É É n  à  j d É d  S(   Ns     s     /* %s */
-+s
-+     %s = 0;
-+R   R   R   t
-+   nativenameR"   s   JSContext* cxt   argss   cx, t   argnamess   
-+(   R   Rf   R    Rv   R(   RX   R`   t   attr_infallible_tmplR   R    R   R   t   readonlyRV   (   R	   (   R   (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   write_attr_declq  s    			i    i   t   nst   NS_t   m3t   m4s   , i   s   0x%st   m3joinedt   Ii   t	   _MYCLASS_t   defnamet	   macronameR
-+   t   iidt	   implclassR"   s   class s   NS_NO_VTABLE s   MOZ_DEPRECATED s    : public %st   keys    %ss   Unexpected interface member: %sc         S   sK  | r d n d } | r d n d } x‹ | j  D]— } t | t j É r  | j ru |  j d | j t | t É f É n  |  j d t	 | t | É | f É | j
-+ sˇ |  j d t	 | t | É | f É qˇ q. t | t j É r. |  j d t | | É | f É q. q. Wt | j  É d k r(|  j d É n | j d k rG|  j d É n  d  S(   NR   t	   NS_METHODs	    overrideR"   s   \
-+  using %s::%s; s
-+   \
-+  %s%s; i    s   \
-+  /* no methods! */t	   attributet   methods   \(   Rã   s   method(   R]   R^   R=   R_   R`   R    R
-+   R   RX   R(   R|   RV   t   MethodR/   R?   R\   (   R   Rk   t   virtualR&   t   suffixt   member(    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   writeDeclarationπ  s    	&#	)'c            s‘  | d  k r | } n  xtà j D]i} t | t j É r˜ |  rl | j rl à  j d à j t | t	 É f É n  à  j | i t
-+ | t	 É d 6t | t	 É d 6t | É d 6É | j sàà  j | i t
-+ | t É d 6t | t É d 6t | É d 6É qàq t | t j É r | j rMà  j | i t | É d 6t | É d 6t | É d 6É qàà  j | i t | É d 6t | É d 6t | É d 6É q q Wt à j É d k r±à  j d É n | j d
-+ k r–à  j d	 É n  d  S(   Ns   \
-+  using %s::%s; t   asNativet
-+   nativeNamet	   paramListi    s   \
-+  /* no methods! */Rã   Rå   s   \(   s	   attributes   method(   R   R]   R^   R=   R_   R`   R    R
-+   R   RX   R(   R   R|   RV   Rç   R+   R/   R*   RG   R?   R\   (   t   forward_infalliblet   tmplt   tmpl_notxpcomRê   (   R   Rk   (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   emitTemplateœ  s2    	&		sH   \
-+  %(asNative)s override { return _to %(nativeName)s(%(paramList)s); } sh   \
-+  %(asNative)s override { return !_to ? NS_ERROR_NULL_POINTER : _to->%(nativeName)s(%(paramList)s); } s   \
-+  %(asNative)s override; s	   /* %s */
-+t   NS_IMETHODIMPR$   Rì   Rî   RA   s   
-+(0   t   namemapR   t	   ExceptionR
-+   R   t   uuid_decodert   matcht
-+   attributest   uuidt	   groupdictR   t   xranget   updateR    t   iface_headerR   Rf   RV   R]   R^   R=   t   CDATARX   R#   t   baset   iface_prologt	   itertoolst   groupbyR2   t   ConstMemberR_   Rç   Rc   t   iface_epilogt   iface_nonvirtualt   iface_forwardt   iface_forward_safet   iface_template_prologRv   t   example_tmplR   R   R!   R|   R-   R*   R.   t   iface_template_epilog(   Rk   R   Ru   Rw   R}   RÖ   RF   t   m3strt   iRà   t
-+   foundcdataR)   Râ   t   groupRê   Rë   Rò   (    (   R   Rk   sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyRe   Y  s†    A
-+	%	$	c         C   sÆ   d } t  j j | É s( t  j | É n  t j j | É x] g  d d g D] } t  j j | | É ^ qH D]- } x$ t j | É D] } t  j | É q} Wqg Wt	 j
-+ d | É } d  S(   NRH   s   xpidllex.py*s   xpidlyacc.py*t	   outputdir(   RI   RJ   t   isdirt   mkdirt   sysR;   R   t   globt   removeR=   t	   IDLParser(   t
-+   outputfilet   cachedirRM   t	   fileglobsRO   RB   (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   main  s    5t   __main__(1   t   __doc__R∏   t   os.pathRI   t   reR=   Rß   Rπ   RV   t   printdoccommentsR   R   R   R   R   R   R!   R(   R*   R-   R/   R.   R:   RG   RU   RQ   RZ   Ra   Rb   Rg   Rd   RN   Rm   R£   t   compilet   XRú   R¶   R™   R´   R¨   R≠   RÆ   RØ   R∞   R{   Re   Rø   t   __name__(    (    (    sN   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/header.pyt   <module>   s`   											$				4$
-+	∏	
-\ No newline at end of file
-diff -Naur --exclude '.*' xpcom/idl-parser/xpidl/typelib.pyc xpcom-patched/idl-parser/xpidl/typelib.pyc
---- xpcom/idl-parser/xpidl/typelib.pyc	1970-01-01 01:00:00.000000000 +0100
-+++ xpcom-patched/idl-parser/xpidl/typelib.pyc	2016-10-13 21:20:00.000000000 +0200
-@@ -0,0 +1,32 @@
-+Û
-+wˆûWc        
-+   @   s4  d  Z  d d l Z d d l Z d d l Z d d l Z i e j j j d 6e j j j d 6e j j j	 d 6e j j j
-+ d 6e j j j d 6e j j j d 6e j j j d	 6e j j j d
-+ 6e j j j d 6e j j j d 6e j j j d 6e j j j
-+ d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6e j j j d 6Z d  Ñ  Z d! Ñ  Z d" Ñ  Z e  d# k r0d d$ l! m" Z" e" É  Z# e# j$ d% d& d' d( d) d* d+ g d, d- Ée# j$ d. d( d/ d* d d, d0 Ée# j$ d1 d( d2 d* d d, d3 Ée# j$ d4 d( d5 d* d d, d6 Ée# j$ d7 d& d8 d( d9 d* e& d, d: Ée# j' É  \ Z( Z) e) re) d; n d Z* e( j+ d k	 rke j, j- e( j+ É sUe j. e( j+ É n  e j, j/ e( j+ É n  e( j0 rÀe( j+ d k r†e j1 d< IJe j2 d= É n  e j3 d> e( j+ d9 e4 É Z5 e j2 d; É n  e( j6 d k	 re( j7 d k re j1 d? IJe j2 d= É n  e( j7 d k	 r0e8 e( j7 d@ É Z9 e4 Z: n dA Ç e j3 d> e( j+ É Z5 e5 j; e8 e* É j< É  dB e* ÉZ= e= j> e( j? e5 É e e= e9 e* É e: r¢e9 j@ É  n  e( j6 d k	 r0e8 e( j6 dC É ZA g  e= jB D] ZC eC jD dD dE É ^ qÕZB eA dF e( j7 dG jE eB É f IJx eB D] ZC eA dH eC IJqWq0n  d S(I   sI   Generate an XPIDL typelib for the IDL files specified on the command lineiˇˇˇˇNt   nsresultt   booleant   voidt   int16_tt   int32_tt   int64_tt   uint8_tt   uint16_tt   uint32_tt   uint64_tt   octett   shortt   longs	   long longs   unsigned shorts   unsigned longs   unsigned long longt   floatt   doublet   chart   stringt   wchart   wstringt   nsidt	   domstringt   astringt
-+   utf8stringt   cstringt   jsvalc         C   sR   |  t  j j j k pQ |  t  j j j k pQ |  t  j j j k pQ |  t  j j j k S(   N(   t   xptt   Typet   Tagst	   DOMStringt   AStringt   CStringt
-+   UTF8String(   t   type(    (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   isDipperType5   s    c            s>  d  d  á á f d Ü â d Ñ  â á f d Ü  â á á f d Ü  â á f d Ü  â á f d Ü  â t t á f d Ü â  |  j d  k rì t d É Ç n  g  â g  â	 á á f d	 Ü  } á á á á	 f d
-+ Ü  } á  á á	 f d Ü  } xì |  j D]à } t | t j É r| | É qË t | t j É r,| | É qË t | t j	 É rK| | É qË t | t j
-+ É r`qË t d | É Ç qË Wd  } |  j r›x) à D]! } | j |  j k rä| } qäqäW| s›t j d |  j É } à j | É q›n  t j |  j |  j j d à	 d à d t d | d |  j j d |  j j d |  j j d |  j j ÉS(   Nc   	         sp  x t  |  t j É r! |  j }  q Wt  |  t j É r› |  j d k r_ | d	 k	 r_ t j | | É S|  j d k rä | d	 k	 rä t j	 | | É St
-+ |  j } | t j j j k pæ | t j j j k } t j | d | d t ÉSn  t  |  t j É rt j à  |  j | | É | | É St  |  t j É s5t  |  t j É rüd	 } x) à D]! } | j |  j k rB| } qBqBW| sít j d |  j É } à j | É n  t j | É St  |  t j É r`|  j r'|  j | É sÿ|  j | É oÂ|  j d k } |  j | É o|  j d k } t j t
-+ |  j d | d | ÉS| d	 k	 r@t j | É St j t
-+ d d t d t ÉSn  t d É Ç d	 S(
-+   s7    Return the appropriate xpt.Type object for this param R   R   t   pointert	   referencet   nameR   R   s   Unknown type!N(   t
-+   isinstancet   xpidlt   Typedeft   realtypet   BuiltinR$   t   NoneR   t   StringWithSizeTypet   WideStringWithSizeTypet   TypeMapR   R   t   char_ptrt   wchar_t_ptrt
-+   SimpleTypet   Falset   Arrayt	   ArrayTypeR    t	   Interfacet   Forwardt   appendt   InterfaceTypet   Nativet   specialtypet   isPtrt   isReft   InterfaceIsTypet   Truet	   Exception(	   R    t   calltypet   iid_ist   size_ist   tagR:   t   xptifacet   iR;   (   t   get_typet   ifaces(    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyRE   :   sJ    *
-+$	.
-+c           S   s   t  j t d É S(   NR    (   R   R0   R-   (    (    (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   get_nsresultq   s    c              s   t  j à  É  É S(   N(   R   t   Param(    (   RG   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_nsresult_paramt   s    c            s    |  j  s à  É  Sà |  j d É S(   Nt    (   t   notxpcomR(   (   t   m(   RG   RE   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   get_result_typew   s    	c            s   t  j à  |  É É S(   N(   R   RH   (   RL   (   RM   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_result_param}   s    c            s_   à  |  j  d É } t | j É r@ t j | d t d t d t ÉSt j | d t d t d t ÉS(   Nt   outt   in_t   retvalt   dipper(   R(   R!   RB   R   RH   R=   R1   (   RL   R    (   RE   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_retval_paramÄ   s    c            sù   | p	 | s t  d É Ç n  à  |  j | r0 d p3 d É } | rL t j | É St | j É rz t j | d t d t d t ÉSt j | d t d t d t ÉSd  S(   Ns1   Attribute param must be for a getter or a setter!RO   t   inRP   RQ   RR   (   R>   R(   R   RH   R!   RB   R=   R1   (   t   at   gettert   setterR    (   RE   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_attr_paramà   s    s   Interface was not resolved.c            s5   à  j  t j |  j à |  j d É |  j É  É É d  S(   NRJ   (   R6   R   t   ConstantR$   t   basetypet   getValue(   t   c(   t   constsRE   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_constú   s    c            s–   g  } á á  f d Ü  } x$ à  j  D] } | j | | É É q" Wà  j rq à  j j d k rq | j à à  É É n  à j t j à  j à à  É | d t d t d à  j d t d à  j d à  j	 d	 à  j
-+ ÉÉ d  S(
-+   Nc            sƒ   á f d Ü  } | |  d É } | |  d É } |  j  j d É } |  j  j d É } t } à  |  j |  j  d | d | É} | rú t | j É rú t } t } n  t j | | | |  j	 |  j
-+ | |  j É S(   Nc            sb   t  |  | É r^ t |  | É r^ x9 t à  j É D]( \ } } | j t |  | É k r. | Sq. Wd  Sd  S(   N(   t   hasattrt   getattrt	   enumeratet   paramsR$   R*   (   t   pt   attrRD   t   param(   RL   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   findattr£   s
-+    R@   RA   RT   RO   (   t	   paramtypet   countR1   R(   R!   RB   R=   R   RH   RQ   t   sharedt   optional(   Rc   Rf   R@   RA   RP   RO   RR   R    (   RE   RL   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_param¢   s    !	R   RV   RW   RK   t   constructort   hiddent   optargct   implicit_jscontext(   Rb   R6   RK   R(   R$   R   t   MethodR1   t   noscriptt   optional_argcRo   (   RL   Rb   Rk   Rc   (   RN   RS   RE   t   methods(   RL   sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_methodü   s    !	c            s∆   à j  t j |  j à É  à  |  d t Ég d t d t d t d |  j d t d |  j ÉÉ |  j s¬ à j  t j |  j à É  à  |  d t Ég d t d t d t d |  j d t d |  j ÉÉ n  d  S(   NRV   RW   Rl   Rm   Rn   Ro   (	   R6   R   Rp   R$   R=   R1   Rq   Ro   t   readonly(   RU   (   RX   RI   Rs   (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt
-+   build_attr√   s    	s   Unexpected interface member: %sR$   Rs   t	   constantst   resolvedt   parentt
-+   scriptablet   functiont   builtinclasst   main_process_scriptable_only(   R*   R1   t   namemapR>   t   membersR%   R&   t   ConstMembert	   AttributeRp   t   CDATAt   baseR$   R   R4   R6   t
-+   attributest   uuidR=   Rz   R{   R|   R}   (   t   ifaceRF   R^   Rt   Rv   t   memberRy   RD   (    (
-+   RX   RI   RN   RS   R]   RG   RM   RE   RF   Rs   sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   build_interface9   sL    7	$	c         C   sq   g  } xE |  j  D]: } | j d k r | j j r | j t | | É É q q Wt j d | É } | j | É d S(   s    Generate the typelib. t	   interfacet
-+   interfacesN(	   t   productionst   kindRÑ   Rz   R6   Rà   R   t   Typelibt   writefd(   t   idlt   fdt   filenameRF   Rc   t   typelib(    (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   write_typelibÚ   s    t   __main__(   t   OptionParsers   -It   actionR6   t   destt   incdirst   defaultt   .t   helps&   Directory to search for imported filess
-+   --cachedirt   cachedirs-   Directory in which to cache lex/parse tables.s   -ot   outfiles   Output files   -dt   depfiles   Generate a make dependency files   --regent
-+   store_truet   regens   Regenerate IDL Parser cachei    s   --regen requires --cachediri   t	   outputdirs   -d requires -ot   wbs*   typelib generation requires an output fileRë   t   ws   \t   /s   %s: %st    s   %s:(F   t   __doc__t   ost   sysR&   R   R   R   t   uint32R   R   t   int16t   int32t   int64t   uint8t   uint16t   uint64R   R   R   R.   t   wchar_tR/   t   nsIIDR   R   R   R   R   R-   R!   Rà   Rì   t   __name__t   optparseRï   t   ot
-+   add_optionR*   R1   t
-+   parse_argst   optionst   argst   fileRú   t   patht   isdirt   mkdirR6   R†   t   stderrt   exitt	   IDLParserR=   Rc   Rû   Rù   t   opent   outfdt
-+   closeoutfdt   parset   readRè   t   resolveRò   t   closet   depfdt   depst   dept   replacet   join(    (    (    sO   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/typelib.pyt   <module>   s¢   		π		!		!( 
-\ No newline at end of file
-diff -Naur --exclude '.*' xpcom/idl-parser/xpidl/xpidl.pyc xpcom-patched/idl-parser/xpidl/xpidl.pyc
---- xpcom/idl-parser/xpidl/xpidl.pyc	1970-01-01 01:00:00.000000000 +0100
-+++ xpcom-patched/idl-parser/xpidl/xpidl.pyc	2016-10-13 21:20:00.000000000 +0200
-@@ -0,0 +1,179 @@
-+Û
-+wˆûWc           @   sæ  d  Z  d d l Z d d l Z d d l Z d d l m Z d d l m Z d Ñ  Z i d d d d	 d
-+ f d 6d d	 d f d 6Z	 d Ñ  Z
-+ d Ñ  Z d Ñ  Z d e f d Ñ  É  YZ d e f d Ñ  É  YZ e d d É e d d É e d d É e d d e e É e d d e e É e d d e e É e d  d! e e É e d" d# e e É e d$ d% e e É e d& d& e e É e d' d' e e É e d( d( e e É e d) d* e e É e d+ d, e e É e d- d. e e É g Z i  Z x e D] Z e e e j <q’Wd/ e f d0 Ñ  É  YZ d1 e f d2 Ñ  É  YZ d3 e f d4 Ñ  É  YZ d5 e f d6 Ñ  É  YZ d7 e f d8 Ñ  É  YZ d9 e f d: Ñ  É  YZ d; e f d< Ñ  É  YZ d= e f d> Ñ  É  YZ d? e f d@ Ñ  É  YZ dA e f dB Ñ  É  YZ  dC e f dD Ñ  É  YZ! dE e f dF Ñ  É  YZ" dG e f dH Ñ  É  YZ# dI e f dJ Ñ  É  YZ$ dK e f dL Ñ  É  YZ% dM e f dN Ñ  É  YZ& dO e f dP Ñ  É  YZ' e( dQ k r∫e' É  Z) x= e j* dR D]. Z+ dS e+ GHe) j, e- e+ É j. É  dT e+ ÉqÖWn  d S(U   s.   A parser for cross-platform IDL (XPIDL) files.iˇˇˇˇN(   t   lex(   t   yaccc         C   sÇ   t  |  É d k r d St |  É }  |  j d d Ñ  É d d j g  |  D]5 \ } } } d | | d  k	 rp d | ps d f ^ qE É S(	   Ni    t    t   cmpc         S   s   t  |  d | d É S(   Ni    (   R   (   t   at   b(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   <lambda>'   s    s   [%s] t   ,s   %s%ss   (%s)(   t   lent   listt   sortt   joint   None(   t   attlistt   namet   valuet   aloc(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   attlistToIDL"   s    t   arrayt   sharedt   iid_ist   size_ist   retvali   t   consti   c         C   s  t  |  É d k r d St |  É }  g  } t  |  É t k r≥ xv t t  |  É D]a } d } xR | t  |  É k  r´ |  | d | k rû | j |  | É |  | =qZ n  | d 7} qZ WqK Wn  | j |  É d d j g  | D]5 \ } } } d | | d  k	 r˚ d | p˛ d f ^ q– É S(   Ni    R   i   s   [%s] s   , s   %s%ss    (%s)(   R   R	   t   _paramsHardcodet   appendt   extendR   R   (   R   t   sortedt   pt   iR   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   paramAttlistToIDL2   s     c         C   s5   x |  j  d k r |  j }  q W|  d  k	 s1 t Ç |  S(   Nt   typedef(   t   kindt   realtypeR   t   AssertionError(   t   t(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   unaliasTypeK   s    c         C   sY   t  |  É }  |  j d k r" |  j S|  j d k rQ |  j d  k	 sF t Ç d |  j Sd  Sd  S(   Nt   builtint   natives   [%s](   R$   R    R   t   specialtypeR   R"   (   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   getBuiltinOrNativeTypeNameR   s    t   BuiltinLocationc           B   s   e  Z d  Ñ  Z d Ñ  Z RS(   c         C   s   d S(   Ns   <builtin type>(    (   t   self(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   get^   s    c         C   s
-+   |  j  É  S(   N(   R+   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __str__a   s    (   t   __name__t
-+   __module__R+   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR)   ]   s   	t   Builtinc           B   s;   e  Z d  Z e Z e e d Ñ Z d Ñ  Z e e d Ñ Z RS(   R%   c         C   s(   | |  _  | |  _ | |  _ | |  _ d  S(   N(   R   t
-+   nativenamet   signedt
-+   maybeConst(   R*   R   R0   R1   R2   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __init__i   s    			c         C   s   t  S(   N(   t   True(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   isScriptableo   s    c         C   s∑   | r. t  j t d |  j d t ÉIJd } nc | d k rU |  j j d É rU d } n< | rã |  j j d É sÇ t d |  j É Ç n  d } n d } d | |  j | d k rØ d p≤ d f S(	   Ns,   [const] doesn't make sense on builtin types.t   warnings   const t   int   *s-   [shared] not applicable to non-pointer types.R   s   %s%s %s(   t   syst   stderrt   IDLErrort   locationR4   R0   t   endswith(   R*   t   calltypeR   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt
-+   nativeTyper   s    			(	   R-   R.   R    R)   R<   t   FalseR3   R5   R?   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR/   e   s
-+   	t   booleant   boolt   voidt   octett   uint8_tt   shortt   int16_tt   longt   int32_ts	   long longt   int64_ts   unsigned shortt   uint16_ts   unsigned longt   uint32_ts   unsigned long longt   uint64_tt   floatt   doublet   chart   strings   char *t   wchart   char16_tt   wstrings
-+   char16_t *t   Locationc           B   sD   e  Z d Z d  Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z	 RS(   c         C   s7   | |  _  | |  _ | j |  _ t | d d É |  _ d  S(   Nt   filenames	   <unknown>(   t   _linenot   _lexpost   lexdatat   _lexdatat   getattrt   _file(   R*   t   lexert   linenot   lexpos(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   õ   s    		c         C   s"   |  j  | j  k o! |  j | j k S(   N(   RX   R\   (   R*   t   other(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __eq__°   s    c         C   su   |  j  r d  S|  j j d d |  j É d } |  j j d |  j |  j d É } |  j | | !|  _  |  j | |  _ d  S(   Ns   
-+i    i   iP   (   t   _lineRZ   t   rfindRX   t   findt   _colno(   R*   t   startoflinet	   endofline(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   resolve•   s    	"c            s   á  f d Ü  } d j  | É  É S(   Nc          3   s+   x t  d à  j É D] }  d Vq Wd Vd  S(   Ni    t    t   ^(   t   xrangeRe   (   R   (   R*   (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   Ø   s    	R   (   R   (   R*   R   (    (   R*   sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   pointerlineÆ   s    c         C   s$   |  j  É  d |  j |  j |  j f S(   Ns   %s line %s:%s(   Rh   R\   RW   Re   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR+   ∂   s    
-+c         C   s3   |  j  É  d |  j |  j |  j |  j |  j É  f S(   Ns   %s line %s:%s
-+%s
-+%s(   Rh   R\   RW   Re   Rb   Rl   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   ∫   s    
-+N(
-+   R-   R.   R   Rb   R3   Ra   Rh   Rl   R+   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRU   ò   s   						t   NameMapc           B   sD   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   s}   Map of name -> object. Each object must have a .name and .location property.
-+    Setting the same name twice throws an error.c         C   s   i  |  _  d  S(   N(   t   _d(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   √   s    c         C   s   | t  k r t  | S|  j | S(   N(   t
-+   builtinMapRn   (   R*   t   key(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __getitem__∆   s    c         C   s   |  j  j É  S(   N(   Rn   t
-+   itervalues(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __iter__À   s    c         C   s   | t  k p | |  j k S(   N(   Ro   Rn   (   R*   Rp   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   __contains__Œ   s    c         C   s  | j  t k r+ t d | j  | j É Ç n  | j  j d É rP | j  d | _  n  | j  |  j k r|  j | j  } | | k rÇ d  St | t É r≥ t | t É r≥ | |  j | j  <qt | t É r‘ t | t É r‘ qt d | j  |  j | j  j f | j É Ç n | |  j | j  <d  S(   Ns/   name '%s' is a builtin and cannot be redeclaredt   _i   s0   name '%s' specified twice. Previous location: %s(	   R   Ro   R;   R<   t
-+   startswithRn   t
-+   isinstancet   Forwardt	   Interface(   R*   t   objectt   old(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   set—   s    /c         C   s3   y |  | SWn  t  k
-+ r. t d | É Ç n Xd  S(   Ns   Name '%s' not found(   t   KeyErrorR;   (   R*   t   idR<   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR+   „   s    (	   R-   R.   t   __doc__R3   Rq   Rs   Rt   R|   R+   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRm   ¿   s   					R;   c           B   s   e  Z e d  Ñ Z d Ñ  Z RS(   c         C   s   | |  _  | |  _ | |  _ d  S(   N(   t   messageR<   R6   (   R*   RÄ   R<   R6   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   Î   s    		c         C   s&   d |  j  r d p d |  j |  j f S(   Ns
-+   %s: %s, %sR6   t   error(   R6   RÄ   R<   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,      s    (   R-   R.   R@   R3   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR;   Í   s   t   Includec           B   s)   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   t   includec         C   s   | |  _  | |  _ d  S(   N(   RV   R<   (   R*   RV   R<   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   ¯   s    	c         C   s   d j  d |  j g É S(   NR   s   include '%s'
-+(   R   RV   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   ¸   s    c            sŸ   á  á f d Ü  } xß | É  D]ú } t  j j | É s: q n  à  j j t | É j É  d | Éà _ à j j à  j	 à  j É x$ à j j
-+ É  D] } à  j | É qä Wà  j j à j j É d  SWt d à j à j É Ç d  S(   Nc          3   s7   à j  Vx( à  j D] }  t j j |  à j  É Vq Wd  S(   N(   RV   t   incdirst   ost   pathR   (   t   dir(   t   parentR*   (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   incfiles   s    RV   s   File '%s' not found(   RÖ   RÜ   t   existst   parsert   parset   opent   readt   IDLRh   RÑ   t   getNamest   setNamet   depsR   R;   RV   R<   (   R*   Rà   Râ   t   filet   type(    (   Rà   R*   sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   ˇ   s    '(   R-   R.   R    R3   R,   Rh   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÇ   ı   s   		Rè   c           B   sY   e  Z d  Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z	 d Ñ  Z
-+ RS(	   c         C   s   | |  _  g  |  _ d  S(   N(   t   productionsRí   (   R*   Rï   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3     s    	c         C   s   |  j  j | É d  S(   N(   t   namemapR|   (   R*   Rz   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRë     s    c         C   s:   y |  j  | SWn$ t k
-+ r5 t d | | É Ç n Xd  S(   Ns   type '%s' not found(   Rñ   R}   R;   (   R*   R~   R<   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   getName  s    c         C   s   | |  j  k S(   N(   Rñ   (   R*   R~   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   hasName!  s    c         C   s   t  |  j É S(   N(   t   iterRñ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRê   $  s    c         C   s)   d j  g  |  j D] } t | É ^ q É S(   NR   (   R   Rï   t   str(   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   '  s    c         C   sC   t  É  |  _ | |  _ | |  _ x |  j D] } | j |  É q( Wd  S(   N(   Rm   Rñ   RÑ   Rã   Rï   Rh   (   R*   RÑ   Rã   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   *  s
-+    		c         c   s/   x( |  j  D] } | j d k r
-+ | Vq
-+ q
-+ Wd  S(   NRÉ   (   Rï   R    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   includes1  s    c         C   s7   x0 |  j  D]% } | j d k r
-+ | j É  r
-+ t Sq
-+ Wt S(   Nt	   interface(   Rï   R    t   needsJSTypesR4   R@   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRù   6  s    (   R-   R.   R3   Rë   Ró   Rò   Rê   R,   Rh   Rõ   Rù   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRè     s   								t   CDATAc           B   sA   e  Z d  Z e j d É Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z	 RS(   t   cdatas   \n+c         C   s%   |  j  j d | É |  _ | |  _ d  S(   Ns   
-+(   t   _ret   subt   dataR<   (   R*   R¢   R<   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   A  s    c         C   s   d  S(   N(    (   R*   Rà   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   E  s    c         C   s   d |  j  j É  |  j f S(   Ns   cdata: %s
-+	%r
-+(   R<   R+   R¢   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   H  s    c         C   s   d S(   Ni    (    (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   countK  s    (
-+   R-   R.   R    t   ret   compileR†   R3   Rh   R,   R£   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRû   =  s   			t   Typedefc           B   sD   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   R   c         C   s(   | |  _  | |  _ | |  _ | |  _ d  S(   N(   Rî   R   R<   t   doccomments(   R*   Rî   R   R<   Rß   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   R  s    			c         C   s"   |  j  | j  k o! |  j | j k S(   N(   R   Rî   (   R*   R`   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRa   X  s    c         C   s,   | j  |  É | j |  j |  j É |  _ d  S(   N(   Rë   Ró   Rî   R<   R!   (   R*   Rà   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   [  s    c         C   s   |  j  j É  S(   N(   R!   R5   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   _  s    c         C   s#   d |  j  | d k r d p d f S(   Ns   %s %sR7   R8   R   (   R   (   R*   R>   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?   b  s    	c         C   s   d |  j  |  j f S(   Ns   typedef %s %s
-+(   Rî   R   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   f  s    (	   R-   R.   R    R3   Ra   Rh   R5   R?   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR¶   O  s   					Rx   c           B   sD   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   t   forwardc         C   s   | |  _  | |  _ | |  _ d  S(   N(   R   R<   Rß   (   R*   R   R<   Rß   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   m  s    		c         C   s   | j  d k o | j |  j k S(   NR®   (   R    R   (   R*   R`   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRa   r  s    c         C   sª   | j  |  j É r™ x7 t d t | j É É D] } | j | |  k r+ Pq+ q+ Wx[ t | d t | j É É D]: } t | j | d É ri |  j | j | j d d +Pqi qi Wn  | j |  É d  S(   Ni    i   Rß   (   Rò   R   Rk   R   Rï   t   hasattrRß   Rë   (   R*   Rà   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   u  s    #c         C   s   t  S(   N(   R4   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   É  s    c         C   s#   d |  j  | d k r d p d f S(   Ns   %s %sR7   s   * *R8   (   R   (   R*   R>   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?   Ü  s    	c         C   s   d |  j  S(   Ns   forward-declared %s
-+(   R   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   ä  s    (	   R-   R.   R    R3   Ra   Rh   R5   R?   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRx   j  s   					t   Nativec           B   sò   e  Z d  Z d Z d Z i d d 6d d 6d d 6d d 6d d 6d d	 6Z d
-+ Ñ  Z d Ñ  Z d Ñ  Z	 d Ñ  Z
-+ d Ñ  Z d Ñ  Z e e d Ñ Z d Ñ  Z RS(   R&   t   nsidt	   nsAStringt	   domstringt
-+   nsACStringt
-+   utf8stringt   cstringt   astrings	   JS::Valuet   jsvalc         C   s  | |  _  | |  _ | |  _ xÂ | D]› \ } } } | d  k	 rO t d | É Ç n  | d k rà |  j d  k	 r| t d | É Ç n  | |  _ q" | |  j j É  k r |  j d  k	 ræ t d | É Ç n  | |  _ |  j | d  k	 rˇ |  j | |  _ qˇ q" t d | É Ç q" Wd  S(   Ns   Unexpected attribute valuet   ptrt   refs   More than one ptr/ref modifiers   More than one special types   Unexpected attribute(   s   ptrs   ref(	   R   R0   R<   R   R;   t   modifiert   specialtypest   keysR'   (   R*   R   R0   R   R<   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   ù  s"    				c         C   sF   |  j  | j  k oE |  j | j k oE |  j | j k oE |  j | j k S(   N(   R   R0   Rµ   R'   (   R*   R`   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRa   ≤  s    c         C   s   | j  |  É d  S(   N(   Rë   (   R*   Rà   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   ∏  s    c         C   s<   |  j  d  k r t S|  j  d k r/ |  j d  k	 S|  j d k S(   NR´   R¥   (   R'   R   R@   Rµ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   ª  s
-+    c         C   s   |  j  d k S(   NR≥   (   Rµ   (   R*   R>   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   isPtrƒ  s    c         C   s   |  j  d k S(   NR¥   (   Rµ   (   R*   R>   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   isRef«  s    c         C   s
-+  | r* | d k r! t  d É Ç n  t } n  |  j d  k	 rN | d k rN t } n  |  j d k r} | d k su | d k ry d Sd S|  j | É rï d } nU |  j | É r“ d	 |  j d
-+ k r» | d k r» d	 pÀ d } n | d k r‰ d	 pÁ d } d | r˘ d p¸ d |  j | f S(   Nt   outs(   [shared] only applies to out parameters.R7   R≤   t   inouts   JS::MutableHandleValue s   JS::HandleValue s   & R8   R≥   R   s   %s%s %ss   const (   R;   R4   R'   R   Rπ   R∏   Rµ   R0   (   R*   R>   R   R   t   m(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?      s     			.c         C   s   d |  j  |  j f S(   Ns   native %s(%s)
-+(   R   R0   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   ‡  s    N(   R-   R.   R    R   Rµ   R'   R∂   R3   Ra   Rh   R5   R∏   Rπ   R@   R?   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR™   é  s$   
-+							Ry   c           B   sb   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z e d Ñ Z d Ñ  Z	 d Ñ  Z
-+ d Ñ  Z d	 Ñ  Z RS(
-+   Rú   c         C   sã   | |  _  t | | É |  _ | |  _ | |  _ | |  _ t É  |  _ | |  _ | |  _	 x0 | D]( } t
-+ | t É s[ |  j j | É q[ q[ Wd  S(   N(   R   t   InterfaceAttributest
-+   attributest   baset   membersR<   Rm   Rñ   Rß   R0   Rw   Rû   R|   (   R*   R   R   Rø   R¿   R<   Rß   Rº   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   Á  s    						c         C   s"   |  j  | j  k o! |  j | j k S(   N(   R   R<   (   R*   R`   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRa   ı  s    c         C   s6  | |  _  | j |  j É rs x7 |  j D], } t | d É r% |  j | j d d +Pq% q% W| j |  j d  É j |  _ n  |  j j	 r÷ t
-+ } xN |  j D]@ } | j d k rè | r∆ t d |  j |  j É Ç qœ t } qè qè Wn  | j |  É |  j d  k	 r÷| j |  j |  j É } | j d k r>t d |  j |  j f |  j É Ç n  |  j j râ| j j rât j t d |  j |  j f |  j d t ÉIJn  |  j j r÷| j j r÷|  j j r÷t d	 |  j |  j f |  j É Ç q÷n  x |  j D] } | j |  É q‡W|  j É  d
-+ k r2|  j j r2t d |  j |  j É Ç n  d  S(   NRß   i    t   methods:   interface '%s' has multiple methods, but marked 'function'Rú   s4   interface '%s' inherits from non-interface type '%s'sA   interface '%s' is scriptable but derives from non-scriptable '%s'R6   sE   interface '%s' is not builtinclass but derives from builtinclass '%s'i˙   s#   interface '%s' has too many entries(   t   idlRò   R   R¿   R©   Rß   Ró   R   Ræ   t   functionR@   R    R;   R<   R4   Rë   Rø   t
-+   scriptableR9   R:   t   builtinclassRh   t   countEntries(   R*   Rà   t   membert
-+   has_methodt   realbase(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   ¯  s6    	%2%(c         C   s   t  S(   N(   R4   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   #  s    c         C   s2   d | r d p d |  j  | d k r* d p- d f S(   Ns   %s%s %ss   const R   R7   s   * *R8   (   R   (   R*   R>   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?   )  s    c         C   sü   d |  j  g } |  j d  k	 r6 | j d |  j É n  | j t |  j É É |  j d  k rk | j d É n' x$ |  j D] } | j t | É É qu Wd j | É S(   Ns   interface %s
-+s	   	base %s
-+s   	incomplete type
-+R   (   R   Rø   R   R   Rö   Ræ   R¿   R   (   R*   t   lRº   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   .  s    c         C   s•   |  } x: | | j  k rB | d  k	 rB |  j j |  j |  j É } q	 W| d  k rb t d | É Ç n  | j  j | | É } | j d k rõ t d | j É Ç n  | j	 É  S(   Ns   cannot find symbol '%s'R   s   symbol '%s' is not a constant(
-+   Rñ   R   R¬   Ró   Rø   R<   R;   R+   R    t   getValue(   R*   R   R<   t   ifacet   c(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   getConst:  s    c         C   sY   xR |  j  D]G } | j d k r2 | j d k r2 t S| j d k r
-+ | j É  r
-+ t Sq
-+ Wt S(   Nt	   attributeR≤   R¡   (   R¿   R    Rî   R4   Rù   R@   (   R*   Rº   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRù   G  s    c         C   sZ   t  d Ñ  |  j DÉ É } |  j d k	 rV |  j j |  j |  j É } | | j É  7} n  | S(   sA    Returns the number of entries in the vtable for this interface. c         s   s   |  ] } | j  É  Vq d  S(   N(   R£   (   t   .0R«   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pys	   <genexpr>Q  s    N(   t   sumR¿   Rø   R   R¬   Ró   R<   R∆   (   R*   t   totalR…   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR∆   O  s
-+    (   R-   R.   R    R3   Ra   Rh   R5   R@   R?   R,   RŒ   Rù   R∆   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRy   ‰  s   			+				RΩ   c           B   sÙ   e  Z d Z e Z e Z e Z e Z e Z	 e Z
-+ d  Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z i e e f d 6e e f d 6e e f d	 6e e f d
-+ 6e e f d 6e e f d 6e d Ñ  f d 6e e f d 6Z d Ñ  Z d Ñ  Z RS(   c         C   s   | j  É  |  _ d  S(   N(   t   lowert   uuid(   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setuuida  s    c         C   s   t  |  _ d  S(   N(   R4   Rƒ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setscriptabled  s    c         C   s   t  |  _ d  S(   N(   R4   R√   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setfunctiong  s    c         C   s   t  |  _ d  S(   N(   R4   t   noscript(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setnoscriptj  s    c         C   s   t  |  _ d  S(   N(   R4   R≈   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setbuiltinclassm  s    c         C   s   t  |  _ d  S(   N(   R4   t
-+   deprecated(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setdeprecatedp  s    c         C   s   t  |  _ d  S(   N(   R4   t   main_process_scriptable_only(   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   setmain_process_scriptable_onlys  s    R‘   Rƒ   R≈   R√   Rÿ   R€   c         C   s   t  S(   N(   R4   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   }  s    Rz   R›   c            s÷   á  á f d Ü  } xú | D]î \ â } } |  j  j à t | f É \ } } | rÅ | d  k rq t d à | É Ç n  | |  | É q | d  k	 r£ t d à | É Ç n  | |  É q W|  j d  k r“ t d à  É Ç n  d  S(   Nc            s   t  d à à  É Ç d  S(   Ns#   Unexpected interface attribute '%s'(   R;   (   R*   (   R<   R   (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   badattributeÇ  s    s!   Expected value for attribute '%s's#   Unexpected value for attribute '%s's   interface has no uuid(   t   actionsR+   R@   R   R;   R‘   (   R*   R   R<   Rﬂ   t   valR   t   hasvalt   action(    (   R<   R   sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   Å  s    !
-+
-+c         C   só   g  } |  j  r& | j d |  j  É n  |  j r? | j d É n  |  j rX | j d É n  |  j rq | j d É n  |  j rä | j d É n  d j | É S(   Ns
-+   	uuid: %s
-+s   	scriptable
-+s   	builtinclass
-+s
-+   	function
-+s   	main_process_scriptable_only
-+R   (   R‘   R   Rƒ   R≈   R√   R›   R   (   R*   R    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   ó  s    					N(   R-   R.   R   R‘   R@   Rƒ   R≈   R√   R€   Rÿ   R›   R’   R÷   R◊   RŸ   R⁄   R‹   Rﬁ   R4   R‡   R3   R,   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRΩ   X  s2   								t   ConstMemberc           B   s;   e  Z d  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   R   c         C   s1   | |  _  | |  _ | |  _ | |  _ | |  _ d  S(   N(   Rî   R   R   R<   Rß   (   R*   Rî   R   R   R<   Rß   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   ©  s
-+    				c         C   sí   | j  j |  j |  j É |  _ | |  _ |  j } x t | t É rN | j } q3 Wt | t É si | j	 rÖ t
-+ d |  j |  j É Ç n  | |  _ d  S(   Ns.   const may only be a short or long type, not %s(   R¬   Ró   Rî   R<   R!   RÃ   Rw   R¶   R/   R2   R;   t   basetype(   R*   Rà   RÂ   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   ∞  s    		c         C   s   |  j  |  j É S(   N(   R   RÃ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÀ   ª  s    c         C   s   d |  j  |  j |  j É  f S(   Ns   	const %s %s = %s
-+(   Rî   R   RÀ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   æ  s    c         C   s   d S(   Ni    (    (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR£   ¡  s    (   R-   R.   R    R3   Rh   RÀ   R,   R£   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR‰   ¶  s   				t	   Attributec           B   sz   e  Z d  Z e Z e Z e Z e Z d Z	 d Z
-+ d Z e Z e Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   Rœ   c   	      C   s  | |  _  | |  _ | |  _ | |  _ | |  _ | |  _ x—| D]…\ } } } | d k rÖ | d  k rv t d | É Ç n  | |  _ q= n  | d k rÒ | d  k rØ t d | É Ç n  | r« t d | É Ç n  | d k rÂ t d | É Ç n  | |  _	 q= | d	 k r]| d  k rt d
-+ | É Ç n  | r3t d | É Ç n  | d k rQt d | É Ç n  | |  _
-+ q= | d  k	 r{t d | É Ç n  | d k rìt |  _ q= | d k r´t |  _ q= | d k r√t |  _ q= | d k r€t |  _ q= | d k rÛt |  _ q= t d | | É Ç q= Wd  S(   Nt
-+   binarynames%   binaryname attribute requires a valuet   Nulls!   'Null' attribute requires a values-   'Null' attribute only makes sense for setterst   Emptyt	   Stringifys=   'Null' attribute value must be 'Empty', 'Null' or 'Stringify't	   Undefineds&   'Undefined' attribute requires a values2   'Undefined' attribute only makes sense for setterss5   'Undefined' attribute value must be 'Empty' or 'Null's   Unexpected attribute valueRÿ   t   implicit_jscontextR€   t	   nostdcallt
-+   infallibles   Unexpected attribute '%s'(   s   EmptyRË   RÍ   (   s   EmptyRË   (   Rî   R   R   t   readonlyR<   Rß   R   R;   RÁ   t   nullt	   undefinedR4   Rÿ   RÏ   R€   RÌ   RÓ   (	   R*   Rî   R   R   RÔ   R<   Rß   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   —  s\    							c         C   s˘   | |  _  | j j |  j |  j É |  _ |  j d  k	 r` t |  j É d k r` t	 d |  j É Ç n  |  j
-+ d  k	 rô t |  j É d k rô t	 d |  j É Ç n  |  j r  |  j j d k r  t	 d |  j É Ç n  |  j rı | j j rı t	 d |  j É Ç n  d  S(   Ns   [domstring]s.   'Null' attribute can only be used on DOMStrings3   'Undefined' attribute can only be used on DOMStringR%   sP   [infallible] only works on builtin types (numbers, booleans, and raw char types)sE   [infallible] attributes are only allowed on [builtinclass] interfaces(   RÃ   R¬   Ró   Rî   R<   R!   R   R   R(   R;   RÒ   RÓ   R    Ræ   R≈   (   R*   RÃ   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh     s     	c         C   s>   t  |  j É } |  j r d p! d } d | | |  j |  j f S(   Ns	   readonly R   s   %s%sattribute %s %s;(   R   R   RÔ   Rî   R   (   R*   t   attribsRÔ   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   toIDL  s    c         C   s   |  j  j j s t S|  j S(   N(   RÃ   Ræ   Rƒ   R@   Rÿ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5      s    c         C   s&   d |  j  r d p d |  j |  j f S(   Ns   	%sattribute %s %s
-+s	   readonly R   (   RÔ   Rî   R   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   %  s    c         C   s   |  j  r d p d S(   Ni   i   (   RÔ   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR£   )  s    N(   R-   R.   R    R@   Rÿ   RÔ   RÏ   RÌ   R   RÁ   R   RÒ   R€   RÓ   R3   Rh   RÛ   R5   R,   R£   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÊ   ≈  s    	6				t   Methodc           B   sw   e  Z d  Z e Z e Z d Z e Z e Z	 e Z
-+ e Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(	   R¡   c         C   sÑ  | |  _  | |  _ | |  _ | |  _ | |  _ | |  _ | |  _ x| D]	\ } } }	 | d k ré | d  k r t d |	 É Ç n  | |  _	 qF n  | d  k	 r¨ t d |	 É Ç n  | d k rƒ t
-+ |  _ qF | d k r‹ t
-+ |  _ qF | d k rÙ t
-+ |  _ qF | d k rt
-+ |  _ qF | d k r$t
-+ |  _ qF | d	 k r<t
-+ |  _ qF t d
-+ | |	 É Ç qF Wt É  |  _ x | D] }
-+ |  j j |
-+ É qfWd  S(   NRÁ   s%   binaryname attribute requires a values   Unexpected attribute valueRÿ   t   notxpcomRÏ   t   optional_argcR€   RÌ   s   Unexpected attribute '%s'(   Rî   R   R   t   paramsR<   Rß   t   raisesR   R;   RÁ   R4   Rÿ   Rı   RÏ   Rˆ   R€   RÌ   Rm   Rñ   R|   (   R*   Rî   R   R   t	   paramlistR<   Rß   R¯   R   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   7  s@    								c         C   s(  | |  _  |  j  j j |  j |  j É |  _ x |  j D] } | j |  É q4 Wx÷ |  j D]À } | j rì | |  j d k rì t	 d | j
-+ |  j É Ç n  | j rU t } xV |  j D]K } | j | j
-+ k r¨ t } t | j É d k r˜ t	 d |  j É Ç q˜ q¨ q¨ W| s t	 d | j |  j É Ç q qU qU Wd  S(   Niˇˇˇˇs1   'retval' parameter '%s' is not the last parameters   unsigned longs0   is_size parameter must have type 'unsigned long's%   could not find is_size parameter '%s'(   RÃ   R¬   Ró   Rî   R<   R!   R˜   Rh   R   R;   R   R   R@   R4   R(   (   R*   RÃ   R   t   found_size_paramt
-+   size_param(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   _  s     	!	c         C   s$   |  j  j j s t S|  j p" |  j S(   N(   RÃ   Ræ   Rƒ   R@   Rÿ   Rı   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   q  s    c         C   s9   d |  j  |  j d j g  |  j D] } | j ^ q É f S(   Ns   	%s %s(%s)
-+s   , (   Rî   R   R   R˜   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR,   v  s    c         C   sy   t  |  j É r( d d j |  j É } n d } d t |  j É |  j |  j d j g  |  j D] } | j É  ^ qY É | f S(   Ns    raises (%s)R   R   s   %s%s %s (%s)%s;s   , (	   R   R¯   R   R   R   Rî   R   R˜   RÛ   (   R*   R¯   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÛ   y  s    	c         C   sc   |  j  r t S|  j d k r  t Sx< |  j D]1 } | j } t | t É r* | j d k r* t Sq* Wt S(   NR≤   (	   RÏ   R4   Rî   R˜   R!   Rw   R™   R'   R@   (   R*   R   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRù   Ü  s    		c         C   s   d S(   Ni   (    (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR£   ë  s    N(   R-   R.   R    R@   Rÿ   Rı   R   RÁ   RÏ   RÌ   Rˆ   R€   R3   Rh   R5   R,   RÛ   Rù   R£   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÙ   -  s   	(					t   Paramc           B   se   e  Z d Z d Z e Z e Z e Z e Z	 e Z
-+ d Z d Z d d  Ñ Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   c   	      C   s  | |  _  | |  _ | |  _ | |  _ | |  _ | |  _ xÿ| D]–\ } } } | d k rÇ | d  k rv t d | É Ç n  | |  _ q= | d k r∏ | d  k r¨ t d | É Ç n  | |  _	 q= | d k r| d  k r‚ t d | É Ç n  | d k r t d	 | É Ç n  | |  _
-+ q= | d
-+ k r`| d  k r6t d | É Ç n  | d k rTt d | É Ç n  | |  _ q= | d  k	 rÇt d | | É Ç n  | d k röt |  _ q= | d k r≤t |  _ q= | d k r t |  _ q= | d k r‚t |  _ q= | d k r˙t |  _ q= t d | | É Ç q= Wd  S(   NR   s"   'size_is' must specify a parameterR   s!   'iid_is' must specify a parameterRË   s   'Null' must specify a parameterRÈ   RÍ   s>   'Null' parameter value must be 'Empty', 'Null', or 'Stringify'RÎ   s$   'Undefined' must specify a parameters5   'Undefined' parameter value must be 'Empty' or 'Null's#   Unexpected value for attribute '%s'R   R   R   R   t   optionals   Unexpected attribute '%s'(   s   Emptys   Nulls	   Stringify(   s   Emptys   Null(   t	   paramtypeRî   R   R   R<   R!   R   R;   R   R   R   RÒ   R4   R   R   R   R   R˝   (	   R*   R˛   Rî   R   R   R<   R!   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   †  sV    						
-+c         C   sµ   | j  j j |  j |  j É |  _ |  j r? t |  j É |  _ n  |  j d  k	 rx t
-+ |  j É d k rx t d |  j É Ç n  |  j d  k	 r± t
-+ |  j É d k r± t d |  j É Ç n  d  S(   Ns   [domstring]s.   'Null' attribute can only be used on DOMStrings3   'Undefined' attribute can only be used on DOMString(   RÃ   R¬   Ró   Rî   R<   R!   R   t   ArrayR   R   R(   R;   RÒ   (   R*   R¡   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRh   “  s    !	c         C   sü   i  } |  j  r t | d <n  |  j r2 t | d <n  y |  j j |  j | ç SWnL t k
-+ rv } t | j |  j É Ç n% t	 k
-+ rö } t d |  j É Ç n Xd  S(   NR   R   s   Unexpected parameter attribute(
-+   R   R4   R   R!   R?   R˛   R;   RÄ   R<   t	   TypeError(   R*   t   kwargst   e(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?   ﬂ  s    		c         C   s&   d t  |  j É |  j |  j |  j f S(   Ns
-+   %s%s %s %s(   R   R   R˛   Rî   R   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRÛ   Ì  s    N(   R-   R.   R   R   R   R@   R   R   R   R   R˝   R   RÒ   R3   Rh   R?   RÛ   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR¸   ï  s   2		Rˇ   c           B   s&   e  Z d  Ñ  Z d Ñ  Z e d Ñ Z RS(   c         C   s   | |  _  d  S(   N(   Rî   (   R*   RÂ   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   ı  s    c         C   s   |  j  j É  S(   N(   Rî   R5   (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5   ¯  s    c         C   s&   d | r d p d |  j  j | É f S(   Ns   %s%s*s   const R   (   Rî   R?   (   R*   R>   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR?   ˚  s    (   R-   R.   R3   R5   R@   R?   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRˇ   Ù  s   		t	   IDLParserc        	   B   sÈ  e  Z i
-+ d  d 6d d 6d d 6d d 6d d	 6d
-+ d 6d d 6d d 6d d 6d d 6Z d d d d d d d d d g	 Z e j e j É  É dh Z d Z d  Z d! e Z	 d" Z
-+ d# Z d$ Z d% Z d& Ñ  Z d' Ñ  Z d( Ñ  Z d) i e d* 6e _ d+ Ñ  Z d, Ñ  Z d- Ñ  Z d. Ñ  Z d/ Ñ  Z d0 Ñ  Z d1 Z d2 Ñ  Z di dj dk dl dm f Z d9 Ñ  Z d: Ñ  Z d; Ñ  Z d< Ñ  Z d= Ñ  Z d> Ñ  Z  d? Ñ  Z! d@ Ñ  Z" dA Ñ  Z# dB Ñ  Z$ dC Ñ  Z% dD Ñ  Z& dE Ñ  Z' dF Ñ  Z( dG Ñ  Z) dH Ñ  Z* dI Ñ  Z+ dJ Ñ  Z, dK Ñ  Z- dL Ñ  Z. dM Ñ  Z/ dN Ñ  Z0 dO Ñ  Z1 dP Ñ  Z2 dQ Ñ  Z3 dR Ñ  Z4 dS Ñ  Z5 dT Ñ  Z6 dU Ñ  Z7 dV Ñ  Z8 dW Ñ  Z9 dX Ñ  Z: dY Ñ  Z; dZ Ñ  Z< d[ Ñ  Z= d\ Ñ  Z> d] Ñ  Z? d^ Ñ  Z@ d_ Ñ  ZA d` Ñ  ZB da Ñ  ZC d1 db Ñ ZD dc Ñ  ZE dd Ñ  ZF dn de Ñ ZH df Ñ  ZI RS(o   t   CONSTR   t	   INTERFACERú   t   INR7   t   INOUTRª   t   OUTR∫   t	   ATTRIBUTERœ   t   RAISESR¯   t   READONLYRÔ   t   NATIVER&   t   TYPEDEFR   t
-+   IDENTIFIERRû   t   INCLUDEt   IIDt   NUMBERt   HEXNUMt   LSHIFTt   RSHIFTt   NATIVEIDt   nativeidt	   exclusives   [a-fA-F0-9]s   -?\d+s   0x%s+s   <<s   >>s   "(){}[],;:=|+-*s    	c         C   sJ   | j  j | j j d É 7_ | j j d É rF |  j j | j É n  d S(   s   /\*(?s).*?\*/s   
-+s   /**N(   R]   R^   R   R£   Rv   t   _doccommentsR   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_multilinecomment+  s    c         C   s   d S(   s
-+   (?m)//.*?$N(    (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_singlelinecomment1  s    c         C   s   | S(   N(    (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_IID4  s    s-   %(c)s{8}-%(c)s{4}-%(c)s{4}-%(c)s{4}-%(c)s{12}RÕ   c         C   s   |  j  j | j d É | _ | S(   sr   (unsigned\ long\ long|unsigned\ short|unsigned\ long|long\ long)(?!_?[A-Za-z][A-Za-z_0-9])|_?[A-Za-z][A-Za-z_0-9]*R  (   t   keywordsR+   R   Rî   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_IDENTIFIER8  s    c         C   sC   d | _  | j j j d É | _ | j j | j j d É 7_ | S(   s6   (?s)%\{[ ]*C\+\+[ ]*\n(?P<cdata>.*?\n?)%\}[ ]*(C\+\+)?Rû   Rü   s   
-+(   Rî   R]   t   lexmatcht   groupR   R^   R£   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_LCDATA=  s    	c         C   s(   | j  j d É \ } } } | | _  | S(   s   \#include[ \t]+"[^"\n]+"t   "(   R   t   split(   R*   R#   t   incR   t   end(    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt	   t_INCLUDED  s    	c      	   C   sJ   t  d | j j j d É t d |  j d |  j j d |  j j É É Ç d S(   s    \#(?P<directive>[a-zA-Z]+)[^\n]+s   Unrecognized directive %st	   directiveR]   R^   R_   N(   R;   R]   R  R  RU   R^   R_   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_directiveJ  s    c         C   s   | j  j t | j É 7_ d S(   s   \n+N(   R]   R^   R   R   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt	   t_newlineP  s    c         C   s   | j  j d É | S(   s   [^()\n]+(?=\))t   INITIAL(   R]   t   begin(   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_nativeid_NATIVEIDT  s    R   c      	   C   s7   t  d t d |  j d |  j j d |  j j É É Ç d  S(   Ns   unrecognized inputR]   R^   R_   (   R;   RU   R]   R^   R_   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   t_ANY_error[  s    t   leftt   |t   +t   -R8   t   UMINUSc         C   s   t  | d É | d <d S(   s   idlfile : productionsi   i    N(   Rè   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt	   p_idlfilei  s    c         C   s   g  | d <d S(   s   productions : i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_productions_startm  s    c         C   sE   t  | d É | d <| d j d t | d |  j | d É É É d S(   s   productions : CDATA productionsi   i    i   N(   R	   t   insertRû   t   getLocation(   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_productions_cdataq  s    c         C   sE   t  | d É | d <| d j d t | d |  j | d É É É d S(   s!   productions : INCLUDE productionsi   i    i   N(   R	   R4  RÇ   R5  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_productions_includev  s    c         C   s0   t  | d É | d <| d j d | d É d S(   s|   productions : interface productions
-+                       | typedef productions
-+                       | native productionsi   i    i   N(   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_productions_interface{  s    c      
-+   C   sG   t  d | d d | d d |  j | d É d | j d j É | d <d	 S(
-+   s+   typedef : TYPEDEF IDENTIFIER IDENTIFIER ';'Rî   i   R   i   R<   i   Rß   i    N(   R¶   R5  t   sliceRß   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt	   p_typedefÇ  s    
-+c         C   sE   t  d | d d | d d | d d d |  j | d É É | d	 <d
-+ S(   sH   native : attributes NATIVE IDENTIFIER afternativeid '(' NATIVEID ')' ';'R   i   R0   i   R   i   R<   i   i    N(   R™   R5  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_nativeâ  s    
-+c         C   s   |  j  j d É d S(   s   afternativeid : R  N(   R]   R*  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_afternativeidê  s    c         C   s,   i | d d 6|  j  | d É d 6| d <d S(   s1   anyident : IDENTIFIER
-+                    | CONSTi   R   R<   i    N(   R5  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt
-+   p_anyidentñ  s    c         C   sP   t  | É d k r& i g  d 6| d <n& i | d d 6| j d j d 6| d <d S(   s5   attributes : '[' attlist ']'
-+                      | i   R   i    i   Rß   N(   R   R9  Rß   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_attributesú  s    c         C   s   | d g | d <d S(   s   attlist : attributei   i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_attlist_start•  s    c         C   s0   t  | d É | d <| d j d | d É d S(   s   attlist : attribute ',' attlisti   i    i   N(   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_attlist_continue©  s    c         C   s+   | d d | d | d d f | d <d S(   s!   attribute : anyident attributevali   R   i   R<   i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_attributeÆ  s    c         C   s'   t  | É d k r# | d | d <n  d S(   sb   attributeval : '(' IDENTIFIER ')'
-+                        | '(' IID ')'
-+                        | i   i   i    N(   R   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_attributeval≤  s    c            s+  à  d \ } } } } } } | d } g  }	 d | k rL |	 j  | d É n  |	 j  à  j d j É á  á f d Ü  }
-+ | d k rÛ t | É d k r≠ t d t d d É Ç n  | d k	 rŒ t d	 |
-+ É  É Ç n  t d
-+ | d |
-+ É  d |	 É à  d <n4 t d
-+ | d | d | d | d |
-+ É  d |	 É à  d <d S(   sC   interface : attributes INTERFACE IDENTIFIER ifacebase ifacebody ';'i   R   Rß   i   c              s   à j  à  d É S(   Ni   (   R5  (    (   R   R*   (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   ¬  s    i    s3   Forward-declared interface must not have attributesi   s/   Forward-declared interface must not have a baseR   R<   Rø   R¿   N(	   R   R9  Rß   R   R   R;   R	   Rx   Ry   (   R*   R   t   attsR  R   Rø   t   bodyt   SEMIR   Rß   R    (    (   R   R*   sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_interfaceπ  s*    
-+%	c         C   s'   t  | É d k r# | d | d <n  d S(   s3   ifacebody : '{' members '}'
-+                     | i   i   i    N(   R   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_ifacebody÷  s    c         C   s'   t  | É d k r# | d | d <n  d S(   s2   ifacebase : ':' IDENTIFIER
-+                     | i   i   i    N(   R   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_ifacebase‹  s    c         C   s   g  | d <d S(   s
-+   members : i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_members_start‚  s    c         C   s0   t  | d É | d <| d j d | d É d S(   s   members : member membersi   i    i   N(   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_members_continueÊ  s    c         C   s'   t  | d |  j | d É É | d <d S(   s   member : CDATAi   i    N(   Rû   R5  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_member_cdataÎ  s    c         C   sQ   t  d | d d | d d | d d |  j | d É d	 | j d j É | d
-+ <d S(   s4   member : CONST IDENTIFIER IDENTIFIER '=' number ';' Rî   i   R   i   R   i   R<   i   Rß   i    N(   R‰   R5  R9  Rß   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_member_constÔ  s    c            s'   t  | d É â  á  f d Ü  | d <d S(   s   number : NUMBERi   c            s   à  S(   N(    (   R   (   t   n(    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   ˙  s    i    N(   t   int(   R*   R   (    (   RM  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_decimal˜  s    c            s*   t  | d d É â  á  f d Ü  | d <d S(   s   number : HEXNUMi   i   c            s   à  S(   N(    (   R   (   RM  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   ˇ  s    i    N(   RN  (   R*   R   (    (   RM  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_hex¸  s    c            s6   | d â  |  j  | d É â á  á f d Ü  | d <d S(   s   number : IDENTIFIERi   c            s   |  j  à  à É S(   N(   RŒ   (   R   (   R~   t   loc(    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s    i    N(   R5  (   R*   R   (    (   R~   RQ  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_identifier  s    
-+c         C   s   | d | d <d S(   s   number : '(' number ')'i   i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_paren  s    c            s!   | d â  á  f d Ü  | d <d S(   s    number : '-' number %prec UMINUSi   c            s   à  |  É S(   N(    (   R   (   RM  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s    i    N(    (   R*   R   (    (   RM  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_neg  s    
-+c            sÄ   | d â  | d â | d d k r= á  á f d Ü  | d <n? | d d k rf á  á f d Ü  | d <n á  á f d	 Ü  | d <d
-+ S(   sf   number : number '+' number
-+                  | number '-' number
-+                  | number '*' numberi   i   i   R/  c            s   à  |  É à |  É S(   N(    (   R   (   t   n1t   n2(    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s    i    R0  c            s   à  |  É à |  É S(   N(    (   R   (   RU  RV  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s    c            s   à  |  É à |  É S(   N(    (   R   (   RU  RV  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s    N(    (   R*   R   (    (   RU  RV  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_add  s    
-+
-+c            sW   | d â  | d â | d d k r= á  á f d Ü  | d <n á  á f d Ü  | d <d S(	   sF   number : number LSHIFT number
-+                  | number RSHIFT numberi   i   i   s   <<c            s   à  |  É à |  É >S(   N(    (   R   (   RU  RV  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   #  s    i    c            s   à  |  É à |  É ?S(   N(    (   R   (   RU  RV  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   %  s    N(    (   R*   R   (    (   RU  RV  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_shift  s
-+    
-+
-+c            s.   | d â  | d â á  á f d Ü  | d <d S(   s   number : number '|' numberi   i   c            s   à  |  É à |  É BS(   N(    (   R   (   RU  RV  (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR   +  s    i    N(    (   R*   R   (    (   RU  RV  sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_number_bitor'  s    
-+
-+c         C   s©   d | d k r! | d d } n- | d d k	 r> | d } n | j d j } t d | d d | d d	 | d d	 d
-+ | d d k	 d |  j | d É d | É | d <d S(   sC   member : attributes optreadonly ATTRIBUTE IDENTIFIER IDENTIFIER ';'Rß   i   i   i   Rî   i   R   i   R   RÔ   R<   i    N(   R   R9  Rß   RÊ   R5  (   R*   R   Rß   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_member_att-  s    
-+c         C   sê   d | d k r! | d d } n | j  d j } t d | d d | d d | d d d | d	 d
-+ |  j | d É d | d | d É | d <d S(   sF   member : attributes IDENTIFIER IDENTIFIER '(' paramlist ')' raises ';'Rß   i   i   Rî   R   i   R   R˘   i   R<   R¯   i   i    N(   R9  Rß   RÙ   R5  (   R*   R   Rß   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_member_method=  s    
-+
-+c         C   sO   t  | É d k r g  | d <n, t | d É | d <| d j d | d É d S(   s4   paramlist : param moreparams
-+                     | i   i    i   N(   R   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_paramlistL  s    c         C   s   g  | d <d S(   s   moreparams :i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_moreparams_startU  s    c         C   s0   t  | d É | d <| d j d | d É d S(   s!   moreparams : ',' param moreparamsi   i    i   N(   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_moreparams_continueY  s    c         C   sO   t  d | d d | d d | d d | d d d	 |  j | d É É | d
-+ <d S(   s2   param : attributes paramtype IDENTIFIER IDENTIFIERR˛   i   Rî   i   R   i   R   i   R<   i    N(   R¸   R5  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_param^  s
-+    
-+
-+c         C   s   | d | d <d S(   sF   paramtype : IN
-+                     | INOUT
-+                     | OUTi   i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_paramtypef  s    c         C   s7   t  | É d k r) | j d j | d <n
-+ d | d <d S(   s0   optreadonly : READONLY
-+                       | i   i    N(   R   R9  Rß   R   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_optreadonlyl  s    c         C   s1   t  | É d k r g  | d <n | d | d <d S(   s3   raises : RAISES '(' idlist ')'
-+                  | i   i    i   N(   R   (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_raisest  s    c         C   s   | d g | d <d S(   s   idlist : IDENTIFIERi   i    N(    (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_idlist|  s    c         C   s0   t  | d É | d <| d j d | d É d S(   s   idlist : IDENTIFIER ',' idlisti   i    i   N(   R	   R4  (   R*   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_idlist_continueÄ  s    c         C   sF   | s t  d d  É Ç n* t |  j | j | j É } t  d | É Ç d  S(   NsT   Syntax Error at end of file. Possibly due to missing semicolon(;), braces(}) or boths   invalid syntax(   R;   R   RU   R]   R^   R_   (   R*   R#   R<   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   p_errorÖ  s    c         C   sa   g  |  _  t j d |  d | d d d d É |  _ t j d |  d | d d	 d
-+ d d d É |  _ d  S(   NRz   t	   outputdirt   lextabt   xpidllext   optimizei   t   modulet   debugi    t	   tabmodulet	   xpidlyacc(   R  R    R]   R   Rã   (   R*   Rf  (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR3   å  s    	c         C   s   g  |  _  d  S(   N(   R  (   R*   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   clearCommentsò  s    c         C   sF   |  j  j É  } | d  k	 rB | j d k rB |  j | _ g  |  _ n  | S(   NRû   (   R]   t   tokenR   Rî   R  Rß   (   R*   R#   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRo  õ  s
-+    c         C   so   | d  k	 r | |  j _ n  d |  j _ |  j j | É |  j j d |  É } | d  k	 rk | j j | É n  | S(   Ni   R]   (	   R   R]   RV   R^   t   inputRã   Rå   Rí   R   (   R*   R¢   RV   R¬   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyRå   ¢  s    c         C   s%   t  |  j | j | É | j | É É S(   N(   RU   R]   R^   R_   (   R*   R   R   (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR5  ¨  s    (   s   nativeidR  (   (   s   nativeidR  (   s   leftR.  (   s   leftR  R  (   s   leftR/  R0  (   s   leftR8   (   s   leftR1  N(J   R-   R.   R  t   tokensR   t   valuest   statest   hexchart   t_NUMBERt   t_HEXNUMt   t_LSHIFTt   t_RSHIFTt   literalst   t_ignoreR  R  R  R   R  R   R%  R'  R(  R+  t   t_nativeid_ignoreR,  t
-+   precedenceR2  R3  R6  R7  R8  R:  R;  R<  R=  R>  R?  R@  RA  RB  RF  RG  RH  RI  RJ  RK  RL  RO  RP  RR  RS  RT  RW  RX  RY  RZ  R[  R\  R]  R^  R_  R`  Ra  Rb  Rc  Rd  Re  R3   Rn  Ro  R   Rå   R5  (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyR     s∏   
-+	
-+																																								
-+																
-+t   __main__i   s
-+   Parsing %sRV   (/   R   R9   t   os.pathRÖ   R§   t   plyR    R   R   R   R   R$   R(   Rz   R)   R/   R4   R@   t   builtinNamesRo   R   R   RU   Rm   t	   ExceptionR;   RÇ   Rè   Rû   R¶   Rx   R™   Ry   RΩ   R‰   RÊ   RÙ   R¸   Rˇ   R  R-   R   t   argvt   fRå   Rç   Ré   (    (    (    sM   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/idl-parser/xpidl/xpidl.pyt   <module>   sn   	
-+			(**$VtNhh_ˇ ∞		
-\ No newline at end of file
-diff -Naur --exclude '.*' xpcom/typelib/xpt/tools/xpt.pyc xpcom-patched/typelib/xpt/tools/xpt.pyc
---- xpcom/typelib/xpt/tools/xpt.pyc	1970-01-01 01:00:00.000000000 +0100
-+++ xpcom-patched/typelib/xpt/tools/xpt.pyc	2016-10-13 21:20:00.000000000 +0200
-@@ -0,0 +1,474 @@
-+Û
-+wˆûWc           @Ä  sM  d  Z  d d l m Z d d l Z d d l Z d d l Z d d l Z d Z d, Z d e	 f d Ñ  É  YZ
-+ d	 e	 f d
-+ Ñ  É  YZ d Ñ  Z d Ñ  Z d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d Ñ  É  YZ d e f d  Ñ  É  YZ d! e f d" Ñ  É  YZ d# e f d$ Ñ  É  YZ d% Ñ  Z d& Ñ  Z e d' k rIe e j É d( k  rËe j  d) IJe j! d É n  e j d d* k re e j d É qIe j d d+ k rIe e j d( É j" e j d É qIn  d S(-   s…  
-+A module for working with XPCOM Type Libraries.
-+
-+The XPCOM Type Library File Format is described at:
-+http://www.mozilla.org/scriptable/typelib_file.html . It is used
-+to provide type information for calling methods on XPCOM objects
-+from scripting languages such as JavaScript.
-+
-+This module provides a set of classes representing the parts of
-+a typelib in a high-level manner, as well as methods for reading
-+and writing them from files.
-+
-+The usable public interfaces are currently:
-+Typelib.read(input_file) - read a typelib from a file on disk or file-like
-+                           object, return a Typelib object.
-+
-+xpt_dump(filename)     - read a typelib from a file on disk, dump
-+                         the contents to stdout in a human-readable
-+                         format.
-+
-+Typelib()              - construct a new Typelib object
-+Interface()            - construct a new Interface object
-+Method()               - construct a new object representing a method
-+                         defined on an Interface
-+Constant()             - construct a new object representing a constant
-+                         defined on an Interface
-+Param()                - construct a new object representing a parameter
-+                         to a method
-+SimpleType()           - construct a new object representing a simple
-+                         data type
-+InterfaceType()        - construct a new object representing a type that
-+                         is an IDL-defined interface
-+
-+iˇˇˇˇ(   t   with_statementNs   XPCOM
-+TypeLib
-+i   i   t   FileFormatErrorc           BÄ  s   e  Z RS(    (   t   __name__t
-+   __module__(    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR   O   s   t	   DataErrorc           BÄ  s   e  Z RS(    (   R   R   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR   S   s   c         Ä  s   á  f d Ü  } | S(   Nc         Ä  s1   x à  D] \ } } | | | <q Wt  |  | | É S(   N(   t   type(   t   namet   basest   dict_t   vt   k(   t   attribs(    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   fooY   s    (    (   R   R   (    (   R   sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   M_add_class_attribsX   s    c          Ä  s#   d t  f á  f d Ü  É  Y} | É  S(   Nt   Fooc           Ä  s#   e  Z e e à  É É Z d  Ñ  Z RS(   c         SÄ  s
-+   t  Ç d  S(   N(   t   NotImplementedError(   t   selfR   t   value(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __setattr__d   s    (   R   R   R   t	   enumeratet   __metaclass__R   (    (   t   names(    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR   a   s   (   t   object(   R   R   (    (   R   sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   enum`   s    t   Typec           BÄ  sø   e  Z d  Z e j d É Z e d d d d d d d d	 d
-+ d d d d d d d d d d d d d d d d d d É Z e e d Ñ Z	 d Ñ  Z
-+ e d Ñ  É Z d  Ñ  Z e d! Ñ  É Z d" Ñ  Z RS(#   sä   
-+    Data type of a method parameter or return value. Do not instantiate
-+    this class directly. Rather, use one of its subclasses.
-+
-+    s   >Bt   int8t   int16t   int32t   int64t   uint8t   uint16t   uint32t   uint64t   floatt   doublet   booleant   chart   wchar_tt   voidt   nsIIDt	   DOMStringt   char_ptrt   wchar_t_ptrt	   Interfacet   InterfaceIst   Arrayt   StringWithSizet   WideStringWithSizet
-+   UTF8Stringt   CStringt   AStringt   jsvalc         CÄ  s2   | |  _  | |  _ | r. | r. t d É Ç n  d  S(   Ns-   If reference is True pointer must be True too(   t   pointert	   referencet	   Exception(   R   R4   R5   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __init__ò   s    		c         CÄ  sC   t  t |  É t | É É pB t  |  j | j É pB t  |  j | j É S(   N(   t   cmpR   R4   R5   (   R   t   other(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __cmp__û   s    c         CÄ  s&   i t  |  d @É d 6t  |  d @É d 6S(   s/  
-+        Given |byte|, an unsigned uint8 containing flag bits,
-+        decode the flag bits as described in
-+        http://www.mozilla.org/scriptable/typelib_file.html#TypeDescriptor
-+        and return a dict of flagname: (True|False) suitable
-+        for passing to Type.__init__ as **kwargs.
-+
-+        iÄ   R4   i    R5   (   t   bool(   t   byte(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   decodeflags¶   s    
-+c         CÄ  s6   d } |  j  r | d O} n  |  j r2 | d O} n  | S(   sL   
-+        Encode the flag bits of this Type object. Returns a byte.
-+
-+        i    iÄ   i    (   R4   R5   (   R   t   flags(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   encodeflags¥   s    		c   	      CÄ  s≥  | | d } t  j j | | É \ } | d @} t  j | É } | d @} | t  j j 7} d } | t  j j k sÉ | t  j j k rõ t	 j
-+ | | | É } n| t  j j k r— t j |  | | | | É \ } } nÿ | t  j j k rt j |  | | | | É \ } } n¢ | t  j j k r=t j |  | | | | É \ } } nl | t  j j k rst j |  | | | | É \ } } n6 | t  j j k r©t j |  | | | | É \ } } n  | | f S(   s  
-+        Read a TypeDescriptor at |offset| from the mmaped file |map| with
-+        data pool offset |data_pool|. Returns (Type, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this TypeDescriptor.
-+
-+        i   i‡   i   N(   R   t   _prefixdescriptort   unpack_fromR=   t   sizet   Nonet   TagsR*   R0   t
-+   SimpleTypet   getR+   t   InterfaceTypet   readR,   t   InterfaceIsTypeR-   t	   ArrayTypeR.   t   StringWithSizeTypeR/   t   WideStringWithSizeType(	   t   typelibt   mapt	   data_poolt   offsett   startt   dataR>   t   tagt   t(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   ¿   s(    	
-+
-+$$$$$$c         CÄ  s*   | j  t j j |  j É  |  j BÉ É d S(   s  
-+        Write a TypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position. For types other than
-+        SimpleType, this is not sufficient for writing the TypeDescriptor,
-+        and the subclass method must be called.
-+
-+        N(   t   writeR   R@   t   packR?   RS   (   R   RM   t   file(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   ‡   s    (   R   R   t   __doc__t   structt   StructR@   R   RD   t   FalseR7   R:   t   staticmethodR=   R?   RH   RU   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR   j   sH   			 RE   c           BÄ  s>   e  Z d  Z i  Z d Ñ  Z d Ñ  Z e d Ñ  É Z d Ñ  Z RS(   sU   
-+    A simple data type. (SimpleTypeDescriptor from the typelib specification.)
-+
-+    c         KÄ  s   t  j |  | ç | |  _ d  S(   N(   R   R7   RS   (   R   RS   t   kwargs(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   Ú   s    c         CÄ  s%   t  j |  | É p$ t |  j | j É S(   N(   R   R:   R8   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   ˆ   s    c         CÄ  s3   |  t  j k r( t  | | ç t  j |  <n  t  j |  S(   s“   
-+        Get a SimpleType object representing |data| (a TypeDescriptorPrefix).
-+        May return an already-created object. If no cached object is found,
-+        construct one with |tag| and |flags|.
-+
-+        (   RE   t   _cache(   RR   RS   R>   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRF   ¸   s    c         CÄ  sπ   d } |  j  t j j k r( |  j r( d S|  j  t j j k rJ |  j rJ d Sx< t t j É D]+ } |  j  t t j | É k rZ | } PqZ qZ W|  j rµ |  j r® | d 7} qµ | d 7} n  | S(   Nt   unknownt   stringt   wstrings    &s    *(	   RS   R   RD   R)   R4   R*   t   dirt   getattrR5   (   R   t   sRT   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __str__  s    		(	   R   R   RX   R^   R7   R:   R\   RF   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRE   Î   s   		RG   c           BÄ  sS   e  Z d  Z e j d É Z e d Ñ Z d Ñ  Z e	 d Ñ  É Z
-+ d Ñ  Z d Ñ  Z RS(   sÉ   
-+    A type representing a pointer to an IDL-defined interface.
-+    (InterfaceTypeDescriptor from the typelib specification.)
-+
-+    s   >Hc         KÄ  sG   | s t  d É Ç n  t j |  d | | ç| |  _ t j j |  _ d  S(   Ns-   InterfaceType is not valid with pointer=FalseR4   (   R   R   R7   t   ifaceRD   R+   RS   (   R   Rf   R4   R]   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   #  s
-+    	c         CÄ  s@   t  j |  | É p? t |  j j | j j É p? t |  j | j É S(   N(   R   R:   R8   Rf   R   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   *  s    c         CÄ  sò   | d s d | f S| | d } t j j | | É \ } | t j j 7} d } | d k rÖ | t |  j É k rÖ |  j | d } n  t | | ç | f S(   s)  
-+        Read an InterfaceTypeDescriptor at |offset| from the mmaped
-+        file |map| with data pool offset |data_pool|.
-+        Returns (InterfaceType, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this InterfaceTypeDescriptor.
-+
-+        R4   i   i    N(   RC   RG   t   _descriptorRA   RB   t   lent
-+   interfaces(   RM   RN   RO   RP   R>   RQ   t   iface_indexRf   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   2  s    
-+
-+
-+!c         CÄ  sC   t  j |  | | É | j t j j | j j |  j É d É É d S(   s|   
-+        Write an InterfaceTypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        i   N(   R   RU   RG   Rg   RV   Ri   t   indexRf   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   G  s    c         CÄ  s   |  j  r |  j  j Sd S(   Ns   unknown interface(   Rf   R   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   Q  s    	
-+(   R   R   RX   RY   RZ   Rg   t   TrueR7   R:   R\   RH   RU   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRG     s   		
-+RI   c           BÄ  sY   e  Z d  Z e j d É Z i  Z e d Ñ Z d Ñ  Z	 e
-+ d Ñ  É Z d Ñ  Z d Ñ  Z RS(   s¶   
-+    A type representing an interface described by one of the other
-+    arguments to the method. (InterfaceIsTypeDescriptor from the
-+    typelib specification.)
-+
-+    s   >Bc         KÄ  sG   | s t  d É Ç n  t j |  d | | ç| |  _ t j j |  _ d  S(   Ns/   InterfaceIsType is not valid with pointer=FalseR4   (   R   R   R7   t   param_indexRD   R,   RS   (   R   Rm   R4   R]   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   a  s
-+    	c         CÄ  s:   t  j |  | É p9 t |  j | j É p9 t |  j | j É S(   N(   R   R:   R8   Rm   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   h  s    c         CÄ  sÉ   | d s d | f S| | d } t j j | | É \ } | t j j 7} | t j k rr t | | ç t j | <n  t j | | f S(   sR  
-+        Read an InterfaceIsTypeDescriptor at |offset| from the mmaped
-+        file |map| with data pool offset |data_pool|.
-+        Returns (InterfaceIsType, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this InterfaceIsTypeDescriptor.
-+        May return a cached value.
-+
-+        R4   i   N(   RC   RI   Rg   RA   RB   R^   (   RM   RN   RO   RP   R>   RQ   Rm   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   o  s    
-+
-+c         CÄ  s3   t  j |  | | É | j t j j |  j É É d S(   s~   
-+        Write an InterfaceIsTypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        N(   R   RU   RI   Rg   RV   Rm   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   É  s    c         CÄ  s   d S(   Ns   InterfaceIs *(    (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   å  s    (   R   R   RX   RY   RZ   Rg   R^   Rl   R7   R:   R\   RH   RU   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRI   W  s   			RJ   c           BÄ  sS   e  Z d  Z e j d É Z e d Ñ Z d Ñ  Z e	 d Ñ  É Z
-+ d Ñ  Z d Ñ  Z RS(   s«   
-+    A type representing an Array of elements of another type, whose
-+    size and length are passed as separate parameters to a method.
-+    (ArrayTypeDescriptor from the typelib specification.)
-+
-+    s   >BBc         KÄ  sY   | s t  d É Ç n  t j |  d | | ç| |  _ | |  _ | |  _ t j j |  _ d  S(   Ns)   ArrayType is not valid with pointer=FalseR4   (	   R   R   R7   t   element_typet   size_is_arg_numt   length_is_arg_numRD   R-   RS   (   R   Rn   Ro   Rp   R4   R]   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   ô  s    			c         CÄ  sd   t  j |  | É pc t |  j | j É pc t |  j | j É pc t |  j | j É pc t |  j | j É S(   N(   R   R:   R8   Rn   Ro   Rp   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   £  s
-+    c   	      CÄ  sÑ   | d s d | f S| | d } t j j | | É \ } } | t j j 7} t j |  | | | É \ } } t | | | | ç | f S(   s  
-+        Read an ArrayTypeDescriptor at |offset| from the mmaped
-+        file |map| with data pool offset |data_pool|.
-+        Returns (ArrayType, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this ArrayTypeDescriptor.
-+        R4   i   N(   RC   RJ   Rg   RA   RB   R   RH   (	   RM   RN   RO   RP   R>   RQ   Ro   Rp   RT   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   ¨  s    	
-+
-+c         CÄ  sL   t  j |  | | É | j t j j |  j |  j É É |  j j | | É d S(   sx   
-+        Write an ArrayTypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        N(   R   RU   RJ   Rg   RV   Ro   Rp   Rn   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   Ω  s    c         CÄ  s   d t  |  j É S(   Ns   %s [](   t   strRn   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   »  s    (   R   R   RX   RY   RZ   Rg   Rl   R7   R:   R\   RH   RU   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRJ   ê  s   				RK   c           BÄ  sS   e  Z d  Z e j d É Z e d Ñ Z d Ñ  Z e	 d Ñ  É Z
-+ d Ñ  Z d Ñ  Z RS(   s¿   
-+    A type representing a UTF-8 encoded string whose size and length
-+    are passed as separate arguments to a method. (StringWithSizeTypeDescriptor
-+    from the typelib specification.)
-+
-+    s   >BBc         KÄ  sP   | s t  d É Ç n  t j |  d | | ç| |  _ | |  _ t j j |  _ d  S(   Ns2   StringWithSizeType is not valid with pointer=FalseR4   (   R   R   R7   Ro   Rp   RD   R.   RS   (   R   Ro   Rp   R4   R]   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   ’  s    		c         CÄ  sO   t  j |  | É pN t |  j | j É pN t |  j | j É pN t |  j | j É S(   N(   R   R:   R8   Ro   Rp   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   ﬁ  s    c         CÄ  sc   | d s d | f S| | d } t j j | | É \ } } | t j j 7} t | | | ç | f S(   s7  
-+        Read an StringWithSizeTypeDescriptor at |offset| from the mmaped
-+        file |map| with data pool offset |data_pool|.
-+        Returns (StringWithSizeType, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this StringWithSizeTypeDescriptor.
-+        R4   i   N(   RC   RK   Rg   RA   RB   (   RM   RN   RO   RP   R>   RQ   Ro   Rp   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   Ê  s    	
-+
-+c         CÄ  s9   t  j |  | | É | j t j j |  j |  j É É d S(   sÄ   
-+        Write a StringWithSizeTypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        N(   R   RU   RK   Rg   RV   Ro   Rp   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   ˆ  s    c         CÄ  s   d S(   Nt   string_s(    (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe      s    (   R   R   RX   RY   RZ   Rg   Rl   R7   R:   R\   RH   RU   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRK   Ã  s   		
-+RL   c           BÄ  sS   e  Z d  Z e j d É Z e d Ñ Z d Ñ  Z e	 d Ñ  É Z
-+ d Ñ  Z d Ñ  Z RS(   s≈   
-+    A type representing a UTF-16 encoded string whose size and length
-+    are passed as separate arguments to a method.
-+    (WideStringWithSizeTypeDescriptor from the typelib specification.)
-+
-+    s   >BBc         KÄ  sP   | s t  d É Ç n  t j |  d | | ç| |  _ | |  _ t j j |  _ d  S(   Ns6   WideStringWithSizeType is not valid with pointer=FalseR4   (   R   R   R7   Ro   Rp   RD   R/   RS   (   R   Ro   Rp   R4   R]   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7     s    		c         CÄ  sO   t  j |  | É pN t |  j | j É pN t |  j | j É pN t |  j | j É S(   N(   R   R:   R8   Ro   Rp   RS   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:     s    c         CÄ  sc   | d s d | f S| | d } t j j | | É \ } } | t j j 7} t | | | ç | f S(   sC  
-+        Read an WideStringWithSizeTypeDescriptor at |offset| from the mmaped
-+        file |map| with data pool offset |data_pool|.
-+        Returns (WideStringWithSizeType, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this WideStringWithSizeTypeDescriptor.
-+        R4   i   N(   RC   RL   Rg   RA   RB   (   RM   RN   RO   RP   R>   RQ   Ro   Rp   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH     s    	
-+
-+c         CÄ  s9   t  j |  | | É | j t j j |  j |  j É É d S(   sÑ   
-+        Write a WideStringWithSizeTypeDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        N(   R   RU   RL   Rg   RV   Ro   Rp   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   .  s    c         CÄ  s   d S(   Nt	   wstring_s(    (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   8  s    (   R   R   RX   RY   RZ   Rg   Rl   R7   R:   R\   RH   RU   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRL     s   		
-+t   Paramc           BÄ  sÉ   e  Z d  Z e j d É Z e e e e e e d Ñ Z d Ñ  Z	 e
-+ d Ñ  É Z d Ñ  Z e
-+ d Ñ  É Z d Ñ  Z d Ñ  Z d	 Ñ  Z RS(
-+   sz   
-+    A parameter to a method, or the return value of a method.
-+    (ParamDescriptor from the typelib specification.)
-+
-+    s   >Bc         CÄ  sC   | |  _  | |  _ | |  _ | |  _ | |  _ | |  _ | |  _ d S(   sp   
-+        Construct a Param object with the specified |type| and
-+        flags. Params default to "in".
-+
-+        N(   R   t   in_t   outt   retvalt   sharedt   dippert   optional(   R   R   Ru   Rv   Rw   Rx   Ry   Rz   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   D  s    						c         CÄ  së   t  |  j | j É pê t  |  j | j É pê t  |  j | j É pê t  |  j | j É pê t  |  j | j É pê t  |  j | j É pê t  |  j | j É S(   N(   R8   R   Ru   Rv   Rw   Rx   Ry   Rz   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   T  s    c         CÄ  sj   i t  |  d @É d 6t  |  d @É d 6t  |  d @É d 6t  |  d @É d 6t  |  d	 @É d
-+ 6t  |  d @É d 6S(   s/  
-+        Given |byte|, an unsigned uint8 containing flag bits,
-+        decode the flag bits as described in
-+        http://www.mozilla.org/scriptable/typelib_file.html#ParamDescriptor
-+        and return a dict of flagname: (True|False) suitable
-+        for passing to Param.__init__ as **kwargs
-+        iÄ   Ru   i@   Rv   i    Rw   i   Rx   i   Ry   i   Rz   (   R;   (   R<   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR=   _  s    	c         CÄ  sé   d } |  j  r | d O} n  |  j r2 | d O} n  |  j rH | d O} n  |  j r^ | d O} n  |  j rt | d O} n  |  j rä | d O} n  | S(   sp   
-+        Encode the flags of this Param. Return a byte suitable for
-+        writing to a typelib file.
-+
-+        i    iÄ   i@   i    i   i   i   (   Ru   Rv   Rw   Rx   Ry   Rz   (   R   R>   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR?   r  s    						c         CÄ  sÜ   | | d } t  j j | | É \ } | d M} t  j | É } | t  j j 7} t j |  | | | É \ } } t  | | ç } | | f S(   s  
-+        Read a ParamDescriptor at |offset| from the mmaped file |map| with
-+        data pool offset |data_pool|. Returns (Param, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this ParamDescriptor.
-+        i   i¸   (   Rt   t   _descriptorstartRA   R=   RB   R   RH   (   RM   RN   RO   RP   RQ   R>   RT   t   p(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   á  s    
-+c         CÄ  s6   | j  t j j |  j É  É É |  j j  | | É d S(   st   
-+        Write a ParamDescriptor to |file|, which is assumed to be seeked
-+        to the correct position.
-+
-+        N(   RU   Rt   R{   RV   R?   R   (   R   RM   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   ô  s    c         CÄ  så   d } |  j  r* |  j r! d } q0 d } n d } |  j rF | d 7} n  |  j r\ | d 7} n  |  j rr | d 7} n  |  j rà | d 7} n  | S(	   sc   
-+        Return a human-readable string representing the flags set
-+        on this Param.
-+
-+        t    s   inout s   out s   in s   dipper s   retval s   shared s	   optional (   Rv   Ru   Ry   Rw   Rx   Rz   (   R   Rd   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   prefix¢  s    								c         CÄ  s   |  j  É  t |  j É S(   N(   R~   Rq   R   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   ∫  s    (   R   R   RX   RY   RZ   R{   Rl   R[   R7   R:   R\   R=   R?   RH   RU   R~   Re   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRt   <  s   						t   Methodc        	   BÄ  sí   e  Z d  Z e j d É Z g  e e e e e e e d Ñ Z d Ñ  Z d Ñ  Z	 d Ñ  Z
-+ e d Ñ  É Z d Ñ  Z e d Ñ  É Z d	 Ñ  Z d
-+ Ñ  Z RS(   sî   
-+    A method of an interface, defining its associated parameters
-+    and return value.
-+    (MethodDescriptor from the typelib specification.)
-+
-+    s   >BIBc         CÄ  sí   | |  _  d |  _ | |  _ | |  _ | |  _ | |  _ | |  _ |	 |  _ |
-+ |  _ t	 | É |  _
-+ | rÖ t | t É rÖ t d É Ç n  | |  _ d  S(   Ni    s   result must be a Param!(   R   t   _name_offsett   gettert   settert   notxpcomt   constructort   hiddent   optargct   implicit_jscontextt   listt   paramst
-+   isinstanceRt   R6   t   result(   R   R   Rã   Râ   RÅ   RÇ   RÉ   RÑ   RÖ   RÜ   Rá   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   «  s    									c         CÄ  s–   t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j | j É pœ t  |  j	 | j	 É pœ t  |  j
-+ | j
-+ É S(   N(   R8   R   RÅ   RÇ   RÉ   RÑ   RÖ   RÜ   Rá   Râ   Rã   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   Ÿ  s    c         CÄ  sI   xB t  | É D]4 } t j | | | | É \ } } |  j j | É q W| S(   s2  
-+        Read |num_args| ParamDescriptors representing this Method's arguments
-+        from the mmaped file |map| with data pool at the offset |data_pool|,
-+        starting at |offset| into self.params. Returns the offset
-+        suitable for reading the data following the ParamDescriptor array.
-+
-+        (   t   rangeRt   RH   Râ   t   append(   R   RM   RN   RO   RP   t   num_argst   iR|   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   read_paramsÁ  s    c         CÄ  s%   t  j | | | | É \ |  _ } | S(   s$  
-+        Read a ParamDescriptor representing this Method's return type
-+        from the mmaped file |map| with data pool at the offset |data_pool|,
-+        starting at |offset| into self.result. Returns the offset
-+        suitable for reading the data following the ParamDescriptor.
-+
-+        (   Rt   RH   Rã   (   R   RM   RN   RO   RP   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   read_resultÙ  s    !c         CÄ  s{   i t  |  d @É d 6t  |  d @É d 6t  |  d @É d 6t  |  d @É d 6t  |  d	 @É d
-+ 6t  |  d @É d 6t  |  d @É d 6S(   s2  
-+        Given |byte|, an unsigned uint8 containing flag bits,
-+        decode the flag bits as described in
-+        http://www.mozilla.org/scriptable/typelib_file.html#MethodDescriptor
-+        and return a dict of flagname: (True|False) suitable
-+        for passing to Method.__init__ as **kwargs
-+
-+        iÄ   RÅ   i@   RÇ   i    RÉ   i   RÑ   i   RÖ   i   RÜ   i   Rá   (   R;   (   R<   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR=   ˇ  s    
-+c         CÄ  s§   d } |  j  r | d O} n  |  j r2 | d O} n  |  j rH | d O} n  |  j r^ | d O} n  |  j rt | d O} n  |  j rä | d O} n  |  j r† | d O} n  | S(	   sx   
-+        Encode the flags of this Method object, return a byte suitable
-+        for writing to a typelib file.
-+
-+        i    iÄ   i@   i    i   i   i   i   (   RÅ   RÇ   RÉ   RÑ   RÖ   RÜ   Rá   (   R   R>   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR?     s     							c   
-+      CÄ  sπ   | | d } t  j j | | É \ } } } | d M} t  j | É } t j | | | É } t  | d | ç }	 | t  j j 7} |	 j |  | | | | É } |	 j	 |  | | | É } |	 | f S(   s  
-+        Read a MethodDescriptor at |offset| from the mmaped file |map| with
-+        data pool offset |data_pool|. Returns (Method, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this MethodDescriptor.
-+
-+        i   i˛   N(
-+   R   R{   RA   R=   t   Typelibt   read_stringRC   RB   Rê   Rë   (
-+   RM   RN   RO   RP   RQ   R>   t   name_offsetRé   R   t   m(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   +  s    	
-+c         CÄ  sl   | j  t j j |  j É  |  j t |  j É É É x! |  j D] } | j  | | É q; W|  j j  | | É d S(   ss   
-+        Write a MethodDescriptor to |file|, which is assumed to be
-+        seeked to the right position.
-+
-+        N(	   RU   R   R{   RV   R?   RÄ   Rh   Râ   Rã   (   R   RM   RW   R|   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   @  s    c         CÄ  sD   |  j  r7 | j É  | d |  _ | j |  j  d É n	 d |  _ d S(   sï   
-+        Write this method's name to |file|.
-+        Assumes that |file| is currently seeked to an unused portion
-+        of the data pool.
-+
-+        i   t    i    N(   R   t   tellRÄ   RU   (   R   RW   t   data_pool_offset(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt
-+   write_nameM  s    	(   R   R   RX   RY   RZ   R{   R[   R7   R:   Rê   Rë   R\   R=   R?   RH   RU   Rô   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR   æ  s   						t   Constantc           BÄ  sì   e  Z d  Z e j d É Z i d e j j 6d e j j	 6d e j j
-+ 6d e j j 6Z d Ñ  Z d Ñ  Z e d Ñ  É Z d Ñ  Z d	 Ñ  Z d
-+ Ñ  Z RS(   s   
-+    A constant value of a specific type defined on an interface.
-+    (ConstantDesciptor from the typelib specification.)
-+
-+    s   >Is   >hs   >Hs   >ic         CÄ  s(   | |  _  d |  _ | |  _ | |  _ d  S(   Ni    (   R   RÄ   R   R   (   R   R   R   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   j  s    			c         CÄ  s=   t  |  j | j É p< t  |  j | j É p< t  |  j | j É S(   N(   R8   R   R   R   (   R   R9   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   p  s    c         CÄ  s¯   | | d } t  j j | | É \ } t j | | | É } | t  j j 7} t j |  | | | É \ } } d } t	 | t
-+ É rÓ | j t  j k rÓ t  j | j }	 | | d } t j |	 | | É \ }
-+ | t j |	 É 7} t  | | |
-+ É } n  | | f S(   s  
-+        Read a ConstDescriptor at |offset| from the mmaped file |map| with
-+        data pool offset |data_pool|. Returns (Constant, next offset),
-+        where |next offset| is an offset suitable for reading the data
-+        following this ConstDescriptor.
-+
-+        i   N(   Rö   R{   RA   Rí   Rì   RB   R   RH   RC   Rä   RE   RS   t   typemapRY   t   calcsize(   RM   RN   RO   RP   RQ   Rî   R   RT   t   ct   ttt   val(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   w  s    	!c         CÄ  sb   | j  t j j |  j É É |  j j  | | É t j |  j j } | j  t j | |  j	 É É d S(   ss   
-+        Write a ConstDescriptor to |file|, which is assumed
-+        to be seeked to the proper position.
-+
-+        N(
-+   RU   Rö   R{   RV   RÄ   R   Rõ   RS   RY   R   (   R   RM   RW   Rû   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   è  s    c         CÄ  sD   |  j  r7 | j É  | d |  _ | j |  j  d É n	 d |  _ d S(   sò   
-+        Write this constants's name to |file|.
-+        Assumes that |file| is currently seeked to an unused portion
-+        of the data pool.
-+
-+        i   Rñ   i    N(   R   Ró   RÄ   RU   (   R   RW   Rò   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRô   ö  s    	c         CÄ  s    d |  j  t |  j É |  j f S(   Ns   Constant(%s, %s, %d)(   R   Rq   R   R   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __repr__ß  s    (   R   R   RX   RY   RZ   R{   R   RD   R   R   R   R   Rõ   R7   R:   R\   RH   RU   Rô   R†   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRö   [  s   				R+   c           BÄ  s°   e  Z d  Z e j d É Z e j d É Z d Z e d e d g  g  e e e e d Ñ
-+ Z
-+ d Ñ  Z d Ñ  Z d Ñ  Z d	 Ñ  Z d
-+ Ñ  Z d Ñ  Z d Ñ  Z d Ñ  Z RS(   sú   
-+    An Interface represents an object, with its associated methods
-+    and constant values.
-+    (InterfaceDescriptor from the typelib specification.)
-+
-+    s   >16sIIIs   >HHs$   00000000-0000-0000-0000-000000000000R}   c         CÄ  s›   | |  _  | |  _ | |  _ | |  _ | |  _ t | É |  _ t | É |  _ | |  _ |	 |  _	 |
-+ |  _
-+ | |  _ |  j sÅ |  j rµ |  j t j k r© t d |  j É Ç n  t |  _  n  d |  _ d |  _ d |  _ d  |  _ d  S(   NsV   Cannot instantiate Interface %s containing methods or constants with an unresolved IIDi    (   t   resolvedt   iidR   t	   namespacet   parentRà   t   methodst	   constantst
-+   scriptablet   functiont   builtinclasst   main_process_scriptable_onlyR+   t   UNRESOLVED_IIDR   Rl   t   _descriptor_offsetRÄ   t   _namespace_offsetRC   t   xpt_filename(   R   R   R¢   R£   R°   R§   R•   R¶   Rß   R®   R©   R™   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   ∑  s&    												c         CÄ  s    d |  j  |  j |  j |  j f S(   Ns'   Interface('%s', '%s', '%s', methods=%s)(   R   R¢   R£   R•   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR†   ’  s    c         CÄ  s   d |  j  |  j f S(   Ns   Interface(name='%s', iid='%s')(   R   R¢   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRe   ÿ  s    c         CÄ  s   t  |  j |  j f É S(   N(   t   hashR   R¢   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   __hash__€  s    c         CÄ  sì  t  |  j | j É } | d k r% | St  |  j | j É } | d k rJ | St  |  j | j É } | d k ro | S|  j | j k rï |  j ré d Sd Sn |  j s¢ d S|  j d  k | j d  k k r⁄ |  j d  k r” d Sd Sn= |  j d  k	 rt  |  j j | j j É } | d k r| Sn  t  |  j | j É pít  |  j | j É pít  |  j	 | j	 É pít  |  j
-+ | j
-+ É pít  |  j | j É pít  |  j | j É S(   Ni    iˇˇˇˇi   (   R8   R¢   R   R£   R°   R§   RC   R•   R¶   Rß   R®   R©   R™   (   R   R9   Rù   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR:   ﬁ  s:    		c         CÄ  sı  |  j  } | d k r d  S| | d } t j j | | É \ } } | d k rz | t | j É k rz | j | d |  _ n  | t j j 7} xB t | É D]4 } t	 j
-+ | | | | É \ }	 } |  j j |	 É qó W| | d } t j d | | É \ }
-+ | t j d É } xB t |
-+ É D]4 } t j
-+ | | | | É \ } } |  j j | É qW| | d } t j d | | É \ } | t j d É } | d M} | d @r¶t |  _ n  | d @rºt |  _ n  | d @r“t |  _ n  | d	 @rËt |  _ n  t |  _ d  S(
-+   Ni    i   s   >Hs   >Bi   iÄ   i@   i    i   (   R¨   R+   R{   RA   Rh   Ri   R§   RB   Rå   R   RH   R•   Rç   RY   Rú   Rö   R¶   Rl   Rß   R®   R©   R™   R°   (   R   RM   RN   RO   RP   RQ   R§   t   num_methodsRè   Rï   t   num_constantsRù   R>   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   read_descriptor  s<    	!
-+
-+
-+
-+
-+c         CÄ  s;   | j  t j j t j |  j É |  j |  j |  j	 É É d S(   sé   
-+        Write an InterfaceDirectoryEntry for this interface
-+        to |file|, which is assumed to be seeked to the correct offset.
-+
-+        N(
-+   RU   R+   t	   _direntryRV   Rí   t   string_to_iidR¢   RÄ   R≠   R¨   (   R   RW   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   write_directory_entry)  s    c         CÄ  sb  |  j  s d |  _ d S| j É  | d |  _ d } |  j rX | j j |  j É d } n  | j t j j	 | t
-+ |  j É É É x! |  j D] } | j | | É qá W| j t j	 d t
-+ |  j É É É x! |  j D] } | j | | É qÕ Wd } |  j r| d O} n  |  j r| d O} n  |  j r/| d O} n  |  j rE| d O} n  | j t j	 d	 | É É d S(
-+   s∫   
-+        Write an InterfaceDescriptor to |file|, which is assumed
-+        to be seeked to the proper position. If this interface
-+        is not resolved, do not write any data.
-+
-+        i    Ni   s   >HiÄ   i@   i    i   s   >B(   R°   R¨   Ró   R§   Ri   Rk   RU   R+   R{   RV   Rh   R•   RY   R¶   Rß   R®   R©   R™   (   R   RM   RW   Rò   t
-+   parent_idxRï   Rù   R>   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU   4  s.    			%"				c         CÄ  sÃ   |  j  r7 | j É  | d |  _ | j |  j  d É n	 d |  _ |  j rw | j É  | d |  _ | j |  j d É n	 d |  _ x! |  j D] } | j | | É qä Wx! |  j D] } | j | | É qÆ Wd S(   sË   
-+        Write this interface's name and namespace to |file|,
-+        as well as the names of all of its methods and constants.
-+        Assumes that |file| is currently seeked to an unused portion
-+        of the data pool.
-+
-+        i   Rñ   i    N(	   R   Ró   RÄ   RU   R£   R≠   R•   Rô   R¶   (   R   RW   Rò   Rï   Rù   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   write_namesS  s    				N(   R   R   RX   RY   RZ   R¥   R{   R´   R[   RC   R7   R†   Re   R∞   R:   R≥   R∂   RU   R∏   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR+   ´  s    					'	$		Rí   c           BÄ  sò   e  Z d  Z e j d É Z e g  g  d Ñ Z e d Ñ  É Z	 e d Ñ  É Z
-+ e d Ñ  É Z e d Ñ  É Z d Ñ  Z d Ñ  Z d	 Ñ  Z d
-+ Ñ  Z d Ñ  Z RS(   sR  
-+    A typelib represents one entire typelib file and all the interfaces
-+    referenced within, whether defined entirely within the typelib or
-+    merely referenced by name or IID.
-+
-+    Typelib objects may be instantiated directly and populated with data,
-+    or the static Typelib.read method may be called to read one from a file.
-+
-+    s
-+   >16sBBHIIIc         CÄ  s4   | |  _  t | É |  _ t | É |  _ d |  _ d S(   s-   
-+        Instantiate a new Typelib.
-+
-+        N(   t   versionRà   Ri   t   annotationsRC   t   filename(   R   Rπ   Ri   R∫   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR7   w  s    	c         CÄ  s[   d Ñ  } d | |  d  É | |  d d !É | |  d d !É | |  d d !É | |  d É f S(   s<   
-+        Convert a 16-byte IID into a UUID string.
-+
-+        c         SÄ  s*   d j  g  |  D] } d t | É ^ q É S(   NR}   s   %02x(   t   joint   ord(   Rd   t   x(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   hexifyá  s    s   %s-%s-%s-%s-%si   i   i   i
-+   (    (   R¢   Rø   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   iid_to_stringÅ  s    	  c      	   CÄ  s^   |  j  d d É } d j g  t d t | É d É D]& } t t | | | d !d É É ^ q1 É S(   s<   
-+        Convert a UUID string into a 16-byte IID.
-+
-+        t   -R}   i    i   i   (   t   replaceRº   Rå   Rh   t   chrt   int(   t   iid_strRd   Rè   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRµ   é  s    c         CÄ  sM   | d k r d S|  j  d | | d É } | d k r: d S|  | | d | !S(   Ni    R}   Rñ   i   iˇˇˇˇ(   t   find(   RN   RO   RP   t   sz(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRì   ó  s    c         CÄ  sL  d } d } d } t |  t É rr |  } t |  d É è7 } t j | j É  É } | j | j É } | j } Wd QXn |  j É  } t	 j
-+ j | É \ } } } }	 }
-+ } } | t k rƒ t d | É Ç n  t	 | | f É } | | _ | r
-+|
-+ | k r
-+t d | |
-+ f É Ç n  | d 8} t	 j
-+ j } t j d | | É \ } | d @} | d	 k ra| j j d É n  xΩ t |	 É D]Ø } | | t j j } t j j | | É } t	 j | d	 É } t	 j | | | d É } t	 j | | | d
-+ É } t | | | É } | d | _ | j | _ | j j | É qnWx$ | j D] } | j | | | É q+W| S(   s§   
-+        Read a typelib from |input_file| and return
-+        the constructed Typelib object. |input_file| can be a filename
-+        or a file-like object.
-+
-+        R}   t   rbNs   Bad magic: %ss2   File is of wrong length, got %d bytes, expected %di   s   >Bi   i    i   i   (   RC   Rä   t
-+   basestringt   opent   ost   fstatt   filenoRH   t   st_sizeRí   t   _headerRA   t	   XPT_MAGICR   Rª   RB   RY   R∫   Rç   Rå   R+   R¥   R¿   Rì   R¨   RÆ   Ri   R≥   (   t
-+   input_fileRª   RR   t   expected_sizet   ft   stt   magict	   major_vert	   minor_vert   num_interfacest   file_lengtht   interface_directory_offsetRò   t   xptRQ   t   annoRS   Rè   t   ideR¢   R   R£   Rf   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRH   †  sH    '	
-+
-+c         CÄ  s   d t  |  j É S(   Ns   <Typelib with %d interfaces>(   Rh   Ri   (   R   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyR†   ﬂ  s    c      	   CÄ  s4  |  j  j É  x |  j  D]} | j rZ | j |  j  k rZ t d | j | j j f É Ç n  xœ | j D]ƒ } xi t | j É D]X \ } } t | t	 É rz | j
-+ |  j  k rz t d | j | j | | j
-+ j f É Ç qz qz Wt | j t	 É rd | j j
-+ |  j  k rd t d | j | j | j j
-+ j f É Ç qd qd Wq Wd S(   s»   
-+        Check certain assumptions about data contained in this typelib.
-+        Sort the interfaces array by IID, check that all interfaces
-+        referenced by methods exist in the array.
-+
-+        s2   Interface %s has parent %s not present in typelib!sU   Interface method %s::%s, parameter %d references interface %s not present in typelib!sO   Interface method %s::%s, result references interface %s not present in typelib!N(   Ri   t   sortR§   R   R   R•   R   Râ   Rä   RG   Rf   Rã   (   R   Rè   Rï   t   nR|   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   _sanityCheck‚  s    "/'c      	   CÄ  sW  t  j j d } | d r/ | d | d 7} n  | j d | É | j É  } | j d t j j t |  j É É | j É  } x4 |  j D]) } | j	 | | É | j |  | | É qÜ W| j É  } | j
-+ d É | j t  j j t t d t d t |  j É | | | É É | j t j d d É É | j
-+ | d É x |  j D] } | j | É q<Wd  S(   Ni   i   Rñ   i    s   >BiÄ   (   Rí   Rœ   RB   RU   Ró   R+   R¥   Rh   Ri   R∏   t   seekRV   R–   t   TYPELIB_VERSIONRY   R∂   (   R   t   fdt
-+   headersizeR⁄   Rò   Rè   t   file_len(    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   writefdı  s.    
-+$
-+c         CÄ  sR   |  j  É  t | t É rA t | d É è } |  j | É Wd QXn |  j | É d S(   sÖ   
-+        Write the contents of this typelib to |output_file|,
-+        which can be either a filename or a file-like object.
-+
-+        t   wbN(   R‡   Rä   R…   R    RÊ   (   R   t   output_fileR”   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRU     s
-+    
-+c         CÄ  s√  | j  d |  j d |  j d t |  j É f É x= t |  j É D], \ } } | d k rA | j  d | É qA qA W| j  d É x>|  j D]3} | j  d | j | j | j	 f É | j
-+ s  | j  d É qà | j r˘ | j  d | j j | j j f É n  | j  d	 | j rd
-+ pd | j r#d
-+ p&d | j r5d
-+ p8d f É | j  d É t | j É d k rr| j  d É n‡ x› | j D]“ } | j  d | j röd pùd | j r¨d pØd | j ræd p¡d | j r–d p”d | j r‚d pÂd | j rÙd p˜d | j rd p	d t | j j É | j | j rCd j d Ñ  | j DÉ É pFd f
-+ É q|W| j  d É t | j É d k rÑ| j  d É qà x4 | j D]) } | j  d | j | j | j f É qéWqà Wd S(   s~   
-+        Print a human-readable listing of the contents of this typelib
-+        to |out|, in the format of xpt_dump.
-+
-+        so   Header:
-+   Major version:         %d
-+   Minor version:         %d
-+   Number of interfaces:  %d
-+   Annotations:
-+i    i   s         Annotation #%d is empty.
-+s   
-+Interface Directory:
-+s      - %s::%s (%s):
-+s         [Unresolved]
-+s         Parent: %s::%s
-+sU         Flags:
-+         Scriptable: %s
-+         BuiltinClass: %s
-+         Function: %s
-+t   TRUEt   FALSEs         Methods:
-+s            No Methods
-+s      %s%s%s%s%s%s%s %s %s(%s);
-+t   Gt    t   St   Ht   Nt   Ct   Ot   Js   , c         sÄ  s   |  ] } t  | É Vq d  S(   N(   Rq   (   t   .0R|   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pys	   <genexpr>R  s    R}   s         Constants:
-+s            No Constants
-+s            %s %s = %d;
-+N(   RU   Rπ   Rh   Ri   R   R∫   RC   R£   R   R¢   R°   R§   Rß   R©   R®   R•   RÅ   RÇ   RÖ   RÉ   RÑ   RÜ   Rá   Rq   Rã   R   Râ   Rº   R¶   R   (   R   Rv   Rè   t   aRï   Rù   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   dump&  sJ    +#			4(   R   R   RX   RY   RZ   Rœ   R‚   R7   R\   R¿   Rµ   Rì   RH   R†   R‡   RÊ   RU   Rı   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyRí   k  s   	
-+		?			$	c         CÄ  s#   t  j |  É } | j t j É d S(   sK   
-+    Dump the contents of |file| to stdout in the format of xpt_dump.
-+
-+    N(   Rí   RH   Rı   t   syst   stdout(   RW   RT   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   xpt_dump\  s    c         Ä  s6  d Ñ  } |  s  t  j d IJd Sg  } i  â x* |  D]" } | | É } | j | j É q3 W| j d t j d É É t d d d d É â  á  f d	 Ü  } d
-+ } x» | t	 | É k  rf| | | d
-+ | | É } | à  j
-+ k rË | d
-+ 7} qü | à  j k r| | =qü | à  j k r0| | d
-+ à | | <| | =qü | à  j k rü | | à | | d
-+ <| | d
-+ =qü qü Wá f d Ü  } xu | D]m } | j à k r•à | j | _ n  xB | j D]7 }	 | |	 j j É x |	 j D] }
-+ | |
-+ j É qœWqØWq}Wt d Ñ  | DÉ É â t É  â á á f d Ü  } xÒ à rà j É  } à j | É | j rZ| | j É n  x≤ | j D]ß }	 t |	 j j t É rï| |	 j j j É n  xs |	 j D]h }
-+ t |
-+ j t É r | |
-+ j j É qüt |
-+ j t É rüt |
-+ j j t É rü| |
-+ j j j É qüqüWqdWq"Wt à É } | j É  t d | É S(   s  
-+    Link all of the xpt files in |inputs| together and return the result
-+    as a Typelib object. All entries in inputs may be filenames or
-+    file-like objects. Non-scriptable interfaces that are unreferenced
-+    from scriptable interfaces will be removed during linking.
-+
-+    c         SÄ  s    t  |  t É r |  St j |  É S(   N(   Rä   Rí   RH   (   Rè   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt
-+   read_inputm  s    s0   Usage: xpt_link <destination file> <input files>t   keyR   t   Equalt   NotEqualt	   KeepFirstt
-+   KeepSecondc         Ä  sŒ  |  | k r à  j  S|  j | j k rÅ |  j | j k rz |  j t j k rz t d |  j |  j |  j | j | j f É Ç n  à  j S|  j | j k r| j rÕ |  j | j k s∆ |  j t j k s∆ t	 Ç à  j
-+ S|  j | j k s˜ | j t j k s˜ t	 Ç à  j Snï |  j | j k rñ| j t j k r<| j s5t	 Ç à  j S|  j t j k re|  j s^t	 Ç à  j
-+ St d |  j |  j |  j | j | j f É Ç n  t d |  j |  j |  j | j | j | j f É Ç d S(   s±   
-+        Compare two interfaces, determine if they're equal or
-+        completely different, or should be merged (and indicate which
-+        one to keep in that case).
-+
-+        sW   Typelibs contain definitions of interface %s with different names (%s (%s) vs %s (%s))!sV   Typelibs contain definitions of interface %s with different IIDs (%s (%s) vs %s (%s))!s2   No idea what happened here: %s:%s (%s), %s:%s (%s)N(   R˚   R   R¢   R+   R´   R   RÆ   R¸   R°   t   AssertionErrorR˛   R˝   (   Rè   t   j(   t   Result(    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   compareÜ  s6    $+	**
-+i   c         Ä  sÅ   t  |  t É r1 |  j à  k r1 à  |  j |  _ nL t  |  t É r} t  |  j t É r} |  j j à  k r} à  |  j j |  j _ n  d  S(   N(   Rä   RG   Rf   RJ   Rn   (   RT   (   t   merged_interfaces(    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt	   checkType   s    c         sÄ  s   |  ] } | j  r | Vq d  S(   N(   Rß   (   RÛ   Rè   (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pys	   <genexpr>·  s    c         Ä  s-   |  à  k s |  à k r d  Sà j  |  É d  S(   N(   t   add(   Rf   (   t   required_interfacest   worklist(    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   maybe_add_to_worklist‰  s    Ri   N(   Rˆ   t   stderrRC   t   extendRi   Rﬁ   t   operatort
-+   attrgetterR   Rh   R¸   R˚   R˝   R˛   R§   R•   Rã   R   Râ   t   sett   popR  Rä   RG   Rf   RJ   Rn   Rà   Rí   (   t   inputsR˘   Ri   R”   RT   R  Rè   t   resR  Rï   R|   R  (    (   R  R  R  R  sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   xpt_linke  sn    		4
-+
-+			'"
-+t   __main__i   s   xpt <dump|link> <files>Rı   t   link(   i   i   (#   RX   t
-+   __future__R    RÀ   Rˆ   RY   R  R–   R‚   R6   R   R   R   R   R   R   RE   RG   RI   RJ   RK   RL   Rt   R   Rö   R+   Rí   R¯   R  R   Rh   t   argvR	  t   exitRU   (    (    (    sL   /Users/aliaksei/Desktop/Moz2D/mozilla-central/xpcom/typelib/xpt/tools/xpt.pyt   <module>B   sB   		
-+Å0<9<88ÇùP¿Ò			ò
-\ No newline at end of file
