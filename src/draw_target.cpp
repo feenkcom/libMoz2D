@@ -26,23 +26,8 @@ DrawTarget* moz2d_draw_target_create (int32_t width, int32_t height, SurfaceForm
 	return gfxPlatform::GetPlatform()->CreateOffscreenCanvasDrawTarget(IntSize(width, height), aFormat).take();
 }
 
-DrawTarget* moz2d_draw_target_create_type (ExtendedBackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
-	if ((int8_t)aBackend >= (int8_t)BackendType::DIRECT2D1_1) {
-		switch(aBackend) {
-			case ExtendedBackendType::SKIA_GL:
-				mozilla::gl::SkiaGLGlue* skiaGlue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
-				if (skiaGlue) {
-					// if skia glue was succesfully created, use it
-					return Factory::CreateDrawTargetSkiaWithGrContext(skiaGlue->GetGrContext(), IntSize(width, height), aFormat).take();
-				}
-				else {
-					// otherwise fallback to software skia
-					aBackend = ExtendedBackendType::SKIA;
-				}
-			break;
-		}
-	}
-	return Factory::CreateDrawTarget((BackendType)(int8_t)aBackend, IntSize(width, height), aFormat).take();
+DrawTarget* moz2d_draw_target_create_type (BackendType aBackend, int32_t width, int32_t height, SurfaceFormat aFormat) {
+	return Factory::CreateDrawTarget(aBackend, IntSize(width, height), aFormat).take();
 }
 
 DrawTarget* moz2d_draw_target_create_for_data_type (BackendType aBackend, unsigned char* aData, int32_t width, int32_t height, int32_t aStride, SurfaceFormat aFormat, bool aUninitialized) {
@@ -181,7 +166,7 @@ LIBRARY_API void moz2d_draw_target_as_form(DrawTarget* drawTarget, uint32_t *aDa
 	RefPtr<SourceSurface> snapshot = drawTarget->Snapshot();
 	RefPtr<DataSourceSurface> dataSurface = snapshot->GetDataSurface();
 	DataSourceSurface::MappedSurface mappingSurface;
-	if (!dataSurface->Map(DataSourceSurface::MapType::WRITE, &mappingSurface)) {
+	if (!dataSurface->Map(DataSourceSurface::MapType::READ, &mappingSurface)) {
 		gfxCriticalError() << "moz2d_draw_target_as_form failed to map surface";
 	}
 
