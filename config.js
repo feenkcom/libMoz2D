@@ -42,6 +42,7 @@ module.exports = {
                 'modules/zlib/src',
                 'modules/brotli',
                 'modules/woff2',
+                'modules/libpref',
 
                 'memory/fallible',
                 'memory/mozalloc',
@@ -80,7 +81,6 @@ module.exports = {
                 packages: [
                     'wrapper',
                     'telemetry',
-                    'preferences',
                     'services',
                     'undefined'
                 ]

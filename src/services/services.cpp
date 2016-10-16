@@ -113,8 +113,12 @@ extern nsresult nsStringInputStreamConstructor(nsISupports*, REFNSIID, void**);
 #include "mozilla/LateWriteChecks.h"
 
 #include "mozilla/Services.h"
+#include "mozilla/Preferences.h"
+
+#include <iostream>
 
 using namespace mozilla;
+using namespace std;
 
 // Registry Factory creation function defined in nsRegistry.cpp
 // We hook into this function locally to create and register the registry
@@ -236,6 +240,7 @@ const mozilla::Module kXPCOMModule = { mozilla::Module::kVersion,
 		kXPCOMCIDEntries, kXPCOMContracts };
 
 void moz2d_services_init_services() {
+
 	moz2d_services_init_atom_table();
 	mozilla::LogModule::Init();
 	// Create the Component/Service Manager
@@ -245,16 +250,16 @@ void moz2d_services_init_services() {
 	// Notify observers of xpcom autoregistration start
 	NS_CreateServicesFromCategory(NS_XPCOM_STARTUP_CATEGORY, nullptr,
 			NS_XPCOM_STARTUP_OBSERVER_ID);
-	moz2d_services_init_gfx_config();
-	moz2d_services_init_platform();
+
+	Preferences::GetInstanceForService();
 }
 
 void moz2d_services_shutdown_services() {
+	Preferences::Shutdown();
 	// Notify observers of xpcom shutting down
 	{
 		// Block it so that the COMPtr will get deleted before we hit
 		// servicemanager shutdown
-
 		RefPtr<nsObserverService> observerService;
 		CallGetService("@mozilla.org/observer-service;1",
 				(nsObserverService**) getter_AddRefs(observerService));
@@ -274,8 +279,6 @@ void moz2d_services_shutdown_services() {
 		// This must happen after the shutdown of media and widgets, which
 		// are triggered by the NS_XPCOM_SHUTDOWN_OBSERVER_ID notification.
 		gfxPlatform::ShutdownLayersIPC();
-		moz2d_services_shutdown_platform();
-		moz2d_services_shutdown_gfx_config();
 
 		if (observerService) {
 			observerService->NotifyObservers(nullptr,

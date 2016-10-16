@@ -11,7 +11,6 @@ include_directories(${MOZ_TOP_PATH}/gfx/skia/skia/include/core)
 include_directories(${MOZ_TOP_PATH}/ipc/chromium/src)
 
 add_subdirectory(telemetry)
-add_subdirectory(preferences)
 add_subdirectory(services)
 add_subdirectory(undefined)
 

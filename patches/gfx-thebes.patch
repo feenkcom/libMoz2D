@@ -488,7 +488,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm
      table.Put(key, familyEntry);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
 --- gfx/thebes/gfxPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-15 21:10:08.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-16 17:28:13.000000000 +0200
 @@ -195,206 +195,6 @@
      NS_DECL_NSIOBSERVER
  };
@@ -901,16 +901,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  bool
-@@ -1473,6 +1144,8 @@
-     return BackendType::DIRECT2D1_1;
-   if (aName.EqualsLiteral("cg"))
-     return BackendType::COREGRAPHICS;
-+  if (aName.EqualsLiteral("cga"))
-+    return BackendType::COREGRAPHICS_ACCELERATED;
-   return BackendType::NONE;
- }
- 
-@@ -2148,8 +1821,6 @@
+@@ -2148,8 +1819,6 @@
      }
  
      if (gfxConfig::IsEnabled(Feature::GPU_PROCESS)) {
@@ -919,7 +910,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
      }
    }
  
-@@ -2320,32 +1991,11 @@
+@@ -2320,32 +1989,11 @@
  void
  gfxPlatform::GetApzSupportInfo(mozilla::widget::InfoObject& aObj)
  {
@@ -952,15 +943,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
  }
  
  /*static*/ bool
-@@ -2440,23 +2090,7 @@
- bool
- gfxPlatform::UpdateDeviceInitData()
- {
--  if (XRE_IsParentProcess()) {
--    // The parent process figures out device initialization on its own.
--    return false;
--  }
--
+@@ -2445,17 +2093,6 @@
+     return false;
+   }
+ 
 -  mozilla::gfx::DeviceInitData data;
 -  mozilla::dom::ContentChild::GetSingleton()->SendGetGraphicsDeviceInitData(&data);
 -
@@ -972,11 +958,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebe
 -    GetParentDevicePrefs().useHwCompositing(),
 -    FeatureStatus::Blocked,
 -    "Hardware-accelerated compositing disabled in parent process");
--  return true;
-+	return false;
+   return true;
  }
  
- bool
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
 --- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/gfxPlatform.h	2016-10-13 21:15:24.000000000 +0200
@@ -1314,18 +1298,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.h gfx/theb
  
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
 --- gfx/thebes/gfxPlatformMac.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-10-14 17:02:12.000000000 +0200
-@@ -76,7 +76,8 @@
- 
-     uint32_t canvasMask = BackendTypeBit(BackendType::CAIRO) |
-                           BackendTypeBit(BackendType::SKIA) |
--                          BackendTypeBit(BackendType::COREGRAPHICS);
-+                          BackendTypeBit(BackendType::COREGRAPHICS) |
-+                          BackendTypeBit(BackendType::COREGRAPHICS_ACCELERATED);
-     uint32_t contentMask = BackendTypeBit(BackendType::COREGRAPHICS) |
-                            BackendTypeBit(BackendType::SKIA);
-     InitBackendPrefs(canvasMask, BackendType::COREGRAPHICS,
-@@ -374,211 +375,10 @@
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-10-16 17:28:42.000000000 +0200
+@@ -374,211 +374,10 @@
    return true;
  }
  
@@ -1538,62 +1512,6 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/th
  }
  
  void
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.cpp gfx/thebes-patched/gfxPrefs.cpp
---- gfx/thebes/gfxPrefs.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPrefs.cpp	2016-10-13 21:15:24.000000000 +0200
-@@ -38,14 +38,7 @@
- 
- gfxPrefs::gfxPrefs()
- {
--  // UI, content, and plugin processes use XPCOM and should have prefs
--  // ready by the time we initialize gfxPrefs.
--  MOZ_ASSERT_IF(XRE_IsContentProcess() ||
--                XRE_IsParentProcess() ||
--                XRE_GetProcessType() == GeckoProcessType_Plugin,
--                Preferences::IsServiceAvailable());
--
--  gfxPrefs::AssertMainThread();
-+  
- }
- 
- void
-@@ -117,13 +110,13 @@
- /* static */ bool
- gfxPrefs::IsPrefsServiceAvailable()
- {
--  return Preferences::IsServiceAvailable();
-+  return false;
- }
- 
- /* static */ bool
- gfxPrefs::IsParentProcess()
- {
--  return XRE_IsParentProcess();
-+  return false;
- }
- 
- void gfxPrefs::PrefAddVarCache(bool* aVariable,
-diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPrefs.h gfx/thebes-patched/gfxPrefs.h
---- gfx/thebes/gfxPrefs.h	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/gfxPrefs.h	2016-10-15 21:04:40.000000000 +0200
-@@ -333,7 +333,7 @@
-   DECL_GFX_PREF(Live, "gfx.canvas.auto_accelerate.min_calls",  CanvasAutoAccelerateMinCalls, int32_t, 4);
-   DECL_GFX_PREF(Live, "gfx.canvas.auto_accelerate.min_frames", CanvasAutoAccelerateMinFrames, int32_t, 30);
-   DECL_GFX_PREF(Live, "gfx.canvas.auto_accelerate.min_seconds", CanvasAutoAccelerateMinSeconds, float, 5.0f);
--  DECL_GFX_PREF(Live, "gfx.canvas.azure.accelerated",          CanvasAzureAccelerated, bool, false);
-+  DECL_GFX_PREF(Live, "gfx.canvas.azure.accelerated",          CanvasAzureAccelerated, bool, true);
-   // 0x7fff is the maximum supported xlib surface size and is more than enough for canvases.
-   DECL_GFX_PREF(Live, "gfx.canvas.max-size",                   MaxCanvasSize, int32_t, 0x7fff);
-   DECL_GFX_PREF(Once, "gfx.canvas.skiagl.cache-items",         CanvasSkiaGLCacheItems, int32_t, 256);
-@@ -346,7 +346,7 @@
-   DECL_GFX_PREF(Live, "gfx.color_management.rendering_intent", CMSRenderingIntent, int32_t, 0);
- 
-   DECL_GFX_PREF(Once, "gfx.direct2d.disabled",                 Direct2DDisabled, bool, false);
--  DECL_GFX_PREF(Once, "gfx.direct2d.force-enabled",            Direct2DForceEnabled, bool, false);
-+  DECL_GFX_PREF(Once, "gfx.direct2d.force-enabled",            Direct2DForceEnabled, bool, true);
-   DECL_GFX_PREF(Live, "gfx.draw-color-bars",                   CompositorDrawColorBars, bool, false);
-   DECL_GFX_PREF(Once, "gfx.e10s.hide-plugins-for-scroll",      HidePluginsForScroll, bool, true);
-   DECL_GFX_PREF(Once, "gfx.font_rendering.directwrite.force-enabled", DirectWriteFontRenderingForceEnabled, bool, false);
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
 --- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-10-13 21:15:24.000000000 +0200

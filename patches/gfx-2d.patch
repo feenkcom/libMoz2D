@@ -52,3 +52,85 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/2d/Factory.cpp gfx/2d-patched/Fa
  #endif
  #ifdef USE_CAIRO
    case BackendType::CAIRO: 
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/2d/Factory.cpp gfx/2d-patched/Factory.cpp
+--- gfx/2d/Factory.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/2d-patched/Factory.cpp	2016-10-16 17:36:42.000000000 +0200
+@@ -14,6 +14,12 @@
+ #ifdef USE_SKIA
+ #include "DrawTargetSkia.h"
+ #include "ScaledFontBase.h"
++#if USE_SKIA_GPU
++#include "gfxPlatform.h"
++#include "skia/include/gpu/GrContext.h"
++#include "skia/include/gpu/gl/GrGLInterface.h"
++#include "SkiaGLGlue.h"
++#endif
+ #ifdef MOZ_ENABLE_FREETYPE
+ #define USE_SKIA_FREETYPE
+ #include "ScaledFontCairo.h"
+@@ -57,6 +63,8 @@
+ 
+ #include "mozilla/CheckedInt.h"
+ 
++#include "gfxPrefs.h"
++
+ #if defined(MOZ_LOGGING)
+ GFX2D_API mozilla::LogModule*
+ GetGFX2DLog()
+@@ -327,7 +335,13 @@
+     {
+       RefPtr<DrawTargetCG> newTarget;
+       newTarget = new DrawTargetCG();
+-      if (newTarget->Init(aBackend, aSize, aFormat)) {
++      // try accelerated canvas if it is enabled and fallback to software
++      if (gfxPrefs::CanvasAzureAccelerated() || aBackend == BackendType::COREGRAPHICS_ACCELERATED) {
++    	  if (newTarget->Init(BackendType::COREGRAPHICS_ACCELERATED, aSize, aFormat)) {
++    		  retVal = newTarget;
++    	  }
++      }
++      if (!retVal && newTarget->Init(BackendType::COREGRAPHICS, aSize, aFormat)) {
+         retVal = newTarget;
+       }
+       break;
+@@ -336,10 +350,25 @@
+ #ifdef USE_SKIA
+   case BackendType::SKIA:
+     {
+-      RefPtr<DrawTargetSkia> newTarget;
+-      newTarget = new DrawTargetSkia();
+-      if (newTarget->Init(aSize, aFormat)) {
+-        retVal = newTarget;
++
++#if USE_SKIA_GPU
++#include "gfxPlatform.h"
++      gl::SkiaGLGlue* glue = gfxPlatform::GetPlatform()->GetSkiaGLGlue();
++
++      if (gfxPrefs::CanvasAzureAccelerated() && glue && glue->GetGrContext() && glue->GetGLContext()) {
++    	  RefPtr<DrawTarget> newTarget;
++    	  newTarget = Factory::CreateDrawTargetSkiaWithGrContext(glue->GetGrContext(), aSize, aFormat);
++    	  if (newTarget) {
++    		  retVal = newTarget;
++    	  }
++      }
++#endif
++      if (!retVal) {
++    	  RefPtr<DrawTargetSkia> newTarget;
++    	  newTarget = new DrawTargetSkia();
++    	  if (newTarget->Init(aSize, aFormat)) {
++    		  retVal = newTarget;
++    	  }
+       }
+       break;
+     }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/2d/unittest/TestDrawTargetBase.cpp gfx/2d-patched/unittest/TestDrawTargetBase.cpp
+--- gfx/2d/unittest/TestDrawTargetBase.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/2d-patched/unittest/TestDrawTargetBase.cpp	2016-10-14 15:48:41.000000000 +0200
+@@ -57,7 +57,7 @@
+ void
+ TestDrawTargetBase::VerifyAllPixels(const Color &aColor)
+ {
+-  uint32_t *colVal = (uint32_t*)mDataSnapshot->GetData();
++  uint32_t *colVal = (uint32_t*) mDataSnapshot->GetData();
+ 
+   uint32_t expected = RGBAPixelFromColor(aColor);
+ 

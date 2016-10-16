@@ -10,6 +10,7 @@
 
 #include "exports.h"
 #include "config/gfxConfig.h"
+#include "thebes/gfxPrefs.h"
 
 using namespace mozilla::gfx;
 
@@ -22,6 +23,8 @@ LIBRARY_API bool moz_gfx_config_feature_is_enabled(FeatureState* aFeature);
 LIBRARY_API FeatureState& moz_gfx_config_get_feature(Feature aFeature);
 LIBRARY_API FeatureStatus moz_gfx_config_get_feature_status(FeatureState* aFeature);
 LIBRARY_API void moz_gfx_config_feature_enable_by_default(FeatureState* aFeature);
+LIBRARY_API gfxPrefs::Pref* const* moz_gfx_preferences_all(size_t *length);
+LIBRARY_API const char* moz_gfx_preference_get_name(gfxPrefs::Pref* aPref);
 
 #ifdef __cplusplus
 }

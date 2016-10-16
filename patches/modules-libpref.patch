@@ -1,0 +1,347 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/Preferences.cpp modules/libpref-patched/Preferences.cpp
+--- modules/libpref/Preferences.cpp	2016-08-01 09:12:55.000000000 +0200
++++ modules/libpref-patched/Preferences.cpp	2016-10-16 15:25:18.000000000 +0200
+@@ -563,18 +563,6 @@
+   rv = pref_InitInitialObjects();
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+-  using mozilla::dom::ContentChild;
+-  if (XRE_IsContentProcess()) {
+-    InfallibleTArray<PrefSetting> prefs;
+-    ContentChild::GetSingleton()->SendReadPrefsArray(&prefs);
+-
+-    // Store the array
+-    for (uint32_t i = 0; i < prefs.Length(); ++i) {
+-      pref_SetPref(prefs[i]);
+-    }
+-    return NS_OK;
+-  }
+-
+   nsXPIDLCString lockFileName;
+   /*
+    * The following is a small hack which will allow us to only load the library
+@@ -964,103 +952,13 @@
+ nsresult
+ Preferences::WritePrefFile(nsIFile* aFile)
+ {
+-  nsCOMPtr<nsIOutputStream> outStreamSink;
+-  nsCOMPtr<nsIOutputStream> outStream;
+-  uint32_t                  writeAmount;
+-  nsresult                  rv;
+-
+-  if (!gHashTable)
+-    return NS_ERROR_NOT_INITIALIZED;
+-
+-  // execute a "safe" save by saving through a tempfile
+-  rv = NS_NewSafeLocalFileOutputStream(getter_AddRefs(outStreamSink),
+-                                       aFile,
+-                                       -1,
+-                                       0600);
+-  if (NS_FAILED(rv)) 
+-      return rv;
+-  rv = NS_NewBufferedOutputStream(getter_AddRefs(outStream), outStreamSink, 4096);
+-  if (NS_FAILED(rv)) 
+-      return rv;  
+-
+-  // get the lines that we're supposed to be writing to the file
+-  uint32_t prefCount;
+-  UniquePtr<char*[]> valueArray = pref_savePrefs(gHashTable, &prefCount);
+-
+-  /* Sort the preferences to make a readable file on disk */
+-  NS_QuickSort(valueArray.get(), prefCount, sizeof(char *),
+-               pref_CompareStrings, nullptr);
+-
+-  // write out the file header
+-  outStream->Write(kPrefFileHeader, sizeof(kPrefFileHeader) - 1, &writeAmount);
+-
+-  for (uint32_t valueIdx = 0; valueIdx < prefCount; valueIdx++) {
+-    char*& pref = valueArray[valueIdx];
+-    MOZ_ASSERT(pref);
+-    outStream->Write(pref, strlen(pref), &writeAmount);
+-    outStream->Write(NS_LINEBREAK, NS_LINEBREAK_LEN, &writeAmount);
+-    free(pref);
+-    pref = nullptr;
+-  }
+-
+-  // tell the safe output stream to overwrite the real prefs file
+-  // (it'll abort if there were any errors during writing)
+-  nsCOMPtr<nsISafeOutputStream> safeStream = do_QueryInterface(outStream);
+-  NS_ASSERTION(safeStream, "expected a safe output stream!");
+-  if (safeStream) {
+-    rv = safeStream->Finish();
+-    if (NS_FAILED(rv)) {
+-      NS_WARNING("failed to save prefs file! possible data loss");
+-      return rv;
+-    }
+-  }
+-
+   mDirty = false;
+   return NS_OK;
+ }
+ 
+ static nsresult openPrefFile(nsIFile* aFile)
+ {
+-  nsCOMPtr<nsIInputStream> inStr;
+-
+-  nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inStr), aFile);
+-  if (NS_FAILED(rv)) 
+-    return rv;        
+-
+-  int64_t fileSize64;
+-  rv = aFile->GetFileSize(&fileSize64);
+-  if (NS_FAILED(rv))
+-    return rv;
+-  NS_ENSURE_TRUE(fileSize64 <= UINT32_MAX, NS_ERROR_FILE_TOO_BIG);
+-
+-  uint32_t fileSize = (uint32_t)fileSize64;
+-  auto fileBuffer = MakeUniqueFallible<char[]>(fileSize);
+-  if (fileBuffer == nullptr)
+-    return NS_ERROR_OUT_OF_MEMORY;
+-
+-  PrefParseState ps;
+-  PREF_InitParseState(&ps, PREF_ReaderCallback, ReportToConsole, nullptr);
+-
+-  // Read is not guaranteed to return a buf the size of fileSize,
+-  // but usually will.
+-  nsresult rv2 = NS_OK;
+-  uint32_t offset = 0;
+-  for (;;) {
+-    uint32_t amtRead = 0;
+-    rv = inStr->Read(fileBuffer.get(), fileSize, &amtRead);
+-    if (NS_FAILED(rv) || amtRead == 0)
+-      break;
+-    if (!PREF_ParseBuf(&ps, fileBuffer.get(), amtRead))
+-      rv2 = NS_ERROR_FILE_CORRUPTED;
+-    offset += amtRead;
+-    if (offset == fileSize) {
+-      break;
+-    }
+-  }
+-
+-  PREF_FinalizeParseState(&ps);
+-
+-  return NS_FAILED(rv) ? rv : rv2;
++  return NS_ERROR_FILE_NOT_FOUND;
+ }
+ 
+ /*
+@@ -1234,152 +1132,7 @@
+ //----------------------------------------------------------------------------------------
+ static nsresult pref_InitInitialObjects()
+ {
+-  nsresult rv;
+-
+-  // In omni.jar case, we load the following prefs:
+-  // - jar:$gre/omni.jar!/greprefs.js
+-  // - jar:$gre/omni.jar!/defaults/pref/*.js
+-  // In non omni.jar case, we load:
+-  // - $gre/greprefs.js
+-  //
+-  // In both cases, we also load:
+-  // - $gre/defaults/pref/*.js
+-  // This is kept for bug 591866 (channel-prefs.js should not be in omni.jar)
+-  // on $app == $gre case ; we load all files instead of channel-prefs.js only
+-  // to have the same behaviour as $app != $gre, where this is required as
+-  // a supported location for GRE preferences.
+-  //
+-  // When $app != $gre, we additionally load, in omni.jar case:
+-  // - jar:$app/omni.jar!/defaults/preferences/*.js
+-  // - $app/defaults/preferences/*.js
+-  // and in non omni.jar case:
+-  // - $app/defaults/preferences/*.js
+-  // When $app == $gre, we additionally load, in omni.jar case:
+-  // - jar:$gre/omni.jar!/defaults/preferences/*.js
+-  // Thus, in omni.jar case, we always load app-specific default preferences
+-  // from omni.jar, whether or not $app == $gre.
+-
+-  nsZipFind *findPtr;
+-  nsAutoPtr<nsZipFind> find;
+-  nsTArray<nsCString> prefEntries;
+-  const char *entryName;
+-  uint16_t entryNameLen;
+-
+-  RefPtr<nsZipArchive> jarReader = mozilla::Omnijar::GetReader(mozilla::Omnijar::GRE);
+-  if (jarReader) {
+-    // Load jar:$gre/omni.jar!/greprefs.js
+-    rv = pref_ReadPrefFromJar(jarReader, "greprefs.js");
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    // Load jar:$gre/omni.jar!/defaults/pref/*.js
+-    rv = jarReader->FindInit("defaults/pref/*.js$", &findPtr);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    find = findPtr;
+-    while (NS_SUCCEEDED(find->FindNext(&entryName, &entryNameLen))) {
+-      prefEntries.AppendElement(Substring(entryName, entryNameLen));
+-    }
+-
+-    prefEntries.Sort();
+-    for (uint32_t i = prefEntries.Length(); i--; ) {
+-      rv = pref_ReadPrefFromJar(jarReader, prefEntries[i].get());
+-      if (NS_FAILED(rv))
+-        NS_WARNING("Error parsing preferences.");
+-    }
+-  } else {
+-    // Load $gre/greprefs.js
+-    nsCOMPtr<nsIFile> greprefsFile;
+-    rv = NS_GetSpecialDirectory(NS_GRE_DIR, getter_AddRefs(greprefsFile));
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    rv = greprefsFile->AppendNative(NS_LITERAL_CSTRING("greprefs.js"));
+-    NS_ENSURE_SUCCESS(rv, rv);
+-
+-    rv = openPrefFile(greprefsFile);
+-    if (NS_FAILED(rv))
+-      NS_WARNING("Error parsing GRE default preferences. Is this an old-style embedding app?");
+-  }
+-
+-  // Load $gre/defaults/pref/*.js
+-  nsCOMPtr<nsIFile> defaultPrefDir;
+-
+-  rv = NS_GetSpecialDirectory(NS_APP_PREF_DEFAULTS_50_DIR, getter_AddRefs(defaultPrefDir));
+-  NS_ENSURE_SUCCESS(rv, rv);
+-
+-  /* these pref file names should not be used: we process them after all other application pref files for backwards compatibility */
+-  static const char* specialFiles[] = {
+-#if defined(XP_MACOSX)
+-    "macprefs.js"
+-#elif defined(XP_WIN)
+-    "winpref.js"
+-#elif defined(XP_UNIX)
+-    "unix.js"
+-#if defined(_AIX)
+-    , "aix.js"
+-#endif
+-#elif defined(XP_BEOS)
+-    "beos.js"
+-#endif
+-  };
+-
+-  rv = pref_LoadPrefsInDir(defaultPrefDir, specialFiles, ArrayLength(specialFiles));
+-  if (NS_FAILED(rv))
+-    NS_WARNING("Error parsing application default preferences.");
+-
+-  // Load jar:$app/omni.jar!/defaults/preferences/*.js
+-  // or jar:$gre/omni.jar!/defaults/preferences/*.js.
+-  RefPtr<nsZipArchive> appJarReader = mozilla::Omnijar::GetReader(mozilla::Omnijar::APP);
+-  // GetReader(mozilla::Omnijar::APP) returns null when $app == $gre, in which
+-  // case we look for app-specific default preferences in $gre.
+-  if (!appJarReader)
+-    appJarReader = mozilla::Omnijar::GetReader(mozilla::Omnijar::GRE);
+-  if (appJarReader) {
+-    rv = appJarReader->FindInit("defaults/preferences/*.js$", &findPtr);
+-    NS_ENSURE_SUCCESS(rv, rv);
+-    find = findPtr;
+-    prefEntries.Clear();
+-    while (NS_SUCCEEDED(find->FindNext(&entryName, &entryNameLen))) {
+-      prefEntries.AppendElement(Substring(entryName, entryNameLen));
+-    }
+-    prefEntries.Sort();
+-    for (uint32_t i = prefEntries.Length(); i--; ) {
+-      rv = pref_ReadPrefFromJar(appJarReader, prefEntries[i].get());
+-      if (NS_FAILED(rv))
+-        NS_WARNING("Error parsing preferences.");
+-    }
+-  }
+-
+-  rv = pref_LoadPrefsInDirList(NS_APP_PREFS_DEFAULTS_DIR_LIST);
+-  NS_ENSURE_SUCCESS(rv, rv);
+-
+-  // Set up the correct default for toolkit.telemetry.enabled.
+-  // If this build has MOZ_TELEMETRY_ON_BY_DEFAULT *or* we're on the beta
+-  // channel, telemetry is on by default, otherwise not. This is necessary
+-  // so that beta users who are testing final release builds don't flipflop
+-  // defaults.
+-  if (Preferences::GetDefaultType(kTelemetryPref) == nsIPrefBranch::PREF_INVALID) {
+-    bool prerelease = false;
+-#ifdef MOZ_TELEMETRY_ON_BY_DEFAULT
+-    prerelease = true;
+-#else
+-    if (Preferences::GetDefaultCString(kChannelPref).EqualsLiteral("beta")) {
+-      prerelease = true;
+-    }
+-#endif
+-    PREF_SetBoolPref(kTelemetryPref, prerelease, true);
+-  }
+-
+-  NS_CreateServicesFromCategory(NS_PREFSERVICE_APPDEFAULTS_TOPIC_ID,
+-                                nullptr, NS_PREFSERVICE_APPDEFAULTS_TOPIC_ID);
+-
+-  nsCOMPtr<nsIObserverService> observerService =
+-    mozilla::services::GetObserverService();
+-  if (!observerService)
+-    return NS_ERROR_FAILURE;
+-
+-  observerService->NotifyObservers(nullptr, NS_PREFSERVICE_APPDEFAULTS_TOPIC_ID, nullptr);
+-
+-  return pref_LoadPrefsInDirList(NS_EXT_PREFS_DEFAULTS_DIR_LIST);
++  return NS_OK;
+ }
+ 
+ 
+diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/nsPrefBranch.cpp modules/libpref-patched/nsPrefBranch.cpp
+--- modules/libpref/nsPrefBranch.cpp	2016-08-01 09:12:55.000000000 +0200
++++ modules/libpref-patched/nsPrefBranch.cpp	2016-10-16 15:19:59.000000000 +0200
+@@ -52,13 +52,6 @@
+ static ContentChild*
+ GetContentChild()
+ {
+-  if (XRE_IsContentProcess()) {
+-    ContentChild* cpc = ContentChild::GetSingleton();
+-    if (!cpc) {
+-      NS_RUNTIMEABORT("Content Protocol is NULL!  We're going to crash!");
+-    }
+-    return cpc;
+-  }
+   return nullptr;
+ }
+ 
+@@ -285,48 +278,6 @@
+     return rv;
+   }
+ 
+-  if (aType.Equals(NS_GET_IID(nsIRelativeFilePref))) {
+-    if (GetContentChild()) {
+-      NS_ERROR("cannot get nsIRelativeFilePref from content process");
+-      return NS_ERROR_NOT_AVAILABLE;
+-    }
+-
+-    nsACString::const_iterator keyBegin, strEnd;
+-    utf8String.BeginReading(keyBegin);
+-    utf8String.EndReading(strEnd);    
+-
+-    // The pref has the format: [fromKey]a/b/c
+-    if (*keyBegin++ != '[')        
+-      return NS_ERROR_FAILURE;
+-    nsACString::const_iterator keyEnd(keyBegin);
+-    if (!FindCharInReadable(']', keyEnd, strEnd))
+-      return NS_ERROR_FAILURE;
+-    nsAutoCString key(Substring(keyBegin, keyEnd));
+-    
+-    nsCOMPtr<nsIFile> fromFile;
+-    nsCOMPtr<nsIProperties> directoryService(do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &rv));
+-    if (NS_FAILED(rv))
+-      return rv;
+-    rv = directoryService->Get(key.get(), NS_GET_IID(nsIFile), getter_AddRefs(fromFile));
+-    if (NS_FAILED(rv))
+-      return rv;
+-    
+-    nsCOMPtr<nsIFile> theFile;
+-    rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(theFile));
+-    if (NS_FAILED(rv))
+-      return rv;
+-    rv = theFile->SetRelativeDescriptor(fromFile, Substring(++keyEnd, strEnd));
+-    if (NS_FAILED(rv))
+-      return rv;
+-    nsCOMPtr<nsIRelativeFilePref> relativePref;
+-    rv = NS_NewRelativeFilePref(theFile, key, getter_AddRefs(relativePref));
+-    if (NS_FAILED(rv))
+-      return rv;
+-
+-    relativePref.forget(reinterpret_cast<nsIRelativeFilePref**>(_retval));
+-    return NS_OK;
+-  }
+-
+   if (aType.Equals(NS_GET_IID(nsISupportsString))) {
+     nsCOMPtr<nsISupportsString> theString(do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv));
+ 

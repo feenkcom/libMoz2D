@@ -24,7 +24,7 @@ XRE_IsParentProcess()
 bool
 XRE_IsContentProcess()
 {
-  return true;
+  return false;
 }
 
 GeckoProcessType  XRE_GetProcessType  () {

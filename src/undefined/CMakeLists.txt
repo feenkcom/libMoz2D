@@ -59,7 +59,7 @@ set(SRC
     nsContentUtils.cpp nsJS.cpp nsServices.cpp nsTextRunTransformationsFixed.cpp
     PGPU.cpp nsAppRunner.cpp nsPresContext.cpp GPUProcessManager.cpp nsFont.cpp
     nsFixedMemoryReporterManager.cpp ShaderProgram.cpp gfxPlatform.cpp nsSVGUtils.cpp
-    nsWidget.cpp nsFakePresContext.cpp)
+    nsWidget.cpp nsFakePresContext.cpp ContentChild.cpp)
 
 add_library(undefined OBJECT ${SRC})
 
