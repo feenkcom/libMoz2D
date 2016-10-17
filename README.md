@@ -52,14 +52,3 @@ Make sure to register i386 architecture
 	sudo apt-get install libxt-dev:i386 libxext-dev:i386 libxcb-shm0-dev:i386 libx11-xcb-dev:i386
 
 ### Windows (in progress)
-
-First [install MingGW](https://sourceforge.net/projects/mingw/files/) and follow "[Environment Settings](http://www.mingw.org/wiki/Getting_Started#toc7)" instruction to add MinGW to PATH environment variable. If installed with default settings a path should be `C:\MinGW\bin`<br>
-Additional packages are required, install them by executing:<br>
-`mingw-get install msys-unzip msys-wget msys-zip msys-tar msys-patch`<br>
-MSYS also needs to be added to the PATH variable, by default it is `C:\MinGW\msys\1.0\bin;C:\MinGW\msys\1.0\local\bin`
-
-Install [vcsetup.exe](http://go.microsoft.com/?linkid=7729279).
-Install [LLVM 32bit](http://llvm.org/pre-releases/win-snapshots/LLVM-4.0.0-r282394-win32.exe) or [LLVM 64bit](http://llvm.org/pre-releases/win-snapshots/LLVM-4.0.0-r282394-win64.exe)
-
-
-Installation scripts require latest version of [Node.js](https://nodejs.org/en/).
