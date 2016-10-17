@@ -181,11 +181,11 @@ module.exports = {
                     linux: '-mssse3 -msse4.1 -fexceptions -fPIC'
                 },
                 i386: {
-                    linux: ''
+                    linux: '-DUSE_NS_ABORT_OOM'
                 },
                 x86_64: {
                     linux: '-m64',
-					win: '/DUSE_NS_ABORT_OOM'
+                    win: '/DUSE_NS_ABORT_OOM'
                 }
             },
             asm: {
@@ -208,7 +208,7 @@ module.exports = {
                     general: '',
                     mac: '',
                     win: '',
-                    linux: '' //'-Wl,--no-undefined'
+                    linux: '-Wl,--no-undefined'
                 }
             },
             sources: [{

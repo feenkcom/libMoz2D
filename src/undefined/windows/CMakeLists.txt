@@ -11,9 +11,8 @@ include_directories(${PROJECT_SOURCE_DIR}/src/undefined)
 set(SRC
     ${MOZ_TOP_PATH}/ipc/chromium/src/base/platform_thread_win.cc
     ${MOZ_TOP_PATH}/ipc/chromium/src/base/pickle.cc
-	${MOZ_TOP_PATH}/gfx/layers/d3d9/DeviceManagerD3D9.cpp
-	${MOZ_TOP_PATH}/gfx/layers/d3d9/Nv3DVUtils.cpp
-	nsAbortOOM.cpp)
+    ${MOZ_TOP_PATH}/gfx/layers/d3d9/DeviceManagerD3D9.cpp
+    ${MOZ_TOP_PATH}/gfx/layers/d3d9/Nv3DVUtils.cpp)
 
 add_library(undefined_windows OBJECT ${SRC})
 
