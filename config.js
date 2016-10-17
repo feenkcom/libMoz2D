@@ -121,6 +121,7 @@ module.exports = {
                 'Xrender',
                 'fontconfig',
                 'freetype',
+                'cairo',
                 'gtk-x11-2.0',
                 'gdk-x11-2.0',
                 'atk-1.0',
@@ -178,10 +179,10 @@ module.exports = {
                     mac: '-mssse3 -msse4.1 -fexceptions',
                     // for some strange reason -FI does not work with CMake
                     win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
-                    linux: '-mssse3 -msse4.1 -fexceptions -fPIC'
+                    linux: '-mssse3 -msse4.1 -fexceptions -fPIC -DUSE_NS_ABORT_OOM'
                 },
                 i386: {
-                    linux: '-DUSE_NS_ABORT_OOM'
+                    linux: ''
                 },
                 x86_64: {
                     linux: '-m64',
