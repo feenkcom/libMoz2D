@@ -2,7 +2,6 @@ version: 1.1.{build}
 image: Visual Studio 2015
 platform: x64
 environment:
-  MOZ_VERSION: development
   BINTRAY_ACCOUNT: syrel
   BINTRAY_REPOSITORY: Moz2D
   MOZ2D_REPOSITORY_NAME: libMoz2D
