@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/DeviceManagerD3D11.cpp gfx/thebes-patched/DeviceManagerD3D11.cpp
 --- gfx/thebes/DeviceManagerD3D11.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ gfx/thebes-patched/DeviceManagerD3D11.cpp	2016-10-13 21:15:24.000000000 +0200
++++ gfx/thebes-patched/DeviceManagerD3D11.cpp	2016-10-17 11:27:29.000000000 +0200
 @@ -207,11 +207,7 @@
        }
  
@@ -14,6 +14,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/DeviceManagerD3D11.cpp gf
        {
          mAdapter = adapter.forget();
          break;
+@@ -299,9 +295,6 @@
+                          "RenderTargetViews need recreating");
+   }
+ 
+-  // It seems like this may only happen when we're using the NVIDIA gpu
+-  D3D11Checks::WarnOnAdapterMismatch(mCompositorDevice);
+-
+   mCompositorDevice->SetExceptionMode(0);
+   mIsWARP = false;
+ }
 diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
 --- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
 +++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-10-13 21:15:24.000000000 +0200
