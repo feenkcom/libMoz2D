@@ -1,0 +1,187 @@
+version: 1.0.{build}
+image: Visual Studio 2015
+platform: x64
+environment:
+  MOZ_VERSION: development
+  BINTRAY_ACCOUNT: syrel
+  BINTRAY_REPOSITORY: Moz2D
+  MOZ2D_REPOSITORY_NAME: libMoz2D
+  matrix:
+  - ARCH: i386
+    SHELL: start-shell-msvc2015.bat
+  - ARCH: x86_64
+    SHELL: start-shell-msvc2015-x64.bat
+cache:
+- C:\projects\moz2d\mozilla-build\7z1604-x64.msi
+- C:\projects\moz2d\mozilla-build\MozillaBuildSetup-2.2.0.exe
+- C:\projects\moz2d\mozilla-build\node-v6.7.0-x64.msi
+- C:\projects\moz2d\FIREFOX_AURORA_50_BASE.tar.gz
+- C:\projects\moz2d\mozilla-build\cmake-3.7.0-rc1-win64-x64.msi
+build_script:
+- ps: >-
+    $PROJECT_ROOT = (Resolve-Path .\).Path
+
+    $MOZILLA_BUILD = "mozilla-build"
+
+    $MOZILLA_TOOLKIT = "MozillaBuildSetup-2.2.0.exe"
+
+    $7ZIP = "7z1604-x64.msi"
+
+    $NODE = "node-v6.7.0-x64.msi"
+
+    $CMAKE = "cmake-3.7.0-rc1-win64-x64.msi"
+
+    $ARCH = $Env:ARCH
+
+    $SHELL = $Env:SHELL
+
+    $MOZ_VERSION = $Env:MOZ_VERSION
+
+    $ARTIFACTS = "bin/win/$MOZ_VERSION/$ARCH"
+
+
+    @"
+
+    #!/bin/bash
+
+    export PATH=`$PATH:/c/Program\ Files/nodejs
+
+    export PATH=`$PATH:/c/Program\ Files/CMake/bin
+
+    export PATH=~/$MOZILLA_BUILD/bin:`$PATH
+
+    sh build.sh --arch $ARCH
+
+    mkdir -p $ARTIFACTS
+
+    cp build/Release/Moz2D.dll $ARTIFACTS/libMoz2D.dll
+
+    cd $ARTIFACTS
+
+    pwd
+
+    ls -la
+
+    "@ > windows.sh
+
+
+    Write-Host "Started build in $PROJECT_ROOT"
+
+
+    Write-Host "Creating $PROJECT_ROOT\$MOZILLA_BUILD"
+
+    md -Force $PROJECT_ROOT\$MOZILLA_BUILD | Out-Null
+
+
+    ###################################################
+
+    ################### 7 - Z I P  ####################
+
+    ###################################################
+
+    if(![System.IO.File]::Exists("$PROJECT_ROOT\$MOZILLA_BUILD\$7ZIP")){
+       Write-Host "Downloading 7-Zip as $PROJECT_ROOT\$MOZILLA_BUILD\7ZIP"
+       Invoke-WebRequest "http://www.7-zip.org/a/$7ZIP" -OutFile "$MOZILLA_BUILD\$7ZIP"
+    }
+
+
+    Write-Host "Installing 7-Zip from $PROJECT_ROOT\$MOZILLA_BUILD\7ZIP"
+
+    msiexec /i $PROJECT_ROOT\$MOZILLA_BUILD\$7ZIP /qn /log $PROJECT_ROOT\$MOZILLA_BUILD\7zip-install.log | Out-Null
+
+
+    ###################################################
+
+    ################# N O D E . J S ###################
+
+    ###################################################
+
+    if(![System.IO.File]::Exists("$PROJECT_ROOT\$MOZILLA_BUILD\$NODE")){
+       Write-Host "Downloading Node.js as $PROJECT_ROOT\$MOZILLA_BUILD\$NODE"
+       Invoke-WebRequest "https://nodejs.org/dist/v6.7.0/$NODE" -OutFile "$MOZILLA_BUILD\$NODE"
+    }
+
+
+    Write-Host "Installing Node.js from $PROJECT_ROOT\$MOZILLA_BUILD\$NODE"
+
+    msiexec /i $PROJECT_ROOT\$MOZILLA_BUILD\$NODE /qn /log $PROJECT_ROOT\$MOZILLA_BUILD\nodejs-install.log | Out-Null
+
+    $env:Path += ";C:\Program Files\nodejs"
+
+    ###################################################
+
+    #################### C M A K E ####################
+
+    ###################################################
+
+    if(![System.IO.File]::Exists("$PROJECT_ROOT\$MOZILLA_BUILD\$CMAKE")){
+       Write-Host "Downloading CMake as $PROJECT_ROOT\$MOZILLA_BUILD\$CMAKE"
+       Invoke-WebRequest "https://cmake.org/files/v3.7/$CMAKE" -OutFile "$MOZILLA_BUILD\$CMAKE"
+    }
+
+
+    Write-Host "Installing CMake from $PROJECT_ROOT\$MOZILLA_BUILD\$CMAKE"
+
+    msiexec /i $PROJECT_ROOT\$MOZILLA_BUILD\$CMAKE /qn /log $PROJECT_ROOT\$MOZILLA_BUILD\cmake-install.log | Out-Null
+
+    $env:Path += ";C:\Program Files\CMake\bin"
+
+    ###################################################
+
+    ################# M O Z I L L A ###################
+
+    ###################################################
+
+    if(![System.IO.File]::Exists("$PROJECT_ROOT\$MOZILLA_BUILD\$MOZILLA_TOOLKIT")){
+       Write-Host "Downloading Mozilla build utils as $PROJECT_ROOT\$MOZILLA_BUILD\$MOZILLA_TOOLKIT"
+    Invoke-WebRequest "https://ftp.mozilla.org/pub/mozilla/libraries/win32/$MOZILLA_TOOLKIT" -OutFile "$PROJECT_ROOT\$MOZILLA_BUILD\$MOZILLA_TOOLKIT"
+
+    }
+
+    Write-Host "Extracting Mozilla build utils to $PROJECT_ROOT\$MOZILLA_BUILD"
+
+    Start-Process "C:\Program Files\7-Zip\7z.exe" "x $PROJECT_ROOT\$MOZILLA_BUILD\$MOZILLA_TOOLKIT -o$PROJECT_ROOT\$MOZILLA_BUILD" -NoNewWindow -Wait
+
+    $env:Path += ";$PROJECT_ROOT\$MOZILLA_BUILD\msys\bin"
+
+    ###################################################
+
+    #################### I N I T ######################
+
+    ###################################################
+
+
+    $env:STARTUP_DIR = $PROJECT_ROOT
+
+    $env:HOME = $PROJECT_ROOT
+
+
+    "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
+
+    "if [[ \`"$STARTUP_DIR\`" != \`"$PWD\`" ]]; then cd $STARTUP_DIR; fi; chmod +x windows.sh; sh windows.sh; exit" > .bashrc
+
+
+    Start-Process "dos2unix.exe" ".bashrc" -Wait -NoNewWindow
+
+    Start-Process "dos2unix.exe" ".bash_profile" -Wait -NoNewWindow
+
+    Start-Process "dos2unix.exe" "windows.sh" -Wait -NoNewWindow
+
+
+    cmd /c $PROJECT_ROOT\$MOZILLA_BUILD\$SHELL
+artifacts:
+- path: bin
+  name: BinTray
+deploy:
+- provider: BinTray
+  username: $(BINTRAY_ACCOUNT)
+  api_key:
+    secure: rupW0/n7xKHHR6GWkkUhA/qXb0EB5DJ9LemUnT2YAAk+0Wld6FPMoe5rxT+hydcb
+  subject: $(BINTRAY_ACCOUNT)
+  repo: $(BINTRAY_REPOSITORY)
+  package: $(MOZ2D_REPOSITORY_NAME)
+  version: development
+  artifact: BinTray
+  publish: true
+  override: true
+  explode: true
