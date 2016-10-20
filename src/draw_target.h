@@ -161,6 +161,10 @@ LIBRARY_API void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget
  * Stores current clipping bounds in user space in rectangle
  */
 LIBRARY_API void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle);
+
+LIBRARY_API bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, float x, float y, float width, float height);
+
+LIBRARY_API bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, float y, float width, float height);
 /* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
@@ -179,6 +183,8 @@ LIBRARY_API void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rec
 LIBRARY_API void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 LIBRARY_API void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 LIBRARY_API void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 /*
  * Mask
  */

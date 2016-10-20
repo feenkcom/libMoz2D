@@ -8,7 +8,6 @@
 #include "draw_target.h"
 
 #include "2d/Filters.h"
-#include "SkiaGLGlue.h"
 #include "gfxPlatform.h"
 #include "2d/Logging.h"
 
@@ -208,7 +207,7 @@ void moz2d_draw_target_pop_clip(DrawTarget* drawTarget) {
  * Clip is in user space
  */
 void push_clip(DrawTarget* drawTarget, Rect clip) {
-	Rect deviceClip = drawTarget->GetTransform().Inverse().TransformBounds(clip);
+	Rect deviceClip = drawTarget->GetTransform().TransformBounds(clip);
 
 	std::stack<Rect> *stack = static_cast<std::stack<Rect>*>(drawTarget->GetUserData(&sClippingBounds));
 	if (!stack) {
@@ -264,12 +263,22 @@ void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget, Rect* rect
 }
 
 void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle) {
-	Rect clip = drawTarget->GetTransform().TransformBounds(get_clip(drawTarget));
+	Rect clip = drawTarget->GetTransform().Inverse().TransformBounds(get_clip(drawTarget));
 
 	rectangle->x = clip.x;
 	rectangle->y = clip.y;
 	rectangle->width = clip.width;
 	rectangle->height = clip.height;
+}
+
+bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, float x, float y, float width, float height) {
+	Rect clip = drawTarget->GetTransform().Inverse().TransformBounds(get_clip(drawTarget));
+	return clip.Intersects(Rect(x,y,width,height));
+}
+
+bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, float y, float width, float height) {
+	Rect clip = get_clip(drawTarget);
+	return clip.Intersects(Rect(x,y,width,height));
 }
 
 /* --------------------------------------------------- */
@@ -312,6 +321,14 @@ void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* 
 
 void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->Stroke(path, ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
+}
+
+void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+	drawTarget->StrokeLine(Point(fromX, fromY), Point(toX, toY), *pattern, *strokeOptions, *drawOptions);
+}
+
+void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+	drawTarget->StrokeLine(Point(fromX, fromY), Point(toX, toY), ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
 }
 
 /*
