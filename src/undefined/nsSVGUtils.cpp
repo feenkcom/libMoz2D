@@ -7,14 +7,14 @@
 
 
 #include "nsSVGUtils.h"
+#include "mozilla/SVGContextPaint.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::gfx;
 
 bool
-nsSVGUtils::PaintSVGGlyph(Element* aElement, gfxContext* aContext,
-                          gfxTextContextPaint* aContextPaint)
+nsSVGUtils::PaintSVGGlyph(Element* aElement, gfxContext* aContext)
 {
   return false;
 }
@@ -27,3 +27,8 @@ nsSVGUtils::GetSVGGlyphExtents(Element* aElement,
   return false;
 }
 
+
+void SVGContextPaint::InitStrokeGeometry(gfxContext *aContext, float devUnitsPerSVGUnit)
+{
+
+}

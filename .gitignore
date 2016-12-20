@@ -13,3 +13,4 @@ mozilla-central*/
 /.settings
 
 .DS_Store
+cmake-build*

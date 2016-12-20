@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/base/nsMemoryReporterManager.cpp
 --- xpcom/base/nsMemoryReporterManager.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/base/nsMemoryReporterManager.cpp	2016-12-20 17:35:43.000000000 +0100
++++ xpcom-patched/base/nsMemoryReporterManager.cpp	2016-12-20 18:51:49.000000000 +0100
 @@ -1703,35 +1703,6 @@
                                     s->mAnonymize, parentDMDFile,
                                     s->mFinishReporting, s->mFinishReportingData);
@@ -96,7 +96,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    if (s->mNumProcessesRunning == 0) {
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMModule.inc
 --- xpcom/build/XPCOMModule.inc	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/build/XPCOMModule.inc	2016-12-20 17:37:45.000000000 +0100
++++ xpcom-patched/build/XPCOMModule.inc	2016-12-20 18:51:49.000000000 +0100
 @@ -1,29 +1,10 @@
      COMPONENT_M(MEMORY, nsMemoryImpl::Create, Module::ALLOW_IN_GPU_PROCESS)
 -    COMPONENT_M(DEBUG,  nsDebugImpl::Create, Module::ALLOW_IN_GPU_PROCESS)
@@ -168,7 +168,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -    COMPONENT(STATUS_REPORTER_MANAGER, nsStatusReporterManagerConstructor)
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsCategoryManager.cpp xpcom-patched/components/nsCategoryManager.cpp
 --- xpcom/components/nsCategoryManager.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/components/nsCategoryManager.cpp	2016-12-20 17:40:22.000000000 +0100
++++ xpcom-patched/components/nsCategoryManager.cpp	2016-12-20 18:51:49.000000000 +0100
 @@ -812,8 +812,6 @@
  
      nsCOMPtr<nsISupports> instance = do_GetService(contractID);
@@ -190,7 +190,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    }
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsComponentManager.cpp xpcom-patched/components/nsComponentManager.cpp
 --- xpcom/components/nsComponentManager.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/components/nsComponentManager.cpp	2016-12-20 17:32:41.000000000 +0100
++++ xpcom-patched/components/nsComponentManager.cpp	2016-12-20 19:32:56.000000000 +0100
 @@ -226,24 +226,7 @@
  static already_AddRefed<nsIFile>
  GetLocationFromDirectoryService(const char* aProp)
@@ -242,7 +242,58 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    nsCategoryManager::GetSingleton()->SuppressNotifications(true);
  
    RegisterModule(&kXPCOMModule, nullptr);
-@@ -416,7 +388,7 @@
+@@ -356,50 +328,6 @@
+     RegisterModule((*sStaticModules)[i], nullptr);
+   }
+ 
+-  bool loadChromeManifests = (XRE_GetProcessType() != GeckoProcessType_GPU);
+-  if (loadChromeManifests) {
+-    // The overall order in which chrome.manifests are expected to be treated
+-    // is the following:
+-    // - greDir
+-    // - greDir's omni.ja
+-    // - appDir
+-    // - appDir's omni.ja
+-
+-    InitializeModuleLocations();
+-    ComponentLocation* cl = sModuleLocations->AppendElement();
+-    nsCOMPtr<nsIFile> lf = CloneAndAppend(greDir,
+-                                          NS_LITERAL_CSTRING("chrome.manifest"));
+-    cl->type = NS_APP_LOCATION;
+-    cl->location.Init(lf);
+-
+-    RefPtr<nsZipArchive> greOmnijar =
+-      mozilla::Omnijar::GetReader(mozilla::Omnijar::GRE);
+-    if (greOmnijar) {
+-      cl = sModuleLocations->AppendElement();
+-      cl->type = NS_APP_LOCATION;
+-      cl->location.Init(greOmnijar, "chrome.manifest");
+-    }
+-
+-    bool equals = false;
+-    appDir->Equals(greDir, &equals);
+-    if (!equals) {
+-      cl = sModuleLocations->AppendElement();
+-      cl->type = NS_APP_LOCATION;
+-      lf = CloneAndAppend(appDir, NS_LITERAL_CSTRING("chrome.manifest"));
+-      cl->location.Init(lf);
+-    }
+-
+-    RefPtr<nsZipArchive> appOmnijar =
+-      mozilla::Omnijar::GetReader(mozilla::Omnijar::APP);
+-    if (appOmnijar) {
+-      cl = sModuleLocations->AppendElement();
+-      cl->type = NS_APP_LOCATION;
+-      cl->location.Init(appOmnijar, "chrome.manifest");
+-    }
+-
+-    RereadChromeManifests(false);
+-  }
+-
+   nsCategoryManager::GetSingleton()->SuppressNotifications(false);
+ 
+   RegisterWeakMemoryReporter(this);
+@@ -416,7 +344,7 @@
    // The preference system is registered as a component so at this point during
    // component manager initialization we know it is setup and we can register
    // for notifications.
@@ -251,7 +302,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
    // Unfortunately, we can't register the nsCategoryManager memory reporter
    // in its constructor (which is triggered by the GetSingleton() call
-@@ -470,13 +442,7 @@
+@@ -470,13 +398,7 @@
  
      KnownModule* m;
      if (aFile) {
@@ -265,7 +316,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      } else {
        m = new KnownModule(aModule);
        mKnownStaticModules.AppendElement(m);
-@@ -532,10 +498,6 @@
+@@ -532,10 +454,6 @@
        existing = "<unknown module>";
      }
      SafeMutexAutoUnlock unlock(mLock);
@@ -276,7 +327,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return;
    }
  
-@@ -561,10 +523,6 @@
+@@ -561,10 +479,6 @@
      aEntry->cid->ToProvidedString(idstr);
  
      SafeMutexAutoUnlock unlock(mLock);
@@ -287,7 +338,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return;
    }
  
-@@ -588,26 +546,7 @@
+@@ -588,26 +502,7 @@
                     bool aChromeOnly,
                     bool aXPTOnly)
  {
@@ -315,7 +366,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-@@ -622,9 +561,7 @@
+@@ -622,9 +517,7 @@
  nsComponentManagerImpl::ManifestManifest(ManifestProcessingContext& aCx,
                                           int aLineNo, char* const* aArgv)
  {
@@ -326,7 +377,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-@@ -632,31 +569,7 @@
+@@ -632,31 +525,7 @@
                                                  int aLineNo,
                                                  char* const* aArgv)
  {
@@ -336,7 +387,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -                          "Cannot load binary components from a jar.");
 -    return;
 -  }
--
+ 
 -  FileLocation f(aCx.mFile, aArgv[0]);
 -  nsCString uri;
 -  f.GetURIString(uri);
@@ -347,7 +398,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -                          "Attempting to register a binary component twice.");
 -    return;
 -  }
- 
+-
 -  const mozilla::Module* m = mNativeModuleLoader.LoadModule(f);
 -  // The native module loader should report an error here, we don't have to
 -  if (!m) {
@@ -358,7 +409,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  static void
-@@ -686,73 +599,14 @@
+@@ -686,73 +555,14 @@
  nsComponentManagerImpl::ManifestXPT(ManifestProcessingContext& aCx,
                                      int aLineNo, char* const* aArgv)
  {
@@ -433,7 +484,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-@@ -766,8 +620,6 @@
+@@ -766,8 +576,6 @@
  
    nsID cid;
    if (!cid.Parse(id)) {
@@ -442,7 +493,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return;
    }
  
-@@ -775,9 +627,6 @@
+@@ -775,9 +583,6 @@
    nsFactoryEntry* f = mFactories.Get(cid);
    if (!f) {
      lock.Unlock();
@@ -452,7 +503,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return;
    }
  
-@@ -799,21 +648,14 @@
+@@ -799,21 +604,14 @@
  void
  nsComponentManagerImpl::RereadChromeManifests(bool aChromeOnly)
  {
@@ -476,7 +527,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    }
    return !!mLoader;
  }
-@@ -829,8 +671,6 @@
+@@ -829,8 +627,6 @@
        return false;
      }
  
@@ -485,7 +536,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      if (!mModule) {
        mFailed = true;
        return false;
-@@ -853,11 +693,7 @@
+@@ -853,11 +649,7 @@
  nsComponentManagerImpl::KnownModule::Description() const
  {
    nsCString s;
@@ -498,7 +549,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    return s;
  }
  
-@@ -883,9 +719,6 @@
+@@ -883,9 +675,6 @@
    delete sStaticModules;
    delete sModuleLocations;
  
@@ -508,7 +559,64 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    // delete arena for strings and small objects
    PL_FinishArenaPool(&mArena);
  
-@@ -2043,41 +1876,12 @@
+@@ -1987,97 +1776,25 @@
+     return NS_ERROR_FAILURE;
+   }
+ 
+-  nsString path;
+-  nsresult rv = aLocation->GetPath(path);
+-  if (NS_FAILED(rv)) {
+-    return rv;
+-  }
+-
+-  nsComponentManagerImpl::ComponentLocation elem;
+-  elem.type = NS_BOOTSTRAPPED_LOCATION;
+-
+-  if (Substring(path, path.Length() - 4).EqualsLiteral(".xpi")) {
+-    elem.location.Init(aLocation, "chrome.manifest");
+-  } else {
+-    nsCOMPtr<nsIFile> lf =
+-      CloneAndAppend(aLocation, NS_LITERAL_CSTRING("chrome.manifest"));
+-    elem.location.Init(lf);
+-  }
+-
+-  // Remove reference.
+-  nsComponentManagerImpl::sModuleLocations->RemoveElement(elem,
+-                                                          ComponentLocationComparator());
+-
+-  rv = cr->CheckForNewChrome();
++  nsresult rv = cr->CheckForNewChrome();
+   return rv;
+ }
+ 
+ NS_IMETHODIMP
+ nsComponentManagerImpl::GetManifestLocations(nsIArray** aLocations)
+ {
+-  NS_ENSURE_ARG_POINTER(aLocations);
+-  *aLocations = nullptr;
+-
+-  if (!sModuleLocations) {
+-    return NS_ERROR_NOT_INITIALIZED;
+-  }
+-
+-  nsCOMPtr<nsIMutableArray> locations = nsArray::Create();
+-  nsresult rv;
+-  for (uint32_t i = 0; i < sModuleLocations->Length(); ++i) {
+-    ComponentLocation& l = sModuleLocations->ElementAt(i);
+-    FileLocation loc = l.location;
+-    nsCString uriString;
+-    loc.GetURIString(uriString);
+-    nsCOMPtr<nsIURI> uri;
+-    rv = NS_NewURI(getter_AddRefs(uri), uriString);
+-    if (NS_SUCCEEDED(rv)) {
+-      locations->AppendElement(uri, false);
+-    }
+-  }
+-
+-  locations.forget(aLocations);
+   return NS_OK;
+ }
+ 
  EXPORT_XPCOM_API(nsresult)
  XRE_AddManifestLocation(NSLocationType aType, nsIFile* aLocation)
  {
@@ -552,7 +660,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsComponentManager.h xpcom-patched/components/nsComponentManager.h
 --- xpcom/components/nsComponentManager.h	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/components/nsComponentManager.h	2016-12-20 17:32:41.000000000 +0100
++++ xpcom-patched/components/nsComponentManager.h	2016-12-20 18:51:49.000000000 +0100
 @@ -179,7 +179,6 @@
    struct ComponentLocation
    {
@@ -612,7 +720,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/glue/nsComponentManagerUtils.cpp
 --- xpcom/glue/nsComponentManagerUtils.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/glue/nsComponentManagerUtils.cpp	2016-12-20 17:32:41.000000000 +0100
++++ xpcom-patched/glue/nsComponentManagerUtils.cpp	2016-12-20 18:51:49.000000000 +0100
 @@ -17,6 +17,8 @@
  
  #include "nsIComponentManager.h"
@@ -632,7 +740,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return NS_ERROR_NOT_INITIALIZED;
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThreadUtils.cpp
 --- xpcom/glue/nsThreadUtils.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/glue/nsThreadUtils.cpp	2016-12-20 17:32:41.000000000 +0100
++++ xpcom-patched/glue/nsThreadUtils.cpp	2016-12-20 18:51:49.000000000 +0100
 @@ -131,7 +131,8 @@
    if (mgr) {
      mgr->GetIsMainThread(&result);
@@ -645,7 +753,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/objs.mozbuild xpcom-patched/glue/objs.mozbuild
 --- xpcom/glue/objs.mozbuild	2016-09-19 12:14:36.000000000 +0200
-+++ xpcom-patched/glue/objs.mozbuild	2016-12-20 17:32:41.000000000 +0100
++++ xpcom-patched/glue/objs.mozbuild	2016-12-20 18:51:49.000000000 +0100
 @@ -9,7 +9,6 @@
      'FileUtils.cpp',
      'nsArrayEnumerator.cpp',

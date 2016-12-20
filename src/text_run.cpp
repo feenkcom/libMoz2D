@@ -214,6 +214,7 @@ uint32_t moz2d_text_run_break_and_measure (
 			aProvider,
 			aSuppressBreak,
 			aTrimWhitespace,
+			(bool) aTrimWhitespace,
 			metrics,
 			aBoundingBoxType,
 			aDrawTargetForTightBoundingBox,
@@ -297,10 +298,10 @@ gfxTextRun* moz2d_text_run_factory_make_text_run_utf16 (
 		styles.AppendElement(charStyle);
 	}
 
-	UniquePtr<nsTransformedTextRun> textRun = aTransformingFactory->MakeTextRun(
+    RefPtr<nsTransformedTextRun> textRun = aTransformingFactory->MakeTextRun(
 			aText, aLength,
 			&params, aFontGroup, aTextRunFactoryFlags,
 			Move(styles), true);
 	textRun->FinishSettingProperties(drawTarget, nullptr);
-	return textRun.release();
+	return textRun.forget().take();
 }
