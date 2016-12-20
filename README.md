@@ -18,6 +18,12 @@ Tools:<br>
 Utilities:<br>
 `wget` `patch` `which` `tar`
 
+### OSX
+
+Install dependencies with homebrew http://brew.sh:
+
+	brew install wget node cmake yasm homebrew/versions/autoconf213 
+
 ### Ubuntu / Travis
 
 General dependencies:
