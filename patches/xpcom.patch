@@ -1,7 +1,7 @@
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/base/nsMemoryReporterManager.cpp
---- xpcom/base/nsMemoryReporterManager.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/base/nsMemoryReporterManager.cpp	2016-10-14 18:23:37.000000000 +0200
-@@ -1726,35 +1726,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/base/nsMemoryReporterManager.cpp xpcom-patched/base/nsMemoryReporterManager.cpp
+--- xpcom/base/nsMemoryReporterManager.cpp	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/base/nsMemoryReporterManager.cpp	2016-12-20 17:35:43.000000000 +0100
+@@ -1703,35 +1703,6 @@
                                     s->mAnonymize, parentDMDFile,
                                     s->mFinishReporting, s->mFinishReportingData);
  
@@ -37,16 +37,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.c
  
    return NS_OK;
  }
-@@ -1926,37 +1897,7 @@
+@@ -1901,31 +1872,7 @@
  nsMemoryReporterManager::StartChildReport(mozilla::dom::ContentParent* aChild,
                                            const PendingProcessesState* aState)
  {
--#ifdef MOZ_NUWA_PROCESS
--  if (aChild->IsNuwaProcess()) {
--    return false;
--  }
--#endif
--
 -  if (!aChild->IsAlive()) {
 -    MEMORY_REPORTING_LOG("StartChildReports (gen=%u): child exited before"
 -                         " its report was started\n",
@@ -72,11 +66,11 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.c
 -#endif
 -  return aChild->SendPMemoryReportRequestConstructor(
 -    aState->mGeneration, aState->mAnonymize, aState->mMinimize, dmdFileDesc);
-+	return false;
++  return false;
  }
  
  void
-@@ -1977,23 +1918,6 @@
+@@ -1946,23 +1893,6 @@
                         s->mNumProcessesRunning,
                         static_cast<unsigned>(s->mChildrenPending.Length()));
  
@@ -87,7 +81,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.c
 -    RefPtr<ContentParent> nextChild;
 -    nextChild.swap(s->mChildrenPending.LastElement());
 -    s->mChildrenPending.TruncateLength(s->mChildrenPending.Length() - 1);
--    // Start report (if the child is still alive and not Nuwa).
+-    // Start report (if the child is still alive).
 -    if (StartChildReport(nextChild, s)) {
 -      ++s->mNumProcessesRunning;
 -      MEMORY_REPORTING_LOG("HandleChildReports (aGen=%u): started child report"
@@ -100,16 +94,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/base/nsMemoryReporterManager.c
    // If all the child processes (if any) have reported, we can cancel
    // the timer (if started) and finish up.  Otherwise, just return.
    if (s->mNumProcessesRunning == 0) {
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMModule.inc
---- xpcom/build/XPCOMModule.inc	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/build/XPCOMModule.inc	2016-10-15 21:12:19.000000000 +0200
-@@ -1,29 +1,9 @@
-     COMPONENT(MEMORY, nsMemoryImpl::Create)
--    COMPONENT(DEBUG,  nsDebugImpl::Create)
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/build/XPCOMModule.inc xpcom-patched/build/XPCOMModule.inc
+--- xpcom/build/XPCOMModule.inc	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/build/XPCOMModule.inc	2016-12-20 17:37:45.000000000 +0100
+@@ -1,29 +1,10 @@
+     COMPONENT_M(MEMORY, nsMemoryImpl::Create, Module::ALLOW_IN_GPU_PROCESS)
+-    COMPONENT_M(DEBUG,  nsDebugImpl::Create, Module::ALLOW_IN_GPU_PROCESS)
 -    COMPONENT(ERRORSERVICE, nsErrorService::Create)
  
-     COMPONENT(CATEGORYMANAGER, nsCategoryManager::Create)
--
+     COMPONENT_M(CATEGORYMANAGER, nsCategoryManager::Create, Module::ALLOW_IN_GPU_PROCESS)
+ 
 -    COMPONENT(SCRIPTABLEINPUTSTREAM, nsScriptableInputStream::Create)
 -    COMPONENT(BINARYINPUTSTREAM, nsBinaryInputStreamConstructor)
 -    COMPONENT(BINARYOUTPUTSTREAM, nsBinaryOutputStreamConstructor)
@@ -126,14 +120,14 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/build/XPCOMModule.inc xpcom-pa
 -    COMPONENT(ARRAY, nsArrayBase::XPCOMConstructor)
 -    COMPONENT(CONSOLESERVICE, nsConsoleServiceConstructor)
      COMPONENT(ATOMSERVICE, nsAtomServiceConstructor)
-     COMPONENT(OBSERVERSERVICE, nsObserverService::Create)
+     COMPONENT_M(OBSERVERSERVICE, nsObserverService::Create, Module::ALLOW_IN_GPU_PROCESS)
  
--    COMPONENT(TIMER, nsTimerImplConstructor)
+-    COMPONENT_M(TIMER, nsTimerImplConstructor, Module::ALLOW_IN_GPU_PROCESS)
 -
  #define COMPONENT_SUPPORTS(TYPE, Type)                                         \
    COMPONENT(SUPPORTS_##TYPE, nsSupports##Type##Constructor)
  
-@@ -46,36 +26,13 @@
+@@ -46,36 +27,13 @@
      COMPONENT_SUPPORTS(INTERFACE_POINTER, InterfacePointer)
  
  #undef COMPONENT_SUPPORTS
@@ -172,10 +166,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/build/XPCOMModule.inc xpcom-pa
 -    COMPONENT(CYCLE_COLLECTOR_LOGGER, nsCycleCollectorLoggerConstructor)
 -    COMPONENT(MESSAGE_LOOP, nsMessageLoopConstructor)
 -    COMPONENT(STATUS_REPORTER_MANAGER, nsStatusReporterManagerConstructor)
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsCategoryManager.cpp xpcom-patched/components/nsCategoryManager.cpp
---- xpcom/components/nsCategoryManager.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/components/nsCategoryManager.cpp	2016-10-14 21:40:19.000000000 +0200
-@@ -804,8 +804,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsCategoryManager.cpp xpcom-patched/components/nsCategoryManager.cpp
+--- xpcom/components/nsCategoryManager.cpp	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/components/nsCategoryManager.cpp	2016-12-20 17:40:22.000000000 +0100
+@@ -812,8 +812,6 @@
  
      nsCOMPtr<nsISupports> instance = do_GetService(contractID);
      if (!instance) {
@@ -184,7 +178,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsCategoryManager.c
        continue;
      }
  
-@@ -815,9 +813,6 @@
+@@ -823,9 +821,6 @@
        if (observer) {
          observer->Observe(aOrigin, aObserverTopic,
                            aObserverData ? aObserverData : u"");
@@ -194,10 +188,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsCategoryManager.c
        }
      }
    }
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.cpp xpcom-patched/components/nsComponentManager.cpp
---- xpcom/components/nsComponentManager.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/components/nsComponentManager.cpp	2016-10-15 19:12:54.000000000 +0200
-@@ -256,24 +256,7 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsComponentManager.cpp xpcom-patched/components/nsComponentManager.cpp
+--- xpcom/components/nsComponentManager.cpp	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/components/nsComponentManager.cpp	2016-12-20 17:32:41.000000000 +0100
+@@ -226,24 +226,7 @@
  static already_AddRefed<nsIFile>
  GetLocationFromDirectoryService(const char* aProp)
  {
@@ -223,7 +217,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  }
  
  static already_AddRefed<nsIFile>
-@@ -337,12 +320,6 @@
+@@ -307,12 +290,6 @@
    }
  
    sStaticModules = new nsTArray<const mozilla::Module*>;
@@ -236,7 +230,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  }
  
  nsTArray<nsComponentManagerImpl::ComponentLocation>*
-@@ -373,11 +350,6 @@
+@@ -343,11 +320,6 @@
  
    InitializeStaticModules();
  
@@ -248,55 +242,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    nsCategoryManager::GetSingleton()->SuppressNotifications(true);
  
    RegisterModule(&kXPCOMModule, nullptr);
-@@ -386,47 +358,6 @@
-     RegisterModule((*sStaticModules)[i], nullptr);
-   }
- 
--  // The overall order in which chrome.manifests are expected to be treated
--  // is the following:
--  // - greDir
--  // - greDir's omni.ja
--  // - appDir
--  // - appDir's omni.ja
--
--  InitializeModuleLocations();
--  ComponentLocation* cl = sModuleLocations->AppendElement();
--  nsCOMPtr<nsIFile> lf = CloneAndAppend(greDir,
--                                        NS_LITERAL_CSTRING("chrome.manifest"));
--  cl->type = NS_APP_LOCATION;
--  cl->location.Init(lf);
--
--  RefPtr<nsZipArchive> greOmnijar =
--    mozilla::Omnijar::GetReader(mozilla::Omnijar::GRE);
--  if (greOmnijar) {
--    cl = sModuleLocations->AppendElement();
--    cl->type = NS_APP_LOCATION;
--    cl->location.Init(greOmnijar, "chrome.manifest");
--  }
--
--  bool equals = false;
--  appDir->Equals(greDir, &equals);
--  if (!equals) {
--    cl = sModuleLocations->AppendElement();
--    cl->type = NS_APP_LOCATION;
--    lf = CloneAndAppend(appDir, NS_LITERAL_CSTRING("chrome.manifest"));
--    cl->location.Init(lf);
--  }
--
--  RefPtr<nsZipArchive> appOmnijar =
--    mozilla::Omnijar::GetReader(mozilla::Omnijar::APP);
--  if (appOmnijar) {
--    cl = sModuleLocations->AppendElement();
--    cl->type = NS_APP_LOCATION;
--    cl->location.Init(appOmnijar, "chrome.manifest");
--  }
--
--  RereadChromeManifests(false);
--
-   nsCategoryManager::GetSingleton()->SuppressNotifications(false);
- 
-   RegisterWeakMemoryReporter(this);
-@@ -443,7 +374,7 @@
+@@ -416,7 +388,7 @@
    // The preference system is registered as a component so at this point during
    // component manager initialization we know it is setup and we can register
    // for notifications.
@@ -305,7 +251,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  
    // Unfortunately, we can't register the nsCategoryManager memory reporter
    // in its constructor (which is triggered by the GetSingleton() call
-@@ -472,13 +403,7 @@
+@@ -470,13 +442,7 @@
  
      KnownModule* m;
      if (aFile) {
@@ -319,7 +265,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      } else {
        m = new KnownModule(aModule);
        mKnownStaticModules.AppendElement(m);
-@@ -552,10 +477,6 @@
+@@ -532,10 +498,6 @@
        existing = "<unknown module>";
      }
      SafeMutexAutoUnlock unlock(mLock);
@@ -330,7 +276,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      return;
    }
  
-@@ -581,10 +502,6 @@
+@@ -561,10 +523,6 @@
      aEntry->cid->ToProvidedString(idstr);
  
      SafeMutexAutoUnlock unlock(mLock);
@@ -341,7 +287,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      return;
    }
  
-@@ -608,26 +525,7 @@
+@@ -588,26 +546,7 @@
                     bool aChromeOnly,
                     bool aXPTOnly)
  {
@@ -369,7 +315,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  }
  
  void
-@@ -642,9 +540,7 @@
+@@ -622,9 +561,7 @@
  nsComponentManagerImpl::ManifestManifest(ManifestProcessingContext& aCx,
                                           int aLineNo, char* const* aArgv)
  {
@@ -380,7 +326,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  }
  
  void
-@@ -652,31 +548,7 @@
+@@ -632,31 +569,7 @@
                                                  int aLineNo,
                                                  char* const* aArgv)
  {
@@ -401,18 +347,18 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
 -                          "Attempting to register a binary component twice.");
 -    return;
 -  }
--
+ 
 -  const mozilla::Module* m = mNativeModuleLoader.LoadModule(f);
 -  // The native module loader should report an error here, we don't have to
 -  if (!m) {
 -    return;
 -  }
- 
+-
 -  RegisterModule(m, &f);
  }
  
  static void
-@@ -715,73 +587,14 @@
+@@ -686,73 +599,14 @@
  nsComponentManagerImpl::ManifestXPT(ManifestProcessingContext& aCx,
                                      int aLineNo, char* const* aArgv)
  {
@@ -436,7 +382,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
 -                          "Malformed CID: '%s'.", id);
 -    return;
 -  }
--
+ 
 -  // Precompute the hash/file data outside of the lock
 -  FileLocation fl(aCx.mFile, file);
 -  nsCString hash;
@@ -465,7 +411,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
 -  }
 -
 -  KnownModule* km;
- 
+-
 -  km = mKnownModules.Get(hash);
 -  if (!km) {
 -    km = new KnownModule(fl);
@@ -487,7 +433,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
  }
  
  void
-@@ -795,8 +608,6 @@
+@@ -766,8 +620,6 @@
  
    nsID cid;
    if (!cid.Parse(id)) {
@@ -496,7 +442,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      return;
    }
  
-@@ -804,9 +615,6 @@
+@@ -775,9 +627,6 @@
    nsFactoryEntry* f = mFactories.Get(cid);
    if (!f) {
      lock.Unlock();
@@ -506,7 +452,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      return;
    }
  
-@@ -828,21 +636,14 @@
+@@ -799,21 +648,14 @@
  void
  nsComponentManagerImpl::RereadChromeManifests(bool aChromeOnly)
  {
@@ -530,7 +476,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    }
    return !!mLoader;
  }
-@@ -858,8 +659,6 @@
+@@ -829,8 +671,6 @@
        return false;
      }
  
@@ -539,7 +485,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      if (!mModule) {
        mFailed = true;
        return false;
-@@ -882,11 +681,7 @@
+@@ -853,11 +693,7 @@
  nsComponentManagerImpl::KnownModule::Description() const
  {
    nsCString s;
@@ -552,9 +498,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    return s;
  }
  
-@@ -916,9 +711,6 @@
-   sXPTIInfosBook = nullptr;
- #endif
+@@ -883,9 +719,6 @@
+   delete sStaticModules;
+   delete sModuleLocations;
  
 -  // Unload libraries
 -  mNativeModuleLoader.UnloadLibraries();
@@ -562,66 +508,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    // delete arena for strings and small objects
    PL_FinishArenaPool(&mArena);
  
-@@ -2018,57 +1810,13 @@
-     return NS_ERROR_FAILURE;
-   }
- 
--  nsCOMPtr<nsIFile> manifest;
--  nsString path;
--  nsresult rv = aLocation->GetPath(path);
--  if (NS_FAILED(rv)) {
--    return rv;
--  }
--
--  nsComponentManagerImpl::ComponentLocation elem;
--  elem.type = NS_BOOTSTRAPPED_LOCATION;
--
--  if (Substring(path, path.Length() - 4).EqualsLiteral(".xpi")) {
--    elem.location.Init(aLocation, "chrome.manifest");
--  } else {
--    nsCOMPtr<nsIFile> lf =
--      CloneAndAppend(aLocation, NS_LITERAL_CSTRING("chrome.manifest"));
--    elem.location.Init(lf);
--  }
--
--  // Remove reference.
--  nsComponentManagerImpl::sModuleLocations->RemoveElement(elem,
--                                                          ComponentLocationComparator());
--
--  rv = cr->CheckForNewChrome();
-+  nsresult rv = cr->CheckForNewChrome();
-   return rv;
- }
- 
- NS_IMETHODIMP
- nsComponentManagerImpl::GetManifestLocations(nsIArray** aLocations)
- {
--  NS_ENSURE_ARG_POINTER(aLocations);
--  *aLocations = nullptr;
--
--  if (!sModuleLocations) {
--    return NS_ERROR_NOT_INITIALIZED;
--  }
--
--  nsCOMPtr<nsIMutableArray> locations = nsArray::Create();
--  nsresult rv;
--  for (uint32_t i = 0; i < sModuleLocations->Length(); ++i) {
--    ComponentLocation& l = sModuleLocations->ElementAt(i);
--    FileLocation loc = l.location;
--    nsCString uriString;
--    loc.GetURIString(uriString);
--    nsCOMPtr<nsIURI> uri;
--    rv = NS_NewURI(getter_AddRefs(uri), uriString);
--    if (NS_SUCCEEDED(rv)) {
--      locations->AppendElement(uri, false);
--    }
--  }
--
--  locations.forget(aLocations);
-   return NS_OK;
- }
- 
-@@ -2121,41 +1869,12 @@
+@@ -2043,41 +1876,12 @@
  EXPORT_XPCOM_API(nsresult)
  XRE_AddManifestLocation(NSLocationType aType, nsIFile* aLocation)
  {
@@ -663,10 +550,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    return NS_OK;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.h xpcom-patched/components/nsComponentManager.h
---- xpcom/components/nsComponentManager.h	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/components/nsComponentManager.h	2016-10-15 19:12:05.000000000 +0200
-@@ -183,7 +183,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/components/nsComponentManager.h xpcom-patched/components/nsComponentManager.h
+--- xpcom/components/nsComponentManager.h	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/components/nsComponentManager.h	2016-12-20 17:32:41.000000000 +0100
+@@ -179,7 +179,6 @@
    struct ComponentLocation
    {
      NSLocationType type;
@@ -674,7 +561,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
    };
  
    class ComponentLocationComparator
-@@ -191,7 +190,7 @@
+@@ -187,7 +186,7 @@
    public:
      bool Equals(const ComponentLocation& aA, const ComponentLocation& aB) const
      {
@@ -683,7 +570,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      }
    };
  
-@@ -208,7 +207,6 @@
+@@ -204,7 +203,6 @@
       */
      KnownModule(const mozilla::Module* aModule, mozilla::FileLocation& aFile)
        : mModule(aModule)
@@ -691,7 +578,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
        , mLoaded(false)
        , mFailed(false)
      {
-@@ -223,7 +221,6 @@
+@@ -219,7 +217,6 @@
  
      explicit KnownModule(mozilla::FileLocation& aFile)
        : mModule(nullptr)
@@ -699,7 +586,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
        , mLoader(nullptr)
        , mLoaded(false)
        , mFailed(false)
-@@ -250,7 +247,6 @@
+@@ -246,7 +243,6 @@
  
    private:
      const mozilla::Module* mModule;
@@ -707,7 +594,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      nsCOMPtr<mozilla::ModuleLoader> mLoader;
      bool mLoaded;
      bool mFailed;
-@@ -281,7 +277,6 @@
+@@ -277,7 +273,6 @@
      ManifestProcessingContext(NSLocationType aType,
                                mozilla::FileLocation& aFile, bool aChromeOnly)
        : mType(aType)
@@ -715,7 +602,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
        , mChromeOnly(aChromeOnly)
      {
      }
-@@ -289,7 +284,6 @@
+@@ -285,7 +280,6 @@
      ~ManifestProcessingContext() {}
  
      NSLocationType mType;
@@ -723,9 +610,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/components/nsComponentManager.
      bool mChromeOnly;
    };
  
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/glue/nsComponentManagerUtils.cpp
---- xpcom/glue/nsComponentManagerUtils.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/glue/nsComponentManagerUtils.cpp	2016-10-15 20:32:24.000000000 +0200
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/nsComponentManagerUtils.cpp xpcom-patched/glue/nsComponentManagerUtils.cpp
+--- xpcom/glue/nsComponentManagerUtils.cpp	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/glue/nsComponentManagerUtils.cpp	2016-12-20 17:32:41.000000000 +0100
 @@ -17,6 +17,8 @@
  
  #include "nsIComponentManager.h"
@@ -743,9 +630,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsComponentManagerUtils.c
    nsComponentManagerImpl* compMgr = nsComponentManagerImpl::gComponentManager;
    if (NS_WARN_IF(!compMgr)) {
      return NS_ERROR_NOT_INITIALIZED;
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThreadUtils.cpp
---- xpcom/glue/nsThreadUtils.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/glue/nsThreadUtils.cpp	2016-10-13 21:15:24.000000000 +0200
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/nsThreadUtils.cpp xpcom-patched/glue/nsThreadUtils.cpp
+--- xpcom/glue/nsThreadUtils.cpp	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/glue/nsThreadUtils.cpp	2016-12-20 17:32:41.000000000 +0100
 @@ -131,7 +131,8 @@
    if (mgr) {
      mgr->GetIsMainThread(&result);
@@ -756,9 +643,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/nsThreadUtils.cpp xpcom-p
  }
  #endif
  
-diff -Naur --exclude '.*' --exclude '*.pyc' xpcom/glue/objs.mozbuild xpcom-patched/glue/objs.mozbuild
---- xpcom/glue/objs.mozbuild	2016-08-01 09:12:55.000000000 +0200
-+++ xpcom-patched/glue/objs.mozbuild	2016-10-16 14:50:24.000000000 +0200
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' xpcom/glue/objs.mozbuild xpcom-patched/glue/objs.mozbuild
+--- xpcom/glue/objs.mozbuild	2016-09-19 12:14:36.000000000 +0200
++++ xpcom-patched/glue/objs.mozbuild	2016-12-20 17:32:41.000000000 +0100
 @@ -9,7 +9,6 @@
      'FileUtils.cpp',
      'nsArrayEnumerator.cpp',
