@@ -11,7 +11,7 @@ module.exports = {
 
     build: {
         // relative to this config file, will be bounded to @TOPSRCDIR@
-        sources: 'mozilla-central-51',
+        sources: 'mozilla-central',
         // relative to sources dir (mozilla-central)
         objects: 'obj-mozilla',
         // relative to this config file
@@ -21,7 +21,7 @@ module.exports = {
         makefile: 'backend.mk',
         mozilla_config: 'mozilla-config.h',
         url: 'https://hg.mozilla.org/mozilla-central/archive/',
-        version: 'FIREFOX_AURORA_51_BASE',
+        version: 'FIREFOX_AURORA_50_BASE',
         format: '.tar.gz',
         arch: 'i386', // i386, x86_64
         packages: {
@@ -286,7 +286,6 @@ module.exports = {
                     'websms-backend',
                     'dbm',
                     'accessibility',
-					'libjpeg-turbo',
                     'webrtc',
                     'webspeech',
                     'webspeechtestbackend',

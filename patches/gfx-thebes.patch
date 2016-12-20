@@ -1,6 +1,32 @@
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
---- gfx/thebes/SoftwareVsyncSource.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/DeviceManagerD3D11.cpp gfx/thebes-patched/DeviceManagerD3D11.cpp
+--- gfx/thebes/DeviceManagerD3D11.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/DeviceManagerD3D11.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -207,11 +207,7 @@
+       }
+ 
+       DXGI_ADAPTER_DESC desc;
+-      if (SUCCEEDED(adapter->GetDesc(&desc)) &&
+-          desc.AdapterLuid.HighPart == parent.AdapterLuid.HighPart &&
+-          desc.AdapterLuid.LowPart == parent.AdapterLuid.LowPart &&
+-          desc.VendorId == parent.VendorId &&
+-          desc.DeviceId == parent.DeviceId)
++      if (SUCCEEDED(adapter->GetDesc(&desc)))
+       {
+         mAdapter = adapter.forget();
+         break;
+@@ -299,9 +295,6 @@
+                          "RenderTargetViews need recreating");
+   }
+ 
+-  // It seems like this may only happen when we're using the NVIDIA gpu
+-  D3D11Checks::WarnOnAdapterMismatch(mCompositorDevice);
+-
+   mCompositorDevice->SetExceptionMode(0);
+   mIsWARP = false;
+ }
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.cpp gfx/thebes-patched/SoftwareVsyncSource.cpp
+--- gfx/thebes/SoftwareVsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.cpp	2016-10-17 12:33:16.000000000 +0200
 @@ -13,138 +13,8 @@
  
  SoftwareVsyncSource::SoftwareVsyncSource()
@@ -140,9 +166,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -  mVsyncThread->Stop();
 -  delete mVsyncThread;
  }
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
---- gfx/thebes/SoftwareVsyncSource.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/SoftwareVsyncSource.h gfx/thebes-patched/SoftwareVsyncSource.h
+--- gfx/thebes/SoftwareVsyncSource.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/SoftwareVsyncSource.h	2016-10-17 12:33:16.000000000 +0200
 @@ -14,32 +14,6 @@
  #include "nsISupportsImpl.h"
  #include "VsyncSource.h"
@@ -191,9 +217,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  };
  
  #endif /* GFX_SOFTWARE_VSYNC_SOURCE_H */
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
---- gfx/thebes/VsyncSource.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.cpp	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.cpp gfx/thebes-patched/VsyncSource.cpp
+--- gfx/thebes/VsyncSource.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.cpp	2016-10-17 12:33:16.000000000 +0200
 @@ -8,146 +8,3 @@
  #include "nsXULAppAPI.h"
  #include "mozilla/VsyncDispatcher.h"
@@ -341,9 +367,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -
 -} //namespace gfx
 -} //namespace mozilla
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
---- gfx/thebes/VsyncSource.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/VsyncSource.h	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/VsyncSource.h gfx/thebes-patched/VsyncSource.h
+--- gfx/thebes/VsyncSource.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/VsyncSource.h	2016-10-17 12:33:16.000000000 +0200
 @@ -13,8 +13,6 @@
  #include "nsISupportsImpl.h"
  
@@ -410,10 +436,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  protected:
    virtual ~VsyncSource() {}
  };
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxFcPlatformFontList.cpp gfx/thebes-patched/gfxFcPlatformFontList.cpp
---- gfx/thebes/gfxFcPlatformFontList.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxFcPlatformFontList.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -1647,8 +1647,7 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFcPlatformFontList.cpp gfx/thebes-patched/gfxFcPlatformFontList.cpp
+--- gfx/thebes/gfxFcPlatformFontList.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxFcPlatformFontList.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -1638,8 +1638,7 @@
      bool prefFontsUseOnlyGenerics = true;
      uint32_t count;
      char** names;
@@ -423,10 +449,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      if (NS_SUCCEEDED(rv) && count) {
          for (size_t i = 0; i < count; i++) {
              // Check whether all font.name prefs map to generic keywords
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
---- gfx/thebes/gfxFont.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -166,25 +166,8 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.cpp gfx/thebes-patched/gfxFont.cpp
+--- gfx/thebes/gfxFont.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxFont.cpp	2016-10-19 12:37:12.000000000 +0200
+@@ -167,25 +167,8 @@
  }
  
  gfxFontCache::gfxFontCache()
@@ -452,7 +478,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  gfxFontCache::~gfxFontCache()
-@@ -259,6 +242,24 @@
+@@ -260,6 +243,24 @@
      }
  }
  
@@ -477,9 +503,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  void
  gfxFontCache::NotifyReleased(gfxFont *aFont)
  {
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
---- gfx/thebes/gfxFont.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxFont.h	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxFont.h gfx/thebes-patched/gfxFont.h
+--- gfx/thebes/gfxFont.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxFont.h	2016-10-19 12:38:24.000000000 +0200
 @@ -276,7 +276,7 @@
      size_t mShapedWords; // memory used by the per-font shapedWord caches
  };
@@ -511,10 +537,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      void FlushShapedWordCaches();
  
      void AddSizeOfExcludingThis(mozilla::MallocSizeOf aMallocSizeOf,
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
---- gfx/thebes/gfxMacPlatformFontList.mm	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-12-20 18:51:49.000000000 +0100
-@@ -72,6 +72,8 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxMacPlatformFontList.mm gfx/thebes-patched/gfxMacPlatformFontList.mm
+--- gfx/thebes/gfxMacPlatformFontList.mm	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxMacPlatformFontList.mm	2016-10-17 12:33:16.000000000 +0200
+@@ -71,6 +71,8 @@
  #include <time.h>
  #include <dlfcn.h>
  
@@ -523,7 +549,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  using namespace mozilla;
  
  // indexes into the NSArray objects that the Cocoa font manager returns
-@@ -103,6 +105,23 @@
+@@ -102,6 +104,23 @@
      9  // 14
  };
  
@@ -547,7 +573,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  // cache Cocoa's "shared font manager" for performance
  static NSFontManager *sFontManager;
  
-@@ -700,8 +719,8 @@
+@@ -699,8 +718,8 @@
          sizeHint = 128.0;
      }
  
@@ -558,10 +584,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
      gfxFontFamily* familyEntry = new gfxMacFontFamily(familyName, sizeHint);
      table.Put(key, familyEntry);
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
---- gfx/thebes/gfxPlatform.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -192,206 +192,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.cpp gfx/thebes-patched/gfxPlatform.cpp
+--- gfx/thebes/gfxPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -195,206 +195,6 @@
      NS_DECL_NSIOBSERVER
  };
  
@@ -768,27 +794,25 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  NS_IMPL_ISUPPORTS(SRGBOverrideObserver, nsIObserver, nsISupportsWeakReference)
  
  #define GFX_DOWNLOADABLE_FONTS_ENABLED "gfx.downloadable_fonts.enabled"
-@@ -480,10 +280,7 @@
- }
- 
+@@ -485,9 +285,6 @@
  gfxPlatform::gfxPlatform()
--  : mAzureCanvasBackendCollector(this, &gfxPlatform::GetAzureBackendInfo)
+   : mTileWidth(-1)
+   , mTileHeight(-1)
+-  , mAzureCanvasBackendCollector(this, &gfxPlatform::GetAzureBackendInfo)
 -  , mApzSupportCollector(this, &gfxPlatform::GetApzSupportInfo)
 -  , mTilesInfoCollector(this, &gfxPlatform::GetTilesSupportInfo)
--  , mCompositorBackend(layers::LayersBackend::LAYERS_NONE)
-+  : mCompositorBackend(layers::LayersBackend::LAYERS_NONE)
+   , mCompositorBackend(layers::LayersBackend::LAYERS_NONE)
    , mScreenDepth(0)
    , mDeviceCounter(0)
- {
-@@ -506,7 +303,6 @@
- #endif
+@@ -507,7 +304,6 @@
+     uint32_t contentMask = BackendTypeBit(BackendType::CAIRO);
      InitBackendPrefs(canvasMask, BackendType::CAIRO,
                       contentMask, BackendType::CAIRO);
 -    mTotalSystemMemory = mozilla::hal::GetTotalSystemMemory();
  
      VRManager::ManagerInit();
  }
-@@ -529,30 +325,6 @@
+@@ -530,30 +326,6 @@
  void RecordingPrefChanged(const char *aPrefName, void *aClosure)
  {
    if (Preferences::GetBool("gfx.2d.recording", false)) {
@@ -819,12 +843,11 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
    } else {
      Factory::SetGlobalEventRecorder(nullptr);
    }
-@@ -591,55 +363,12 @@
+@@ -592,56 +364,11 @@
  
      // Initialize the preferences by creating the singleton.
      gfxPrefs::GetSingleton();
 -    MediaPrefs::GetSingleton();
-     gfxVars::Initialize();
  
      gfxConfig::Init();
  
@@ -842,14 +865,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -    {
 -      nsAutoCString forcedPrefs;
 -      // D2D prefs
--      forcedPrefs.AppendPrintf("FP(D%d%d",
+-      forcedPrefs.AppendPrintf("FP(D%d%d%d",
 -                               gfxPrefs::Direct2DDisabled(),
--                               gfxPrefs::Direct2DForceEnabled());
+-                               gfxPrefs::Direct2DForceEnabled(),
+-                               gfxPrefs::DirectWriteFontRenderingForceEnabled());
 -      // Layers prefs
--      forcedPrefs.AppendPrintf("-L%d%d%d%d",
+-      forcedPrefs.AppendPrintf("-L%d%d%d%d%d",
 -                               gfxPrefs::LayersAMDSwitchableGfxEnabled(),
 -                               gfxPrefs::LayersAccelerationDisabledDoNotUseDirectly(),
 -                               gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly(),
+-                               gfxPrefs::LayersD3D11DisableWARP(),
 -                               gfxPrefs::LayersD3D11ForceWARP());
 -      // WebGL prefs
 -      forcedPrefs.AppendPrintf("-W%d%d%d%d%d%d%d%d",
@@ -876,7 +901,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      cfg.mMaxTextureSize = gfxPrefs::MaxTextureSize();
      cfg.mMaxAllocSize = gfxPrefs::MaxAllocSize();
  
-@@ -786,8 +515,6 @@
+@@ -788,8 +515,6 @@
  /* static */ void
  gfxPlatform::InitNullMetadata()
  {
@@ -885,7 +910,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-@@ -832,12 +559,6 @@
+@@ -834,12 +559,6 @@
      gPlatform->mMemoryPressureObserver = nullptr;
      gPlatform->mSkiaGlue = nullptr;
  
@@ -898,7 +923,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  #ifdef MOZ_WIDGET_ANDROID
      // Shut down the texture pool
      TexturePoolOGL::Shutdown();
-@@ -856,9 +577,6 @@
+@@ -858,9 +577,6 @@
      GLContextProviderEGL::Shutdown();
  #endif
  
@@ -908,7 +933,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
      // This is a bit iffy - we're assuming that we were the ones that set the
      // log forwarder in the Factory, so that it's our responsibility to
-@@ -889,14 +607,6 @@
+@@ -888,14 +604,6 @@
        return;
      }
      sLayersIPCIsUp = true;
@@ -923,7 +948,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  /* static */ void
-@@ -906,29 +616,6 @@
+@@ -905,29 +613,6 @@
        return;
      }
      sLayersIPCIsUp = false;
@@ -952,8 +977,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -    }
  }
  
- void
-@@ -1215,20 +902,6 @@
+ gfxPlatform::~gfxPlatform()
+@@ -1224,20 +909,6 @@
  void
  gfxPlatform::PopulateScreenInfo()
  {
@@ -974,19 +999,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  bool
-@@ -2155,11 +1828,6 @@
-           NS_LITERAL_CSTRING("FEATURE_FAILURE_NO_E10S"));
-       }
+@@ -2148,8 +1819,6 @@
      }
--
--    if (gpuProc.IsEnabled()) {
+ 
+     if (gfxConfig::IsEnabled(Feature::GPU_PROCESS)) {
 -      GPUProcessManager* gpu = GPUProcessManager::Get();
 -      gpu->EnableGPUProcess();
--    }
+     }
    }
  
-   sLayersAccelerationPrefsInitialized = true;
-@@ -2326,33 +1994,11 @@
+@@ -2320,32 +1989,11 @@
  void
  gfxPlatform::GetApzSupportInfo(mozilla::widget::InfoObject& aObj)
  {
@@ -1014,37 +1036,33 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -    return;
 -  }
 -
--  IntSize tileSize = gfxVars::TileSize();
--  aObj.DefineProperty("TileHeight", tileSize.height);
--  aObj.DefineProperty("TileWidth", tileSize.width);
+-  aObj.DefineProperty("TileHeight", mTileHeight);
+-  aObj.DefineProperty("TileWidth", mTileWidth);
  }
  
  /*static*/ bool
-@@ -2436,10 +2082,7 @@
- {
-   MOZ_ASSERT(XRE_IsContentProcess());
+@@ -2445,17 +2093,6 @@
+     return false;
+   }
  
--  mozilla::dom::ContentChild* cc = mozilla::dom::ContentChild::GetSingleton();
+-  mozilla::gfx::DeviceInitData data;
+-  mozilla::dom::ContentChild::GetSingleton()->SendGetGraphicsDeviceInitData(&data);
 -
-   mozilla::gfx::ContentDeviceData data;
--  cc->SendGetGraphicsDeviceInitData(&data);
- 
-   ImportContentDeviceData(data);
- }
-@@ -2459,9 +2102,6 @@
- {
-   MOZ_ASSERT(XRE_IsParentProcess());
- 
--  // Make sure our settings are synchronized from the GPU process.
--  GPUProcessManager::Get()->EnsureGPUReady();
+-  sDeviceInitDataDoNotUseDirectly = data;
 -
-   aOut->prefs().hwCompositing() = gfxConfig::GetValue(Feature::HW_COMPOSITING);
-   aOut->prefs().oglCompositing() = gfxConfig::GetValue(Feature::OPENGL_COMPOSITING);
+-  // Ensure that child processes have inherited the HW_COMPOSITING pref.
+-  gfxConfig::InitOrUpdate(
+-    Feature::HW_COMPOSITING,
+-    GetParentDevicePrefs().useHwCompositing(),
+-    FeatureStatus::Blocked,
+-    "Hardware-accelerated compositing disabled in parent process");
+   return true;
  }
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
---- gfx/thebes/gfxPlatform.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatform.h	2016-12-20 18:51:49.000000000 +0100
-@@ -276,10 +276,6 @@
+ 
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatform.h gfx/thebes-patched/gfxPlatform.h
+--- gfx/thebes/gfxPlatform.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatform.h	2016-10-17 12:33:16.000000000 +0200
+@@ -272,10 +272,6 @@
      static bool AsyncPanZoomEnabled();
  
      virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) {
@@ -1055,9 +1073,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      }
      void GetApzSupportInfo(mozilla::widget::InfoObject& aObj);
      void GetTilesSupportInfo(mozilla::widget::InfoObject& aObj);
-@@ -818,10 +814,6 @@
-     // Bitmask of backend types we can use to render content
-     uint32_t mContentBackendBitmask;
+@@ -809,10 +805,6 @@
+     int mTileWidth;
+     int mTileHeight;
  
 -    mozilla::widget::GfxInfoCollector<gfxPlatform> mAzureCanvasBackendCollector;
 -    mozilla::widget::GfxInfoCollector<gfxPlatform> mApzSupportCollector;
@@ -1066,9 +1084,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      RefPtr<mozilla::gfx::DrawEventRecorder> mRecorder;
      RefPtr<mozilla::gl::SkiaGLGlue> mSkiaGlue;
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
---- gfx/thebes/gfxPlatformFontList.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-12-20 18:51:49.000000000 +0100
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformFontList.cpp gfx/thebes-patched/gfxPlatformFontList.cpp
+--- gfx/thebes/gfxPlatformFontList.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformFontList.cpp	2016-10-17 12:33:16.000000000 +0200
 @@ -24,6 +24,7 @@
  #include "mozilla/Telemetry.h"
  #include "mozilla/TimeStamp.h"
@@ -1077,7 +1095,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
  #include <locale.h>
  
-@@ -1160,7 +1161,7 @@
+@@ -1166,7 +1167,7 @@
  gfxPlatformFontList::GetLangService()
  {
      if (!mLangService) {
@@ -1086,20 +1104,20 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      }
      NS_ASSERTION(mLangService, "no language service!");
      return mLangService;
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
---- gfx/thebes/gfxPlatformGtk.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -88,8 +88,7 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.cpp gfx/thebes-patched/gfxPlatformGtk.cpp
+--- gfx/thebes/gfxPlatformGtk.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -91,8 +91,7 @@
+     mMaxGenericSubstitutions = UNINITIALIZED_VALUE;
  
  #ifdef MOZ_X11
-     if (XRE_IsParentProcess()) {
--      if (GDK_IS_X11_DISPLAY(gdk_display_get_default()) &&
--          mozilla::Preferences::GetBool("gfx.xrender.enabled"))
-+      if (mozilla::Preferences::GetBool("gfx.xrender.enabled"))
-       {
-           gfxVars::SetUseXRender(true);
-       }
-@@ -104,15 +103,6 @@
+-    sUseXRender = (GDK_IS_X11_DISPLAY(gdk_display_get_default())) ?
+-                    mozilla::Preferences::GetBool("gfx.xrender.enabled") : false;
++    sUseXRender = mozilla::Preferences::GetBool("gfx.xrender.enabled");
+ #endif
+ 
+     uint32_t canvasMask = BackendTypeBit(BackendType::CAIRO);
+@@ -103,15 +102,6 @@
  #endif
      InitBackendPrefs(canvasMask, BackendType::CAIRO,
                       contentMask, BackendType::CAIRO);
@@ -1115,7 +1133,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  gfxPlatformGtk::~gfxPlatformGtk()
-@@ -652,248 +642,10 @@
+@@ -647,248 +637,10 @@
  
  #ifdef GL_PROVIDER_GLX
  
@@ -1365,21 +1383,21 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  bool
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatformGtk.h gfx/thebes-patched/gfxPlatformGtk.h
---- gfx/thebes/gfxPlatformGtk.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformGtk.h	2016-12-20 18:51:49.000000000 +0100
-@@ -107,7 +107,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformGtk.h gfx/thebes-patched/gfxPlatformGtk.h
+--- gfx/thebes/gfxPlatformGtk.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformGtk.h	2016-10-17 12:33:16.000000000 +0200
+@@ -114,7 +114,6 @@
  #ifdef MOZ_X11
      virtual void GetAzureBackendInfo(mozilla::widget::InfoObject &aObj) override {
        gfxPlatform::GetAzureBackendInfo(aObj);
--      aObj.DefineProperty("CairoUseXRender", mozilla::gfx::gfxVars::UseXRender());
+-      aObj.DefineProperty("CairoUseXRender", UseXRender());
      }
  #endif
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
---- gfx/thebes/gfxPlatformMac.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -377,211 +377,10 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxPlatformMac.cpp gfx/thebes-patched/gfxPlatformMac.cpp
+--- gfx/thebes/gfxPlatformMac.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxPlatformMac.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -374,211 +374,10 @@
    return true;
  }
  
@@ -1592,10 +1610,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
---- gfx/thebes/gfxSVGGlyphs.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-12-20 19:42:45.000000000 +0100
-@@ -23,7 +23,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxSVGGlyphs.cpp gfx/thebes-patched/gfxSVGGlyphs.cpp
+--- gfx/thebes/gfxSVGGlyphs.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxSVGGlyphs.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -22,7 +22,6 @@
  #include "nsIPrincipal.h"
  #include "mozilla/BasePrincipal.h"
  #include "mozilla/dom/Element.h"
@@ -1603,9 +1621,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  #include "nsSVGUtils.h"
  #include "nsHostObjectProtocolHandler.h"
  #include "nsContentUtils.h"
-@@ -39,38 +38,28 @@
+@@ -40,38 +39,28 @@
  
- typedef mozilla::dom::Element Element;
+ mozilla::gfx::UserDataKey gfxTextContextPaint::sUserDataKey;
  
 +#include <string.h>
 +#include <stdexcept>
@@ -1651,7 +1669,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  /*
-@@ -87,102 +76,25 @@
+@@ -88,102 +77,25 @@
  /* static */ int
  gfxSVGGlyphs::CompareIndexEntries(const void *aKey, const void *aEntry)
  {
@@ -1758,7 +1776,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  /**
-@@ -193,15 +105,7 @@
+@@ -194,15 +106,7 @@
  void
  gfxSVGGlyphsDocument::FindGlyphElements(Element *aElem)
  {
@@ -1775,23 +1793,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  /**
-@@ -215,14 +119,7 @@
- gfxSVGGlyphs::RenderGlyph(gfxContext *aContext, uint32_t aGlyphId,
-                           SVGContextPaint* aContextPaint)
- {
--    gfxContextAutoSaveRestore aContextRestorer(aContext);
--
--    Element *glyph = mGlyphIdMap.Get(aGlyphId);
--    NS_ASSERTION(glyph, "No glyph element. Should check with HasSVGGlyph() first!");
--
--    AutoSetRestoreSVGContextPaint autoSetRestore(aContextPaint, glyph->OwnerDoc());
--
--    return nsSVGUtils::PaintSVGGlyph(glyph, aContext);
-+    return false;
- }
- 
- bool
-@@ -276,7 +173,7 @@
+@@ -275,7 +179,7 @@
  Element *
  gfxSVGGlyphsDocument::GetGlyphElement(uint32_t aGlyphId)
  {
@@ -1800,7 +1802,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  gfxSVGGlyphsDocument::gfxSVGGlyphsDocument(const uint8_t *aBuffer,
-@@ -284,172 +181,31 @@
+@@ -283,172 +187,31 @@
                                             gfxSVGGlyphs *aSVGGlyphs)
      : mOwner(aSVGGlyphs)
  {
@@ -1978,10 +1980,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  size_t
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
---- gfx/thebes/gfxUserFontSet.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -472,78 +472,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUserFontSet.cpp gfx/thebes-patched/gfxUserFontSet.cpp
+--- gfx/thebes/gfxUserFontSet.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxUserFontSet.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -472,80 +472,6 @@
                                                        &bypassCache);
  
                  if (NS_SUCCEEDED(rv) && principal != nullptr) {
@@ -1996,10 +1998,11 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -                            mPlatformFontEntry = fe;
 -                            SetLoadState(STATUS_LOADED);
 -                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
 -                                LOG(("userfonts (%p) [src %d] "
 -                                     "loaded uri from cache: (%s) for (%s)\n",
--                                     mFontSet, mSrcIndex,
--                                     currSrc.mURI->GetSpecOrDefault().get(),
+-                                     mFontSet, mSrcIndex, fontURI.get(),
 -                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
 -                            }
 -                            return;
@@ -2044,9 +2047,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -
 -                        if (loadOK) {
 -                            if (LOG_ENABLED()) {
+-                                nsAutoCString fontURI;
+-                                currSrc.mURI->GetSpec(fontURI);
 -                                LOG(("userfonts (%p) [src %d] loading uri: (%s) for (%s)\n",
--                                     mFontSet, mSrcIndex,
--                                     currSrc.mURI->GetSpecOrDefault().get(),
+-                                     mFontSet, mSrcIndex, fontURI.get(),
 -                                     NS_ConvertUTF16toUTF8(mFamilyName).get()));
 -                            }
 -                            return;
@@ -2060,7 +2064,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
                  } else {
                      mFontSet->LogMessage(this, "download not allowed",
                                           nsIScriptError::errorFlag, rv);
-@@ -1077,12 +1005,7 @@
+@@ -1081,12 +1007,7 @@
  static bool
  IgnorePrincipal(nsIURI* aURI)
  {
@@ -2074,7 +2078,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  bool
-@@ -1132,68 +1055,6 @@
+@@ -1136,68 +1057,6 @@
  gfxUserFontSet::UserFontCache::CacheFont(gfxFontEntry* aFontEntry,
                                           EntryPersistence aPersistence)
  {
@@ -2143,7 +2147,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-@@ -1226,62 +1087,6 @@
+@@ -1230,62 +1089,6 @@
                                         gfxUserFontEntry* aUserFontEntry,
                                         bool aPrivate)
  {
@@ -2206,63 +2210,13 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return nullptr;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
---- gfx/thebes/gfxUtils.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxUtils.cpp	2016-12-20 20:27:28.000000000 +0100
-@@ -370,13 +370,6 @@
-     return destSurf.forget();
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxUtils.cpp gfx/thebes-patched/gfxUtils.cpp
+--- gfx/thebes/gfxUtils.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxUtils.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -1334,106 +1334,6 @@
+     return imageBuffer;
  }
  
--void
--gfxUtils::ConvertBGRAtoRGBA(uint8_t* aData, uint32_t aLength)
--{
--    MOZ_ASSERT((aLength % 4) == 0, "Loop below will pass srcEnd!");
--    libyuv::ABGRToARGB(aData, aLength, aData, aLength, aLength / 4, 1);
--}
--
- #if !defined(MOZ_GFX_OPTIMIZE_MOBILE)
- /**
-  * This returns the fastest operator to use for solid surfaces which have no
-@@ -1286,161 +1279,6 @@
-   }
- }
- 
--/* static */ UniquePtr<uint8_t[]>
--gfxUtils::GetImageBuffer(gfx::DataSourceSurface* aSurface,
--                         bool aIsAlphaPremultiplied,
--                         int32_t* outFormat)
--{
--    *outFormat = 0;
--
--    DataSourceSurface::MappedSurface map;
--    if (!aSurface->Map(DataSourceSurface::MapType::READ, &map))
--        return nullptr;
--
--    uint32_t bufferSize = aSurface->GetSize().width * aSurface->GetSize().height * 4;
--    auto imageBuffer = MakeUniqueFallible<uint8_t[]>(bufferSize);
--    if (!imageBuffer) {
--        aSurface->Unmap();
--        return nullptr;
--    }
--    memcpy(imageBuffer.get(), map.mData, bufferSize);
--
--    aSurface->Unmap();
--
--    int32_t format = imgIEncoder::INPUT_FORMAT_HOSTARGB;
--    if (!aIsAlphaPremultiplied) {
--        // We need to convert to INPUT_FORMAT_RGBA, otherwise
--        // we are automatically considered premult, and unpremult'd.
--        // Yes, it is THAT silly.
--        // Except for different lossy conversions by color,
--        // we could probably just change the label, and not change the data.
--        gfxUtils::ConvertBGRAtoRGBA(imageBuffer.get(), bufferSize);
--        format = imgIEncoder::INPUT_FORMAT_RGBA;
--    }
--
--    *outFormat = format;
--    return imageBuffer;
--}
--
 -/* static */ nsresult
 -gfxUtils::GetInputStream(gfx::DataSourceSurface* aSurface,
 -                         bool aIsAlphaPremultiplied,
@@ -2358,25 +2312,6 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -}
 -
 -/* static */ bool
--gfxUtils::IsFeatureBlacklisted(nsCOMPtr<nsIGfxInfo> gfxInfo, int32_t feature,
--                               nsACString* const out_blacklistId)
--{
--  if (!gfxInfo) {
--    gfxInfo = services::GetGfxInfo();
--  }
--
--  int32_t status;
--  if (!NS_SUCCEEDED(gfxUtils::ThreadSafeGetFeatureStatus(gfxInfo, feature,
--                                                         *out_blacklistId, &status)))
--  {
--    out_blacklistId->AssignLiteral("");
--    return true;
--  }
--
--  return status != nsIGfxInfo::FEATURE_STATUS_OK;
--}
--
--/* static */ bool
 -gfxUtils::DumpDisplayList() {
 -  return gfxPrefs::LayoutDumpDisplayList() ||
 -         (gfxPrefs::LayoutDumpDisplayListContent() && XRE_IsContentProcess());
@@ -2385,10 +2320,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  FILE *gfxUtils::sDumpPaintFile = stderr;
  
  namespace mozilla {
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxWindowsPlatform.cpp gfx/thebes-patched/gfxWindowsPlatform.cpp
---- gfx/thebes/gfxWindowsPlatform.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxWindowsPlatform.cpp	2016-12-20 18:51:49.000000000 +0100
-@@ -446,10 +446,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxWindowsPlatform.cpp gfx/thebes-patched/gfxWindowsPlatform.cpp
+--- gfx/thebes/gfxWindowsPlatform.cpp	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxWindowsPlatform.cpp	2016-10-17 12:33:16.000000000 +0200
+@@ -454,10 +454,6 @@
    mHasD3D9DeviceReset = false;
    mDeviceResetReason = DeviceResetReason::OK;
  
@@ -2398,9 +2333,19 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -  imgLoader::PrivateBrowsingLoader()->ClearCache(false);
    gfxAlphaBoxBlur::ShutdownBlurCache();
  
-   if (XRE_IsContentProcess()) {
-@@ -1330,16 +1326,6 @@
-   mHasD3D9DeviceReset = true;
+   InitializeDevices();
+@@ -1349,8 +1345,7 @@
+   // or we don't have a compositor thread.
+   RefPtr<DeviceManagerD3D9> result;
+   if (!mDeviceManager &&
+-      (!gfxPlatform::UsesOffMainThreadCompositing() ||
+-       CompositorThreadHolder::IsInCompositorThread())) {
++      (!gfxPlatform::UsesOffMainThreadCompositing())) {
+     mDeviceManager = new DeviceManagerD3D9();
+     if (!mDeviceManager->Init()) {
+       gfxCriticalError() << "[D3D9] Could not Initialize the DeviceManagerD3D9";
+@@ -1363,16 +1358,6 @@
+   return result.forget();
  }
  
 -ReadbackManagerD3D11*
@@ -2416,7 +2361,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  bool
  gfxWindowsPlatform::IsOptimus()
  {
-@@ -1664,309 +1650,13 @@
+@@ -1719,298 +1704,13 @@
  bool
  gfxWindowsPlatform::DwmCompositionEnabled()
  {
@@ -2449,6 +2394,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -        , mVsyncEnabled(false)
 -      {
 -        mVsyncThread = new base::Thread("WindowsVsyncThread");
+-        const double rate = 1000 / 60.0;
 -        MOZ_RELEASE_ASSERT(mVsyncThread->Start(), "GFX: Could not start Windows vsync thread");
 -        SetVsyncRate();
 -      }
@@ -2579,22 +2525,16 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -          // In these error cases, normalize to Now();
 -          if (vsync >= now) {
 -            vsync = vsync - mVsyncRate;
+-            return vsync <= now ? vsync : now;
 -          }
 -        }
 -
 -        // On Windows 7 and 8, DwmFlush wakes up AFTER qpcVBlankTime
 -        // from DWMGetCompositionTimingInfo. We can return the adjusted vsync.
+-        // If we got here on Windows 10, it means we got a weird timestamp.
 -        if (vsync >= now) {
 -            vsync = now;
 -        }
--
--        // Our vsync time is some time very far in the past, adjust to Now.
--        // 4 ms is arbitrary, so feel free to pick something else if this isn't
--        // working. See the comment above within IsWin10OrLater().
--        if ((now - vsync).ToMilliseconds() > 4.0) {
--            vsync = now;
--        }
--
 -        return vsync;
 -      }
 -
@@ -2660,12 +2600,6 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -              vsync = TimeStamp::Now();
 -            }
 -
--            if ((now - vsync).ToMilliseconds() > 2.0) {
--              // Account for time drift here where vsync never quite catches up to
--              // Now and we'd fall ever so slightly further behind Now().
--              vsync = GetVBlankTime();
--            }
--
 -            mPrevVsync = vsync;
 -          }
 -        } // end for
@@ -2728,10 +2662,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  bool
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/thebes/gfxWindowsPlatform.h gfx/thebes-patched/gfxWindowsPlatform.h
---- gfx/thebes/gfxWindowsPlatform.h	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/thebes-patched/gfxWindowsPlatform.h	2016-12-20 18:51:49.000000000 +0100
-@@ -215,8 +215,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' gfx/thebes/gfxWindowsPlatform.h gfx/thebes-patched/gfxWindowsPlatform.h
+--- gfx/thebes/gfxWindowsPlatform.h	2016-08-01 09:12:55.000000000 +0200
++++ gfx/thebes-patched/gfxWindowsPlatform.h	2016-10-17 12:33:16.000000000 +0200
+@@ -218,8 +218,6 @@
  
      bool DwmCompositionEnabled();
  
@@ -2740,7 +2674,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      static bool IsOptimus();
  
      bool SupportsApzWheelInput() const override {
-@@ -286,8 +284,6 @@
+@@ -289,8 +287,6 @@
      mozilla::Atomic<bool> mHasD3D9DeviceReset;
      DeviceResetReason mDeviceResetReason;
  

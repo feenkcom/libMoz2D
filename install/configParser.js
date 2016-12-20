@@ -25,18 +25,16 @@ function ConfigStatusParser() {
 
     _this.parseVar = function (type) {
         var flags = _(contents).find(function(line) {
-            return line.trim().startsWith("'" + type + "'");
+            return line.trim().startsWith('"' + type + '"');
         });
         if (_.isUndefined(flags))
             throw new Error (type + ' not found!');
-        flags = _this.trimAfter(flags, type+"':");
+        flags = _this.trimAfter(flags, type+'":');
 
         // removes commas from the begin and end of the string
         flags = flags.replace (/(^,)|(,$)/g, '');
         // removes double quotes from the begin and end
         flags = flags.replace (/(^")|("$)/g, '');
-        // removes single quotes from the begin and end
-        flags = flags.replace (/(^')|('$)/g, '');
 
         var replaces = {
             '$(topsrcdir)': '${PROJECT_SOURCE_DIR}/' + Platform.getPlatform().sources(),

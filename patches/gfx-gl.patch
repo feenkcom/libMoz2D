@@ -1,6 +1,6 @@
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/GLLibraryEGL.cpp gfx/gl-patched/GLLibraryEGL.cpp
---- gfx/gl/GLLibraryEGL.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/GLLibraryEGL.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/GLLibraryEGL.cpp gfx/gl-patched/GLLibraryEGL.cpp
+--- gfx/gl/GLLibraryEGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/GLLibraryEGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -148,21 +148,7 @@
  IsAccelAngleSupported(const nsCOMPtr<nsIGfxInfo>& gfxInfo,
                        nsACString* const out_failureId)
@@ -24,10 +24,10 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  static EGLDisplay
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurface.cpp gfx/gl-patched/SharedSurface.cpp
---- gfx/gl/SharedSurface.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurface.cpp	2016-12-20 17:03:19.000000000 +0100
-@@ -303,9 +303,7 @@
+diff -Naur --exclude '.*' gfx/gl/SharedSurface.cpp gfx/gl-patched/SharedSurface.cpp
+--- gfx/gl/SharedSurface.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurface.cpp	2016-08-16 17:23:35.000000000 +0200
+@@ -304,9 +304,7 @@
  SurfaceFactory::~SurfaceFactory()
  {
      while (!mRecycleTotalPool.empty()) {
@@ -38,7 +38,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      }
  
      MOZ_RELEASE_ASSERT(mRecycleTotalPool.empty(),"GFX: Surface recycle pool not empty.");
-@@ -334,12 +332,7 @@
+@@ -335,12 +333,7 @@
      if (!surf)
          return nullptr;
  
@@ -52,9 +52,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  void
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceANGLE.cpp gfx/gl-patched/SharedSurfaceANGLE.cpp
---- gfx/gl/SharedSurfaceANGLE.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceANGLE.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceANGLE.cpp gfx/gl-patched/SharedSurfaceANGLE.cpp
+--- gfx/gl/SharedSurfaceANGLE.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceANGLE.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -164,10 +164,6 @@
  bool
  SharedSurface_ANGLEShareHandle::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -66,23 +66,23 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return true;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceD3D11Interop.cpp gfx/gl-patched/SharedSurfaceD3D11Interop.cpp
---- gfx/gl/SharedSurfaceD3D11Interop.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceD3D11Interop.cpp	2016-12-20 17:06:28.000000000 +0100
-@@ -379,10 +379,6 @@
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceD3D11Interop.cpp gfx/gl-patched/SharedSurfaceD3D11Interop.cpp
+--- gfx/gl/SharedSurfaceD3D11Interop.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceD3D11Interop.cpp	2016-08-16 17:23:35.000000000 +0200
+@@ -357,10 +357,6 @@
  bool
  SharedSurface_D3D11Interop::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
  {
--    const auto format = (mHasAlpha ? gfx::SurfaceFormat::B8G8R8A8
--                                   : gfx::SurfaceFormat::B8G8R8X8);
--    *out_descriptor = layers::SurfaceDescriptorD3D10(WindowsHandle(mDXGIHandle), format,
+-    gfx::SurfaceFormat format = mHasAlpha ? gfx::SurfaceFormat::B8G8R8A8
+-                                          : gfx::SurfaceFormat::B8G8R8X8;
+-    *out_descriptor = layers::SurfaceDescriptorD3D10(WindowsHandle(mSharedHandle), format,
 -                                                     mSize);
      return true;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceEGL.cpp gfx/gl-patched/SharedSurfaceEGL.cpp
---- gfx/gl/SharedSurfaceEGL.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceEGL.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceEGL.cpp gfx/gl-patched/SharedSurfaceEGL.cpp
+--- gfx/gl/SharedSurfaceEGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceEGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -153,8 +153,6 @@
  bool
  SharedSurface_EGLImage::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -92,9 +92,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return true;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceGL.cpp gfx/gl-patched/SharedSurfaceGL.cpp
---- gfx/gl/SharedSurfaceGL.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGL.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGL.cpp gfx/gl-patched/SharedSurfaceGL.cpp
+--- gfx/gl/SharedSurfaceGL.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGL.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -173,12 +173,6 @@
  bool
  SharedSurface_GLTexture::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -108,9 +108,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      // Transfer ownership of the fence to the host
      mSync = nullptr;
      return true;
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceGLX.cpp gfx/gl-patched/SharedSurfaceGLX.cpp
---- gfx/gl/SharedSurfaceGLX.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGLX.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGLX.cpp gfx/gl-patched/SharedSurfaceGLX.cpp
+--- gfx/gl/SharedSurfaceGLX.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGLX.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -79,8 +79,6 @@
  {
      if (!mXlibSurface)
@@ -120,9 +120,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      return true;
  }
  
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceGralloc.cpp gfx/gl-patched/SharedSurfaceGralloc.cpp
---- gfx/gl/SharedSurfaceGralloc.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceGralloc.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceGralloc.cpp gfx/gl-patched/SharedSurfaceGralloc.cpp
+--- gfx/gl/SharedSurfaceGralloc.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceGralloc.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -231,8 +231,7 @@
  bool
  SharedSurface_Gralloc::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)
@@ -133,9 +133,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  }
  
  bool
-diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/gl/SharedSurfaceIO.cpp gfx/gl-patched/SharedSurfaceIO.cpp
---- gfx/gl/SharedSurfaceIO.cpp	2016-09-19 12:14:36.000000000 +0200
-+++ gfx/gl-patched/SharedSurfaceIO.cpp	2016-12-20 17:03:19.000000000 +0100
+diff -Naur --exclude '.*' gfx/gl/SharedSurfaceIO.cpp gfx/gl-patched/SharedSurfaceIO.cpp
+--- gfx/gl/SharedSurfaceIO.cpp	2016-08-15 23:49:11.000000000 +0200
++++ gfx/gl-patched/SharedSurfaceIO.cpp	2016-08-16 17:23:35.000000000 +0200
 @@ -174,10 +174,6 @@
  bool
  SharedSurface_IOSurface::ToSurfaceDescriptor(layers::SurfaceDescriptor* const out_descriptor)

@@ -11,15 +11,15 @@
 #include <algorithm>
 #include <limits>
 
-#define PI 				3.141592654f
-#define TwoPI			6.283185307f
-#define HalfPI			1.570796327f
-#define ThreeHalvesPI	4.71238898f
-#define SQRT2 			1.414213562f
+#define PI 				3.141592654
+#define TwoPI			6.283185307
+#define HalfPI			1.570796327
+#define ThreeHalvesPI	4.71238898
+#define SQRT2 			1.414213562
 
 float angleOfVector(Point vector) {
 	vector = vector / vector.Length();
-	float arccos = (float) acos(vector.x);
+	float arccos = acos(vector.x);
 
 	return vector.y < 0 ? TwoPI - arccos : arccos;
 }
@@ -29,10 +29,10 @@ Point calcCenter(Point start, Point end, float angle) {
 
 	Matrix matrix = Matrix::Rotation((PI - angle) / 2);
 
-	vector = matrix.TransformPoint(vector);
+	vector = matrix * vector;
 
-	float length = (float) sqrt(vector.DotProduct(vector));
-	float radius = (float) ((length / 2) / sin (angle / 2));
+	float length = sqrt(vector.DotProduct(vector));
+	float radius = (length / 2) / sin (angle / 2);
 
 	return vector * (radius / length) + start;
 }
@@ -108,7 +108,7 @@ void moz2d_path_sink_arc_to_angle(PathSink* pathSink, Float endX, Float endY, Fl
 	float cwAngle = aAntiClockwise ? -angle : angle;
 	Point center = calcCenter(start, end, cwAngle);
 	Point vector = start - center;
-	float radius = (float) sqrt(vector.DotProduct(vector));
+	float radius = sqrt(vector.DotProduct(vector));
 	float startAngle = angleOfVector(vector);
 	float endAngle = angleOfVector(end - center);
 
@@ -138,7 +138,7 @@ void moz2d_path_sink_circle_arc_to(PathSink* pathSink, float radius, int8_t vect
 		if (end.y > start.y) {
 			center = start + (aAntiClockwise ? Point(0, radius) : Point(-radius, 0));
 			startAngle = aAntiClockwise ? PI : 0;
-			endAngle = aAntiClockwise ? HalfPI : PI; // TODO
+			endAngle = aAntiClockwise ? HalfPI : HalfPI;
 		}
 		else {
 			center = start + (aAntiClockwise ? Point(-radius, 0) : Point(0, -radius));
@@ -162,36 +162,36 @@ void moz2d_path_sink_ellipse_arc_to(PathSink* pathSink, float endX, float endY, 
 	if (end.x > start.x) {
 		if (end.y > start.y) {
 			if (aAntiClockwise) {
-				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55f, halfWidth * 0.45f, halfHeight, halfWidth, halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55, halfWidth * 0.45, halfHeight, halfWidth, halfHeight, absolute);
 			}
 			else {
-				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55f, 0, halfWidth, halfHeight * 0.45f, halfWidth, halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55, 0, halfWidth, halfHeight * 0.45, halfWidth, halfHeight, absolute);
 			}
 		}
 		else {
 			if (aAntiClockwise) {
-				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55f, 0, halfWidth, -halfHeight * 0.45f, halfWidth, -halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, halfWidth * 0.55, 0, halfWidth, -halfHeight * 0.45, halfWidth, -halfHeight, absolute);
 			}
 			else {
-				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55f, halfWidth * 0.45f, -halfHeight, halfWidth, -halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55, halfWidth * 0.45, -halfHeight, halfWidth, -halfHeight, absolute);
 			}
 		}
 	}
 	else {
 		if (end.y > start.y) {
 			if (aAntiClockwise) {
-				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55f, 0, -halfWidth , halfHeight * 0.45f, -halfWidth, halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55, 0, -halfWidth , halfHeight * 0.45, -halfWidth, halfHeight, absolute);
 			}
 			else {
-				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55f, -halfWidth * 0.45f, halfHeight, -halfWidth, halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, 0, halfHeight * 0.55, -halfWidth * 0.45, halfHeight, -halfWidth, halfHeight, absolute);
 			}
 		}
 		else {
 			if (aAntiClockwise) {
-				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55f, -halfWidth * 0.45f, -halfHeight,  -halfWidth, -halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, 0, -halfHeight * 0.55, -halfWidth * 0.45, -halfHeight,  -halfWidth, -halfHeight, absolute);
 			}
 			else {
-				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55f, 0, -halfWidth, -halfHeight * 0.45f, -halfWidth, -halfHeight, absolute);
+				moz2d_path_sink_bezier_to(pathSink, -halfWidth * 0.55, 0, -halfWidth, -halfHeight * 0.45, -halfWidth, -halfHeight, absolute);
 			}
 		}
 	}
@@ -300,10 +300,10 @@ Path* moz2d_shape_ellipse (DrawTarget* drawTarget,
 
 	float halfWidth = width / 2;
 	float halfHeight = height / 2;
-	float halfWidth055 = halfWidth * 0.55f;
-	float halfHeight055 = halfHeight * 0.55f;
-	float halfWidth045 = halfWidth * 0.45f;
-	float halfHeight045 = halfHeight * 0.45f;
+	float halfWidth055 = halfWidth * 0.55;
+	float halfHeight055 = halfHeight * 0.55;
+	float halfWidth045 = halfWidth * 0.45;
+	float halfHeight045 = halfHeight * 0.45;
 
 	bool absolute = false;
 

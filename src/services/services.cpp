@@ -191,7 +191,7 @@ static nsresult nsThreadManagerGetSingleton(nsISupports* aOuter,
 		return NS_ERROR_NO_AGGREGATION;
 	}
 
-	return nsThreadManager::get().QueryInterface(aIID, aInstancePtr);
+	return nsThreadManager::get()->QueryInterface(aIID, aInstancePtr);
 }
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsThreadPool)
@@ -220,31 +220,21 @@ char16_t* gGREBinPath = nullptr;
 static NS_DEFINE_CID(kComponentManagerCID, NS_COMPONENTMANAGER_CID);
 
 #define COMPONENT(NAME, Ctor) static NS_DEFINE_CID(kNS_##NAME##_CID, NS_##NAME##_CID);
-#define COMPONENT_M(NAME, Ctor, Selector) static NS_DEFINE_CID(kNS_##NAME##_CID, NS_##NAME##_CID);
 #include "XPCOMModule.inc"
 #undef COMPONENT
-#undef COMPONENT_M
 
 #define COMPONENT(NAME, Ctor) { &kNS_##NAME##_CID, false, nullptr, Ctor },
-#define COMPONENT_M(NAME, Ctor, Selector) { &kNS_##NAME##_CID, false, nullptr, Ctor, Selector },
-const mozilla::Module::CIDEntry kXPCOMCIDEntries[] = {
-		{ &kComponentManagerCID, true, nullptr, nsComponentManagerImpl::Create, Module::ALLOW_IN_GPU_PROCESS },
+const mozilla::Module::CIDEntry kXPCOMCIDEntries[] = { { &kComponentManagerCID,
+		true, nullptr, nsComponentManagerImpl::Create },
 #include "XPCOMModule.inc"
-		{ nullptr }
-};
+		{ nullptr } };
 #undef COMPONENT
-#undef COMPONENT_M
 
 #define COMPONENT(NAME, Ctor) { NS_##NAME##_CONTRACTID, &kNS_##NAME##_CID },
-#define COMPONENT_M(NAME, Ctor, Selector) { NS_##NAME##_CONTRACTID, &kNS_##NAME##_CID, Selector },
 const mozilla::Module::ContractIDEntry kXPCOMContracts[] = {
 #include "XPCOMModule.inc"
-		{ nullptr }
-};
+		{ nullptr } };
 #undef COMPONENT
-#undef COMPONENT_M
-
-
 
 const mozilla::Module kXPCOMModule = { mozilla::Module::kVersion,
 		kXPCOMCIDEntries, kXPCOMContracts };
