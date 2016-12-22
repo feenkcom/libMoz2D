@@ -302,6 +302,7 @@ void moz2d_services_shutdown_services() {
 				"Component Manager being held past XPCOM shutdown.");
 	}
 	nsComponentManagerImpl::gComponentManager = nullptr;
+    nsComponentManagerImpl::sStaticModules = nullptr;
 	nsCategoryManager::Destroy();
 
 	moz2d_services_shutdown_atom_table();
