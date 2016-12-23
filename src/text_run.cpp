@@ -44,10 +44,6 @@ already_AddRefed<gfxPattern> ThebesPattern (Pattern* aPattern) {
 			pattern->SetColorStops(radialGradient->mStops);
 			break;
 		}
-		default: {
-			pattern = nullptr;
-			break;
-		}
 	}
 	return pattern.forget();
 }
@@ -118,18 +114,18 @@ void moz2d_text_run_draw_color (
 	drawTarget->SetTransform(transform);
 }
 
-PluggablePropertyProvider* moz2d_text_run_property_provider_create() {
-	return new PluggablePropertyProvider();
+PluggablePropertyProvider* moz2d_text_run_property_provider_create(std::uintptr_t smalltalkPtr) {
+	return new PluggablePropertyProvider(smalltalkPtr);
 }
 
 void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
-		void (*getHyphenationBreaks)(uint32_t, uint32_t, bool *),
-		void (*getHyphensOption)(PropertyCollector*),
-		gfxFloat (*getHyphenWidth)(void),
-		void (*getSpacing)(uint32_t, uint32_t, double*),
-		void (*getDrawTarget)(std::uintptr_t*),
-		uint32_t (*getAppUnitsPerDevUnit)(void)) {
+		void (*getHyphenationBreaks)(std::uintptr_t, BreaksCollector*),
+		void (*getHyphensOption)(std::uintptr_t, PropertyCollector*),
+		void (*getHyphenWidth)(std::uintptr_t, PropertyCollector*),
+		void (*getSpacing)(std::uintptr_t, SpacingCollector*),
+		void (*getDrawTarget)(std::uintptr_t, PropertyCollector*),
+		void (*getAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*)) {
 	propertyProvider->SetGetHyphenationBreaks(getHyphenationBreaks);
 	propertyProvider->SetGetHyphensOption(getHyphensOption);
 	propertyProvider->SetGetHyphenWidth(getHyphenWidth);
@@ -142,13 +138,76 @@ void moz2d_text_run_property_collector_set_hyphens_option (PropertyCollector* pr
 	propertyCollector->hyphensOption = hyphensOption;
 }
 
+void moz2d_text_run_property_collector_set_app_units (PropertyCollector* propertyCollector, uint32_t appUnits) {
+    propertyCollector->appUnits = appUnits;
+}
+
+void moz2d_text_run_property_collector_set_hyphen_width (PropertyCollector* propertyCollector, gfxFloat hyphenWidth) {
+    propertyCollector->hyphenWidth = hyphenWidth;
+}
+
+void moz2d_text_run_property_collector_set_draw_target (PropertyCollector* propertyCollector, DrawTarget* drawTarget) {
+    propertyCollector->drawTarget = drawTarget;
+}
+
+double* moz2d_text_run_spacing_collector_get_spacing (SpacingCollector* propertyCollector) {
+    return propertyCollector->spacing;
+}
+
+uint32_t moz2d_text_run_spacing_collector_get_start (SpacingCollector* propertyCollector) {
+    return propertyCollector->start;
+}
+
+uint32_t moz2d_text_run_spacing_collector_get_end (SpacingCollector* propertyCollector) {
+    return propertyCollector->end;
+}
+
+bool* moz2d_text_run_breaks_collector_get_breaks (BreaksCollector* propertyCollector) {
+    return propertyCollector->breaks;
+}
+
+uint32_t moz2d_text_run_breaks_collector_get_start (BreaksCollector* propertyCollector) {
+    return propertyCollector->start;
+}
+
+uint32_t moz2d_text_run_breaks_collector_get_end (BreaksCollector* propertyCollector){
+    return propertyCollector->end;
+}
+
 gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyProvider* propertyProvider) {
 	return propertyProvider->GetHyphenWidth();
+}
+
+uint32_t moz2d_text_run_property_provider_get_app_units (PluggablePropertyProvider* propertyProvider) {
+    return propertyProvider->GetAppUnitsPerDevUnit();
+}
+
+std::uintptr_t moz2d_text_run_property_provider_get_smalltalk_ptr (PluggablePropertyProvider* propertyProvider) {
+    return propertyProvider->getSmalltalkPtr();
 }
 
 void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * aBreakBefore) {
 	gfxTextRun::Range range(start, end);
 	propertyProvider->GetHyphenationBreaks(range, aBreakBefore);
+}
+
+void moz2d_text_run_property_provider_get_spacing (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, double * spacing) {
+    gfxTextRun::Range range(start, end);
+    PluggablePropertyProvider::Spacing* aSpacing = new PluggablePropertyProvider::Spacing[range.Length()];
+    propertyProvider->GetSpacing(range, aSpacing);
+
+    uint32_t index;
+    for (index = 0; index < range.Length(); ++index) {
+        spacing[index * 2] = aSpacing[index].mBefore;
+        spacing[index * 2 + 1] = aSpacing[index].mAfter;
+    }
+
+    delete[] aSpacing;
+}
+
+void moz2d_text_run_property_provider_get_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * breaks) {
+    gfxTextRun::Range range(start, end);
+    propertyProvider->GetHyphenationBreaks(range, breaks);
 }
 
 DrawTarget* moz2d_text_run_property_provider_get_draw_target (PluggablePropertyProvider* propertyProvider) {
