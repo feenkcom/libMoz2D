@@ -29,7 +29,7 @@ void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetr
 gfxTextRun* moz2d_font_group_make_text_run_ascii (
 		DrawTarget* drawTarget,
 		gfxFontGroup* aFontGroup,
-		const char* aText,
+		const uint8_t* aText,
 		uint32_t aLength,
 		uint32_t* initialBreaks,
 		uint32_t initialBreakCount,
@@ -41,7 +41,7 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 	};
 
 	return (aFontGroup->MakeTextRun (
-			NS_ConvertASCIItoUTF16(aText).get(),
+			aText,
 			aLength,
 			&params,
 			aTextRunFactoryFlags,
