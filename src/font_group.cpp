@@ -30,7 +30,7 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 		DrawTarget* drawTarget,
 		gfxFontGroup* aFontGroup,
 		const char* aText,
-		int32_t aLength,
+		uint32_t aLength,
 		uint32_t* initialBreaks,
 		uint32_t initialBreakCount,
 		int32_t aAppUnitsPerDevUnit,
@@ -40,7 +40,6 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 			drawTarget, nullptr, nullptr, initialBreaks, initialBreakCount, aAppUnitsPerDevUnit
 	};
 
-	aFontGroup->UpdateUserFonts();
 	return (aFontGroup->MakeTextRun (
 			NS_ConvertASCIItoUTF16(aText).get(),
 			aLength,
@@ -50,20 +49,19 @@ gfxTextRun* moz2d_font_group_make_text_run_ascii (
 }
 
 gfxTextRun* moz2d_font_group_make_text_run_utf16 (
-		DrawTarget* drawTarget,
-		gfxFontGroup* aFontGroup,
-		const char16_t* aText,
-		int32_t aLength,
-		uint32_t* initialBreaks,
-		uint32_t initialBreakCount,
-		int32_t aAppUnitsPerDevUnit,
-		uint32_t aTextRunFactoryFlags) {
+        DrawTarget* drawTarget,
+        gfxFontGroup* aFontGroup,
+        const char16_t* aText,
+        uint32_t aLength,
+        uint32_t* initialBreaks,
+        uint32_t initialBreakCount,
+        int32_t aAppUnitsPerDevUnit,
+        uint32_t aTextRunFactoryFlags) {
 
 	gfxTextRunFactory::Parameters params = {
-				drawTarget, nullptr, nullptr, initialBreaks, initialBreakCount, aAppUnitsPerDevUnit
+			drawTarget, nullptr, nullptr, initialBreaks, initialBreakCount, aAppUnitsPerDevUnit
 	};
 
-	aFontGroup->UpdateUserFonts();
 	return (aFontGroup->MakeTextRun (
 			aText,
 			aLength,

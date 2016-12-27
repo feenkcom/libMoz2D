@@ -121,21 +121,15 @@ PluggablePropertyProvider* moz2d_text_run_property_provider_create(std::uintptr_
 void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
 		void (*getHyphenationBreaks)(std::uintptr_t, BreaksCollector*),
-		void (*getHyphensOption)(std::uintptr_t, PropertyCollector*),
 		void (*getHyphenWidth)(std::uintptr_t, PropertyCollector*),
 		void (*getSpacing)(std::uintptr_t, SpacingCollector*),
 		void (*getDrawTarget)(std::uintptr_t, PropertyCollector*),
 		void (*getAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*)) {
 	propertyProvider->SetGetHyphenationBreaks(getHyphenationBreaks);
-	propertyProvider->SetGetHyphensOption(getHyphensOption);
 	propertyProvider->SetGetHyphenWidth(getHyphenWidth);
 	propertyProvider->SetGetSpacing(getSpacing);
 	propertyProvider->SetGetDrawTarget(getDrawTarget);
 	propertyProvider->SetGetAppUnitsPerDevUnit(getAppUnitsPerDevUnit);
-}
-
-void moz2d_text_run_property_collector_set_hyphens_option (PropertyCollector* propertyCollector, int8_t hyphensOption) {
-	propertyCollector->hyphensOption = hyphensOption;
 }
 
 void moz2d_text_run_property_collector_set_app_units (PropertyCollector* propertyCollector, uint32_t appUnits) {
@@ -243,6 +237,10 @@ void moz2d_text_run_font_metrics (gfxTextRun* aTextRun, gfxFont::Metrics* aMetri
 	aMetrics->underlineOffset = (aTextRun->GetFontGroup())->GetUnderlineOffset();
 }
 
+void moz2d_text_run_property_provider_set_hyphens_option (PluggablePropertyProvider* propertyProvider, int8_t aHyphensOption) {
+    propertyProvider->SetHyphensOption(aHyphensOption);
+}
+
 void moz2d_text_run_property_provider_delete (PluggablePropertyProvider* propertyProvider) {
 	delete propertyProvider;
 }
@@ -265,6 +263,7 @@ uint32_t moz2d_text_run_break_and_measure (
 		gfxBreakPriority *aBreakPriority) {
 
 	gfxTextRun::Metrics* metrics = new gfxTextRun::Metrics();
+
 	uint32_t result = aTextRun->BreakAndMeasureText(
 			aStart,
 			aMaxLength,
