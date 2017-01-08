@@ -165,6 +165,14 @@ LIBRARY_API void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget,
 LIBRARY_API bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, float x, float y, float width, float height);
 
 LIBRARY_API bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, float y, float width, float height);
+
+/* --------------------------------------------------- */
+/* ----------------------- LAYERS -------------------- */
+/* --------------------------------------------------- */
+
+LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, float a11, float a12, float a21, float a22, float a31, float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground);
+LIBRARY_API void moz2d_draw_target_pop_layer(DrawTarget* drawTarget);
+
 /* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */

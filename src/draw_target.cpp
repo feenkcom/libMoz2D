@@ -282,6 +282,18 @@ bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, fl
 }
 
 /* --------------------------------------------------- */
+/* ----------------------- LAYERS -------------------- */
+/* --------------------------------------------------- */
+
+LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, float a11, float a12, float a21, float a22, float a31, float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground) {
+    drawTarget->PushLayer(aOpaque, aOpacity, aMask, Matrix(a11, a12, a21, a22, a31, a32), IntRect(x,y,width,height), aCopyBackground);
+}
+
+void moz2d_draw_target_pop_layer(DrawTarget* drawTarget) {
+	drawTarget->PopLayer();
+}
+
+/* --------------------------------------------------- */
 /* -------------------- D R A W I N G ---------------- */
 /* --------------------------------------------------- */
 
