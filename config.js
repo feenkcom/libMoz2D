@@ -305,7 +305,9 @@ module.exports = {
                 ]
             },
             linux: {
-                enabled: ['tree-freetype']
+                enabled: [
+					//'tree-freetype'
+				]
             },
             win: {
                 disabled: []
