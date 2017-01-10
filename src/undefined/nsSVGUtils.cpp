@@ -12,12 +12,6 @@ using namespace mozilla;
 using namespace mozilla::dom;
 using namespace mozilla::gfx;
 
-bool
-nsSVGUtils::PaintSVGGlyph(Element* aElement, gfxContext* aContext,
-                          gfxTextContextPaint* aContextPaint)
-{
-  return false;
-}
 
 bool
 nsSVGUtils::GetSVGGlyphExtents(Element* aElement,

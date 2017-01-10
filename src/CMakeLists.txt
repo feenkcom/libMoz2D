@@ -19,6 +19,6 @@ set(SRC
 	pattern.cpp path.cpp point.cpp text.cpp gl.cpp ref_ptr.cpp
     font_style.cpp font_family_name.cpp font_family_list.cpp
 	font_group.cpp text_run.cpp source_surface.cpp debug.cpp
-	gfx_config.cpp preferences.cpp)
+	gfx_config.cpp preferences.cpp test_enums.cpp)
 
 add_library(wrapper OBJECT ${SRC})

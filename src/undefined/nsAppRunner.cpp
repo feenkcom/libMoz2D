@@ -30,3 +30,8 @@ XRE_IsContentProcess()
 GeckoProcessType  XRE_GetProcessType  () {
 	return GeckoProcessType_Default;
 }
+
+bool XRE_IsGPUProcess()
+{
+    return false;
+}

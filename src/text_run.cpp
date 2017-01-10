@@ -272,6 +272,7 @@ uint32_t moz2d_text_run_break_and_measure (
 			aProvider,
 			aSuppressBreak,
 			aTrimWhitespace,
+            true, //TODO what is this?
 			metrics,
 			aBoundingBoxType,
 			aDrawTargetForTightBoundingBox,
@@ -292,73 +293,4 @@ uint32_t moz2d_text_run_break_and_measure (
 
 uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun) {
 	return aTextRun->GetLength();
-}
-
-/* --------------------------------------------------- */
-/* ---------------- E X P E R I M E N T -------------- */
-/* --------------------------------------------------- */
-nsTransformingTextRunFactory* moz2d_text_run_create_math_ml_factory() {
-	mozilla::UniquePtr<nsTransformingTextRunFactory> transformingFactory;
-	transformingFactory = MakeUnique<MathMLTextRunFactory>(Move(transformingFactory), MathMLTextRunFactory::MATH_FONT_FEATURE_DTLS | MathMLTextRunFactory::MATH_FONT_STYLING_NORMAL, 1, 1.0);
-	return transformingFactory.release();
-}
-
-class nsTransformedCharStyleMy {
-
-	NS_INLINE_DECL_REFCOUNTING(nsTransformedCharStyle)
-
-	nsFont                  mFont;
-	nsCOMPtr<nsIAtom>       mLanguage;
-	RefPtr<nsPresContext>   mPresContext;
-	float                   mScriptSizeMultiplier;
-	uint8_t                 mTextTransform;
-	uint8_t                 mMathVariant;
-	bool                    mExplicitLanguage;
-	bool                    mForceNonFullWidth = false;
-
-private:
-	~nsTransformedCharStyleMy() {}
-	nsTransformedCharStyleMy& operator=(const nsTransformedCharStyle& aOther) = delete;
-};
-
-
-gfxTextRun* moz2d_text_run_factory_make_text_run_utf16 (
-		nsTransformingTextRunFactory* aTransformingFactory,
-		FontFamilyList* aFontFamilyList,
-		DrawTarget* drawTarget,
-		gfxFontGroup* aFontGroup,
-		const char16_t* aText,
-		int32_t aLength,
-		uint32_t* initialBreaks,
-		uint32_t initialBreakCount,
-		int32_t aAppUnitsPerDevUnit,
-		uint32_t aTextRunFactoryFlags) {
-
-	gfxTextRunFactory::Parameters params = {
-			drawTarget, nullptr, nullptr, initialBreaks, initialBreakCount, aAppUnitsPerDevUnit
-	};
-	aFontGroup->UpdateUserFonts();
-	nsTArray<RefPtr<nsTransformedCharStyle>> styles;
-	nsTransformedCharStyleMy* myCharStyle = new nsTransformedCharStyleMy();
-	nsFont font = nsFont(*aFontFamilyList, aFontGroup->GetStyle()->size);
-	myCharStyle->mFont = font;
-	RefPtr<nsFakePresContext> fakePresContext = RefPtr<nsFakePresContext>();
-	nsFakePresContext* fakePresContextPtr = fakePresContext;
-	RefPtr<nsPresContext> presContext = reinterpret_cast<nsPresContext*>(fakePresContextPtr);
-	myCharStyle->mPresContext = presContext;
-	myCharStyle->mScriptSizeMultiplier = 0.71f;
-	myCharStyle->mMathVariant = NS_MATHML_MATHVARIANT_NORMAL;
-	RefPtr<nsTransformedCharStyle> charStyle = reinterpret_cast<nsTransformedCharStyle*>(myCharStyle);
-	printf("charStyle->mScriptSizeMultiplier = %f\n", charStyle->mScriptSizeMultiplier);
-
-	for (int32_t i = 0; i < aLength; ++i) {
-		styles.AppendElement(charStyle);
-	}
-
-	UniquePtr<nsTransformedTextRun> textRun = aTransformingFactory->MakeTextRun(
-			aText, aLength,
-			&params, aFontGroup, aTextRunFactoryFlags,
-			Move(styles), true);
-	textRun->FinishSettingProperties(drawTarget, nullptr);
-	return textRun.release();
 }

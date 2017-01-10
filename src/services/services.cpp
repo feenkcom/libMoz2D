@@ -153,7 +153,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsSupportsVoid)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSupportsInterfacePointer)
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAtomService)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsTimerImpl)
+//NS_GENERIC_FACTORY_CONSTRUCTOR(nsTimerImpl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsBinaryOutputStream)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsBinaryInputStream)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsStorageStream)
@@ -191,7 +191,7 @@ static nsresult nsThreadManagerGetSingleton(nsISupports* aOuter,
 		return NS_ERROR_NO_AGGREGATION;
 	}
 
-	return nsThreadManager::get()->QueryInterface(aIID, aInstancePtr);
+	return nsThreadManager::get().QueryInterface(aIID, aInstancePtr);
 }
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsThreadPool)
@@ -220,21 +220,31 @@ char16_t* gGREBinPath = nullptr;
 static NS_DEFINE_CID(kComponentManagerCID, NS_COMPONENTMANAGER_CID);
 
 #define COMPONENT(NAME, Ctor) static NS_DEFINE_CID(kNS_##NAME##_CID, NS_##NAME##_CID);
+#define COMPONENT_M(NAME, Ctor, Selector) static NS_DEFINE_CID(kNS_##NAME##_CID, NS_##NAME##_CID);
 #include "XPCOMModule.inc"
 #undef COMPONENT
+#undef COMPONENT_M
 
 #define COMPONENT(NAME, Ctor) { &kNS_##NAME##_CID, false, nullptr, Ctor },
-const mozilla::Module::CIDEntry kXPCOMCIDEntries[] = { { &kComponentManagerCID,
-		true, nullptr, nsComponentManagerImpl::Create },
+#define COMPONENT_M(NAME, Ctor, Selector) { &kNS_##NAME##_CID, false, nullptr, Ctor, Selector },
+const mozilla::Module::CIDEntry kXPCOMCIDEntries[] = {
+		{ &kComponentManagerCID, true, nullptr, nsComponentManagerImpl::Create, Module::ALLOW_IN_GPU_PROCESS },
 #include "XPCOMModule.inc"
-		{ nullptr } };
+		{ nullptr }
+};
 #undef COMPONENT
+#undef COMPONENT_M
 
 #define COMPONENT(NAME, Ctor) { NS_##NAME##_CONTRACTID, &kNS_##NAME##_CID },
+#define COMPONENT_M(NAME, Ctor, Selector) { NS_##NAME##_CONTRACTID, &kNS_##NAME##_CID, Selector },
 const mozilla::Module::ContractIDEntry kXPCOMContracts[] = {
 #include "XPCOMModule.inc"
-		{ nullptr } };
+		{ nullptr }
+};
 #undef COMPONENT
+#undef COMPONENT_M
+
+
 
 const mozilla::Module kXPCOMModule = { mozilla::Module::kVersion,
 		kXPCOMCIDEntries, kXPCOMContracts };
@@ -302,7 +312,6 @@ void moz2d_services_shutdown_services() {
 				"Component Manager being held past XPCOM shutdown.");
 	}
 	nsComponentManagerImpl::gComponentManager = nullptr;
-    nsComponentManagerImpl::sStaticModules = nullptr;
 	nsCategoryManager::Destroy();
 
 	moz2d_services_shutdown_atom_table();

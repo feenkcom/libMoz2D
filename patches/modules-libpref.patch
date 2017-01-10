@@ -1,7 +1,7 @@
-diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/Preferences.cpp modules/libpref-patched/Preferences.cpp
---- modules/libpref/Preferences.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ modules/libpref-patched/Preferences.cpp	2016-10-16 15:25:18.000000000 +0200
-@@ -563,18 +563,6 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' modules/libpref/Preferences.cpp modules/libpref-patched/Preferences.cpp
+--- modules/libpref/Preferences.cpp	2016-11-14 10:22:06.000000000 +0100
++++ modules/libpref-patched/Preferences.cpp	2017-01-10 10:30:15.000000000 +0100
+@@ -557,18 +557,6 @@
    rv = pref_InitInitialObjects();
    NS_ENSURE_SUCCESS(rv, rv);
  
@@ -20,7 +20,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/Preferences.cpp modu
    nsXPIDLCString lockFileName;
    /*
     * The following is a small hack which will allow us to only load the library
-@@ -964,103 +952,13 @@
+@@ -958,103 +946,13 @@
  nsresult
  Preferences::WritePrefFile(nsIFile* aFile)
  {
@@ -125,7 +125,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/Preferences.cpp modu
  }
  
  /*
-@@ -1234,152 +1132,7 @@
+@@ -1228,152 +1126,7 @@
  //----------------------------------------------------------------------------------------
  static nsresult pref_InitInitialObjects()
  {
@@ -279,9 +279,9 @@ diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/Preferences.cpp modu
  }
  
  
-diff -Naur --exclude '.*' --exclude '*.pyc' modules/libpref/nsPrefBranch.cpp modules/libpref-patched/nsPrefBranch.cpp
---- modules/libpref/nsPrefBranch.cpp	2016-08-01 09:12:55.000000000 +0200
-+++ modules/libpref-patched/nsPrefBranch.cpp	2016-10-16 15:19:59.000000000 +0200
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' modules/libpref/nsPrefBranch.cpp modules/libpref-patched/nsPrefBranch.cpp
+--- modules/libpref/nsPrefBranch.cpp	2016-11-14 10:22:06.000000000 +0100
++++ modules/libpref-patched/nsPrefBranch.cpp	2017-01-10 10:30:15.000000000 +0100
 @@ -52,13 +52,6 @@
  static ContentChild*
  GetContentChild()

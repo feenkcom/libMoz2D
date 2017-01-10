@@ -1,0 +1,20 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/config/gfxVars.cpp gfx/config-patched/gfxVars.cpp
+--- gfx/config/gfxVars.cpp	2016-11-14 10:22:06.000000000 +0100
++++ gfx/config-patched/gfxVars.cpp	2017-01-10 13:36:24.000000000 +0100
+@@ -26,16 +26,6 @@
+   sVarList = new nsTArray<gfxVars::VarBase*>();
+   sInstance = new gfxVars;
+ 
+-  // Like Preferences, we want content to synchronously get initial data on
+-  // init. Note the GPU process is not handled here - it cannot send sync
+-  // messages, so instead the initial data is pushed down.
+-  if (XRE_IsContentProcess()) {
+-    InfallibleTArray<GfxVarUpdate> vars;
+-    dom::ContentChild::GetSingleton()->SendGetGfxVars(&vars);
+-    for (const auto& var : vars) {
+-      ApplyUpdate(var);
+-    }
+-  }
+ }
+ 
+ gfxVars::gfxVars()
