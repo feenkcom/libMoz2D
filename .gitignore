@@ -1,5 +1,6 @@
 build/
 mozilla-central*/
+mozilla-build*
 *.tar.gz
 *_tmp
 *~
