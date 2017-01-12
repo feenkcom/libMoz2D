@@ -15,3 +15,5 @@ mozilla-build*
 cmake-build*
 
 .DS_Store
+.bashrc
+.bash_profile

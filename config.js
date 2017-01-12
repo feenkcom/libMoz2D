@@ -152,6 +152,7 @@ module.exports = {
 				'dbghelp.lib',
 				'dwrite.lib',
 				'dxgi.lib',
+				'dxguid.lib', //IDirectDraw7
 				'd3d9.lib',
 				'd3d10.lib',
 				'd3d11.lib'
