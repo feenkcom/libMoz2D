@@ -28,10 +28,6 @@
 #define MAP_STRUCT_NAME1(enumName) MAP_STRUCT_NAME2(enumName)
 #define MAP_STRUCT_NAME2(enumName) Map##enumName
 
-#define CALL_FUNCTION_NAME(enumName) CALL_FUNCTION_NAME1(enumName)
-#define CALL_FUNCTION_NAME1(enumName) CALL_FUNCTION_NAME2(enumName)
-#define CALL_FUNCTION_NAME2(enumName) call_function_##enumName
-
 #define TEST_FOR_EACH(enumName, enumValueName) LIBRARY_API enumName FUNC_EACH(enumName, enumValueName) () { return enumName::enumValueName; }
 
 #define MAP_STRUCT(enumName)\
@@ -63,7 +59,6 @@ extern "C" {
 #endif
 
 using namespace mozilla::gfx;
-
 
 TEST(SurfaceType,
      DATA,
