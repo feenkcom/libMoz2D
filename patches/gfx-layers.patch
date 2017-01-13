@@ -1,0 +1,13 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' --exclude '*.bak' gfx/layers/d3d9/DeviceManagerD3D9.cpp gfx/layers-patched/d3d9/DeviceManagerD3D9.cpp
+--- gfx/layers/d3d9/DeviceManagerD3D9.cpp	2016-11-14 01:22:06 -0800
++++ gfx/layers-patched/d3d9/DeviceManagerD3D9.cpp	2017-01-12 07:54:10 -0800
+@@ -201,8 +201,7 @@
+   MutexAutoLock lock(*sDeviceManagerLock);
+ 
+   bool canCreate =
+-    !gfxPlatform::UsesOffMainThreadCompositing() ||
+-    CompositorThreadHolder::IsInCompositorThread();
++    !gfxPlatform::UsesOffMainThreadCompositing();
+   if (!sDeviceManager && canCreate) {
+     sDeviceManager = new DeviceManagerD3D9();
+     if (!sDeviceManager->Initialize()) {
