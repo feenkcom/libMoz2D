@@ -108,7 +108,7 @@ public:
 	virtual gfxFloat GetHyphenWidth() {
         PropertyCollector collector;
         mGetHyphenWidth(mSmalltalkPtr, &collector);
-        return collector.hyphenWidth;
+		return collector.hyphenWidth;
 	}
 
 	virtual void GetSpacing(gfxTextRun::Range aRange, Spacing *aSpacing) {
