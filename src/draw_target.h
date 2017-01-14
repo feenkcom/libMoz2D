@@ -145,7 +145,7 @@ LIBRARY_API void moz2d_draw_target_pop_clip(DrawTarget* drawTarget);
  * Push an axis-aligned rectangular clip to the DrawTarget. This rectangle
  * is specified in user space.
  */
-LIBRARY_API void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height);
+LIBRARY_API void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, Float x, Float y, Float width, Float height);
 
 /**
  * Push a clip to the DrawTarget.
@@ -162,15 +162,15 @@ LIBRARY_API void moz2d_draw_target_clipping_bounds_global(DrawTarget* drawTarget
  */
 LIBRARY_API void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* rectangle);
 
-LIBRARY_API bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, float x, float y, float width, float height);
+LIBRARY_API bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, Float x, Float y, Float width, Float height);
 
-LIBRARY_API bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, float y, float width, float height);
+LIBRARY_API bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, Float x, Float y, Float width, Float height);
 
 /* --------------------------------------------------- */
 /* ----------------------- LAYERS -------------------- */
 /* --------------------------------------------------- */
 
-LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, float a11, float a12, float a21, float a22, float a31, float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground);
+LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground);
 LIBRARY_API void moz2d_draw_target_pop_layer(DrawTarget* drawTarget);
 
 /* --------------------------------------------------- */
@@ -181,18 +181,18 @@ LIBRARY_API void moz2d_draw_target_pop_layer(DrawTarget* drawTarget);
  * Fill
  */
 LIBRARY_API void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, Float x, Float y, Float width, Float height, Float r, Float g, Float b, Float a, DrawOptions* drawOptions);
 LIBRARY_API void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, Float r, Float g, Float b, Float a, DrawOptions* drawOptions);
 /*
  * Stroke
  */
 LIBRARY_API void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, Float x, Float y, Float width, Float height, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 LIBRARY_API void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
-LIBRARY_API void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, Float fromX, Float fromY, Float toX, Float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
+LIBRARY_API void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, Float fromX, Float fromY, Float toX, Float toY, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions);
 /*
  * Mask
  */
@@ -216,7 +216,7 @@ LIBRARY_API PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawT
 /**
  * Return current transformation matrix as components array of 6 elements
  */
-LIBRARY_API void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array);
+LIBRARY_API void moz2d_draw_target_transform_get(DrawTarget* drawTarget, Float* array);
 
 /**
  * Set a transform on the surface, this transform is applied at drawing time
@@ -235,12 +235,12 @@ LIBRARY_API void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* 
  * FillRect, try to integrate the translation into FillRect's aRect
  * argument's x/y offset.
  */
-LIBRARY_API void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix);
+LIBRARY_API void moz2d_draw_target_transform_set(DrawTarget* drawTarget, Float* rawMatrix);
 
 /**
  * Concatenate current transformation with provided one
  */
-LIBRARY_API void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float a11, float a12, float a21, float a22, float a31, float a32);
+LIBRARY_API void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32);
 
 /**
  * Push current transform on a stack

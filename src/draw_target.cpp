@@ -221,7 +221,7 @@ void push_clip(DrawTarget* drawTarget, Rect clip) {
 	stack->push(newClip);
 }
 
-void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, float x, float y, float width, float height) {
+void moz2d_draw_target_push_clip_rectangle (DrawTarget* drawTarget, Float x, Float y, Float width, Float height) {
 	Rect clip = Rect(x,y, width, height);
 
 	drawTarget->PushClipRect(clip);
@@ -271,12 +271,12 @@ void moz2d_draw_target_clipping_bounds_local(DrawTarget* drawTarget, Rect* recta
 	rectangle->height = clip.height;
 }
 
-bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, float x, float y, float width, float height) {
+bool moz2d_draw_target_clipping_is_in_local(DrawTarget* drawTarget, Float x, Float y, Float width, Float height) {
 	Rect clip = drawTarget->GetTransform().Inverse().TransformBounds(get_clip(drawTarget));
 	return clip.Intersects(Rect(x,y,width,height));
 }
 
-bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, float y, float width, float height) {
+bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, Float x, Float y, Float width, Float height) {
 	Rect clip = get_clip(drawTarget);
 	return clip.Intersects(Rect(x,y,width,height));
 }
@@ -285,7 +285,7 @@ bool moz2d_draw_target_clipping_is_in_global(DrawTarget* drawTarget, float x, fl
 /* ----------------------- LAYERS -------------------- */
 /* --------------------------------------------------- */
 
-LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, float a11, float a12, float a21, float a22, float a31, float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground) {
+LIBRARY_API void moz2d_draw_target_push_layer(DrawTarget* drawTarget, bool aOpaque, Float aOpacity, SourceSurface* aMask, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32, int32_t x, int32_t y, int32_t width, int32_t height, bool aCopyBackground) {
     drawTarget->PushLayer(aOpaque, aOpacity, aMask, Matrix(a11, a12, a21, a22, a31, a32), IntRect(x,y,width,height), aCopyBackground);
 }
 
@@ -304,7 +304,7 @@ void moz2d_draw_target_fill_rect(DrawTarget* drawTarget, Rect* rect, Pattern* pa
 	drawTarget->FillRect(*rect, *pattern, *drawOptions);
 }
 
-void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, DrawOptions* drawOptions) {
+void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, Float x, Float y, Float width, Float height, Float r, Float g, Float b, Float a, DrawOptions* drawOptions) {
 	drawTarget->FillRect(Rect(x,y,width,height), ColorPattern(Color(r,g,b,a)), *drawOptions);
 }
 
@@ -312,7 +312,7 @@ void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pa
 	drawTarget->Fill(path, *pattern, *drawOptions);
 }
 
-void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, DrawOptions* drawOptions) {
+void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, Float r, Float g, Float b, Float a, DrawOptions* drawOptions) {
 	drawTarget->Fill(path, ColorPattern(Color(r,g,b,a)), *drawOptions);
 }
 
@@ -323,7 +323,7 @@ void moz2d_draw_target_stroke_rect(DrawTarget* drawTarget, Rect* rect, Pattern* 
 	drawTarget->StrokeRect(*rect, *pattern, *strokeOptions, *drawOptions);
 }
 
-void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, float x, float y, float width, float height, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+void moz2d_draw_target_stroke_rect_color(DrawTarget* drawTarget, Float x, Float y, Float width, Float height, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->StrokeRect(Rect(x,y,width,height), ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
 }
 
@@ -331,15 +331,15 @@ void moz2d_draw_target_stroke_path(DrawTarget* drawTarget, Path* path, Pattern* 
 	drawTarget->Stroke(path, *pattern, *strokeOptions, *drawOptions);
 }
 
-void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+void moz2d_draw_target_stroke_path_color(DrawTarget* drawTarget, Path* path, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->Stroke(path, ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
 }
 
-void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+void moz2d_draw_target_stroke_line(DrawTarget* drawTarget, Float fromX, Float fromY, Float toX, Float toY, Pattern* pattern, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->StrokeLine(Point(fromX, fromY), Point(toX, toY), *pattern, *strokeOptions, *drawOptions);
 }
 
-void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, float fromX, float fromY, float toX, float toY, float r, float g, float b, float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
+void moz2d_draw_target_stroke_line_color(DrawTarget* drawTarget, Float fromX, Float fromY, Float toX, Float toY, Float r, Float g, Float b, Float a, StrokeOptions* strokeOptions, DrawOptions* drawOptions) {
 	drawTarget->StrokeLine(Point(fromX, fromY), Point(toX, toY), ColorPattern(Color(r,g,b,a)), *strokeOptions, *drawOptions);
 }
 
@@ -372,7 +372,7 @@ PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillR
 /* ----------- T R A N S F O R M A T I O N ----------- */
 /* --------------------------------------------------- */
 
-void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array) {
+void moz2d_draw_target_transform_get(DrawTarget* drawTarget, Float* array) {
 	Matrix matrix = drawTarget->GetTransform();
 	array[0] = matrix._11;
 	array[1] = matrix._12;
@@ -382,11 +382,11 @@ void moz2d_draw_target_transform_get(DrawTarget* drawTarget, float* array) {
 	array[5] = matrix._32;
 }
 
-void moz2d_draw_target_transform_set(DrawTarget* drawTarget, float* rawMatrix) {
+void moz2d_draw_target_transform_set(DrawTarget* drawTarget, Float* rawMatrix) {
 	drawTarget->SetTransform(Matrix(rawMatrix[0],rawMatrix[1],rawMatrix[2],rawMatrix[3],rawMatrix[4],rawMatrix[5]));
 }
 
-void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, float a11, float a12, float a21, float a22, float a31, float a32) {
+void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, Float a11, Float a12, Float a21, Float a22, Float a31, Float a32) {
 	drawTarget->ConcatTransform(Matrix(a11, a12, a21, a22, a31, a32));
 }
 

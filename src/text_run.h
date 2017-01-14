@@ -38,7 +38,7 @@ struct SpacingCollector final {
     {}
     uint32_t start;
     uint32_t end;
-    double* spacing;
+	gfxFloat* spacing;
 };
 
 struct BreaksCollector final {
@@ -116,7 +116,7 @@ public:
         SpacingCollector collector;
         collector.start = aRange.start;
         collector.end = aRange.end;
-        collector.spacing = new double[aRange.Length() * 2];
+        collector.spacing = new gfxFloat[aRange.Length() * 2];
         uint32_t index;
         for (index = 0; index < aRange.Length() * 2; ++index) {
             collector.spacing[index] = 0;
@@ -276,20 +276,6 @@ LIBRARY_API uint32_t moz2d_text_run_break_and_measure (
 		gfxBreakPriority *aBreakPriority);
 
 LIBRARY_API uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun);
-
-LIBRARY_API nsTransformingTextRunFactory* moz2d_text_run_create_math_ml_factory();
-
-LIBRARY_API gfxTextRun* moz2d_text_run_factory_make_text_run_utf16 (
-		nsTransformingTextRunFactory* aTransformingFactory,
-		FontFamilyList* aFontFamilyList,
-		DrawTarget* drawTarget,
-		gfxFontGroup* aFontGroup,
-		const char16_t* aText,
-		int32_t aLength,
-		uint32_t* initialBreaks,
-		uint32_t initialBreakCount,
-		int32_t aAppUnitsPerDevUnit,
-		uint32_t aTextRunFactoryFlags);
 
 #ifdef __cplusplus
 }

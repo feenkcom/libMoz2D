@@ -175,6 +175,46 @@ TEST(CompositionOp,
      OP_LUMINOSITY,
      OP_COUNT)
 
+TEST(ExtendMode,
+     CLAMP,
+     REPEAT,
+     REPEAT_X,
+     REPEAT_Y,
+     REFLECT)
+
+TEST(FillRule,
+     FILL_WINDING,
+     FILL_EVEN_ODD)
+
+TEST(AntialiasMode,
+     NONE,
+     GRAY,
+     SUBPIXEL,
+     DEFAULT)
+
+TEST(SamplingFilter,
+     GOOD,
+     LINEAR,
+     POINT,
+     SENTINEL)
+
+TEST(PatternType,
+     COLOR,
+     SURFACE,
+     LINEAR_GRADIENT,
+     RADIAL_GRADIENT)
+
+TEST(JoinStyle,
+     BEVEL,
+     ROUND,
+     MITER,
+     MITER_OR_BEVEL)
+
+TEST(CapStyle,
+     BUTT,
+     ROUND,
+     SQUARE)
+
 #ifdef __cplusplus
 }
 #endif

@@ -8,11 +8,6 @@
 
 #include "text_run.h"
 #include "gfxContext.h"
-#include "nsTArray.h"
-#include "mozilla/UniquePtr.h"
-#include "layout/generic/MathMLTextRunFactory.h"
-#include "layout/base/nsPresContext.h"
-#include "undefined/nsFakePresContext.h"
 #include "gfx2DGlue.h"
 
 already_AddRefed<gfxPattern> ThebesPattern (Pattern* aPattern) {
@@ -144,7 +139,7 @@ void moz2d_text_run_property_collector_set_draw_target (PropertyCollector* prope
     propertyCollector->drawTarget = drawTarget;
 }
 
-double* moz2d_text_run_spacing_collector_get_spacing (SpacingCollector* propertyCollector) {
+gfxFloat* moz2d_text_run_spacing_collector_get_spacing (SpacingCollector* propertyCollector) {
     return propertyCollector->spacing;
 }
 
@@ -185,7 +180,7 @@ void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyP
 	propertyProvider->GetHyphenationBreaks(range, aBreakBefore);
 }
 
-void moz2d_text_run_property_provider_get_spacing (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, double * spacing) {
+void moz2d_text_run_property_provider_get_spacing (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, gfxFloat * spacing) {
     gfxTextRun::Range range(start, end);
     PluggablePropertyProvider::Spacing* aSpacing = new PluggablePropertyProvider::Spacing[range.Length()];
     propertyProvider->GetSpacing(range, aSpacing);
