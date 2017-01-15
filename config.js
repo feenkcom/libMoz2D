@@ -111,6 +111,7 @@ module.exports = {
                 'IOKit'
             ],
             linux: [
+                'GL',
                 'dl',
                 'X11',
                 'X11-xcb',
