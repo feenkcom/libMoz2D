@@ -61,6 +61,9 @@ before_install:
       
       echo "Installing gcc and g++ multilib";
       sudo apt-get install gcc-multilib g++-multilib;
+
+      echo "Installing GL libs..."
+      sudo apt-get install mesa-common-dev:i386 libgl1-mesa-dev:i386
     fi 
 
 script:

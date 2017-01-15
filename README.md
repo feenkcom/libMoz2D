@@ -28,8 +28,19 @@ Install dependencies with homebrew http://brew.sh:
 
 General dependencies:
 
-	sudo apt-get install git nodejs cmake autoconf2.13 yasm
+	sudo apt-get install git autoconf2.13 yasm
 
+Install CMake 3:
+
+	sudo apt-get install software-properties-common
+	sudo add-apt-repository ppa:george-edison55/cmake-3.x
+	sudo apt-get update
+	sudo apt-get install cmake
+
+Install latest Node.js:
+
+	curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+	sudo apt-get install -y nodejs
 
 #### 64bit
 
@@ -50,11 +61,13 @@ Make sure to register i386 architecture
 32bit build requires a few additional packages
 
 	sudo apt-get install gcc-multilib g++-multilib
+	sudo apt-get install libgirepository-1.0-1:i386
 	sudo apt-get install libglib2.0-dev:i386 libatk1.0-dev:i386 libcairo2-dev:i386 libgdk-pixbuf2.0-dev:i386 libpango1.0-dev:i386 libgtk2.0-dev:i386
 
 	sudo apt-get install libxkbcommon-dev:i386 libgtk-3-dev:i386
 	sudo apt-get install libfreetype6-dev:i386 libgconf2-dev:i386
 	sudo apt-get install libasound2-dev:i386 libpulse-dev:i386
 	sudo apt-get install libxt-dev:i386 libxext-dev:i386 libxcb-shm0-dev:i386 libx11-xcb-dev:i386
+	sudo apt-get install mesa-common-dev:i386 libgl1-mesa-dev:i386
 
 ### Windows (in progress)
