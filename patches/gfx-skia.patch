@@ -1,0 +1,34 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/skia/moz.build gfx/skia-patched/moz.build
+--- gfx/skia/moz.build	2016-11-14 10:22:06.000000000 +0100
++++ gfx/skia-patched/moz.build	2017-01-15 20:50:10.000000000 +0100
+@@ -286,11 +286,29 @@
+     'skia/src/core/SkXfermode4f.cpp',
+     'skia/src/core/SkXfermodeF16.cpp',
+     'skia/src/core/SkXfermodeInterpretation.cpp',
+-    'skia/src/gpu/gl/GrGLCreateNativeInterface_none.cpp',
+     'skia/src/pathops/SkPathOpsDebug.cpp',
+     'skia/src/utils/SkParse.cpp',
+     'skia/src/utils/SkParsePath.cpp',
+ ]
++
++if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
++    SOURCES += [ 'skia/src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp' ]
++elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
++    SOURCES += [ 'skia/src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp' ]
++elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'uikit':
++    SOURCES += [ 'skia/src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp' ]
++elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
++    if CONFIG['MOZ_EGL_XRENDER_COMPOSITE']:
++        SOURCES += [ 'skia/src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp' ]
++    else:
++        SOURCES += [ 'skia/src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp' ]
++elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'android':
++    SOURCES += [ 'skia/src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp' ]
++else:
++    SOURCES += [ 'skia/src/gpu/gl/GrGLCreateNativeInterface_none.cpp' ]
++
++SOURCES += [ 'skia/src/gpu/gl/GrGLAssembleInterface.cpp' ]
++
+ SOURCES['skia/src/core/SkBitmapProcState.cpp'].flags += skia_opt_flags
+ SOURCES['skia/src/core/SkBitmapProcState_matrixProcs.cpp'].flags += skia_opt_flags
+ SOURCES['skia/src/core/SkBlitMask_D32.cpp'].flags += skia_opt_flags

@@ -3,7 +3,7 @@ module.exports = {
         name: 'Moz2D',
         version: {
             major: 1,
-            minor: 1
+            minor: 2
         },
         cmake: 3.0,
         installer: 'install'
@@ -280,11 +280,9 @@ module.exports = {
                 disabled: [
                     'debug',
                     'sandbox',
-                    //'printing',
                     'gio',
                     'dbus',
                     'synth-speechd',
-                    //'websms-backend',
                     'dbm',
                     'accessibility',
                     'webrtc',
@@ -306,9 +304,7 @@ module.exports = {
                 ]
             },
             linux: {
-                enabled: [
-					//'tree-freetype'
-				]
+                enabled: []
             },
             win: {
                 disabled: []

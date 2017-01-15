@@ -1,0 +1,151 @@
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/2D.h gfx/2d-patched/2D.h
+--- gfx/2d/2D.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/2D.h	2017-01-15 18:33:14.000000000 +0100
+@@ -1258,6 +1258,14 @@
+   {
+     MOZ_CRASH("GFX: InitWithGrContext");
+   }
++
++  virtual bool InitWithNativeGrContext(GrContext* aGrContext,
++                                 const IntSize &aSize,
++                                 const IntSize &aRenderSize,
++                                 SurfaceFormat aFormat)
++  {
++    MOZ_CRASH("GFX: InitWithNativeGrContext");
++  }
+ #endif
+ 
+ protected:
+@@ -1450,6 +1458,11 @@
+     CreateDrawTargetSkiaWithGrContext(GrContext* aGrContext,
+                                       const IntSize &aSize,
+                                       SurfaceFormat aFormat);
++  static already_AddRefed<DrawTarget>
++    CreateDrawTargetSkiaWithNativeGrContext(GrContext* aGrContext,
++                                      const IntSize &aSize,
++                                      const IntSize &aRenderSize,
++                                      SurfaceFormat aFormat);
+ #endif
+ 
+   static void PurgeAllCaches();
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.cpp gfx/2d-patched/DrawTargetSkia.cpp
+--- gfx/2d/DrawTargetSkia.cpp	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/DrawTargetSkia.cpp	2017-01-15 21:00:42.000000000 +0100
+@@ -28,6 +28,8 @@
+ 
+ #ifdef USE_SKIA_GPU
+ #include "GLDefs.h"
++#include "skia/src/gpu/gl/GrGLDefines.h"
++#include "skia/src/gpu/gl/GrGLIRect.h"
+ #include "skia/include/gpu/SkGr.h"
+ #include "skia/include/gpu/GrContext.h"
+ #include "skia/include/gpu/GrDrawContext.h"
+@@ -1561,7 +1563,11 @@
+   if (UsingSkiaGPU()) {
+     // Try to create a GPU draw target first if we're currently using the GPU.
+     // Mark the DT as cached so that shadow DTs, extracted subrects, and similar can be reused.
+-    if (target->InitWithGrContext(mGrContext.get(), aSize, aFormat, true)) {
++    GrContext* aGrContext = nullptr;
++    if (mIsHeadless) {
++        aGrContext = mGrContext.get();
++    }
++    if (aGrContext && target->InitWithGrContext(aGrContext, aSize, aFormat, true)) {
+       return target.forget();
+     }
+     // Otherwise, just fall back to a software draw target.
+@@ -1838,6 +1844,50 @@
+   return true;
+ }
+ 
++bool
++DrawTargetSkia::InitWithNativeGrContext(GrContext* aGrContext,
++                                  const IntSize &aSize,
++                                  const IntSize &aRenderSize,
++                                  SurfaceFormat aFormat)
++{
++  MOZ_ASSERT(aGrContext, "null GrContext");
++
++  if (size_t(std::max(aSize.width, aSize.height)) > GetMaxSurfaceSize()) {
++    return false;
++  }
++
++  if (size_t(std::max(aRenderSize.width, aRenderSize.height)) > GetMaxSurfaceSize()) {
++    return false;
++  }
++
++
++  sk_sp<const GrGLInterface> interface = sk_ref_sp(GrGLCreateNativeInterface());
++
++  GrBackendRenderTargetDesc desc;
++  desc.fWidth = aRenderSize.width;
++  desc.fHeight = aRenderSize.height;
++  desc.fConfig = kSkia8888_GrPixelConfig;
++  desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
++  desc.fSampleCnt = 0;
++  desc.fStencilBits = 8;
++  GrGLint buffer;
++  GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
++  desc.fRenderTargetHandle = buffer;
++
++  SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
++  mSurface = SkSurface::MakeFromBackendRenderTarget(aGrContext, desc, nullptr, &props);
++
++  if (!mSurface) {
++    return false;
++  }
++
++  mGrContext = sk_ref_sp(aGrContext);
++  mSize = aSize;
++  mFormat = aFormat;
++  mCanvas = sk_ref_sp(mSurface->getCanvas());
++  mIsHeadless = false;
++  return true;
++}
+ #endif
+ 
+ bool
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.h gfx/2d-patched/DrawTargetSkia.h
+--- gfx/2d/DrawTargetSkia.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/DrawTargetSkia.h	2017-01-15 18:49:16.000000000 +0100
+@@ -145,6 +145,10 @@
+                       SurfaceFormat aFormat) override {
+     return InitWithGrContext(aGrContext, aSize, aFormat, false);
+   }
++  bool InitWithNativeGrContext(GrContext* aGrContext,
++                         const IntSize &aSize,
++                         const IntSize &aRenderSize,
++                         SurfaceFormat aFormat) override;
+ 
+   already_AddRefed<SourceSurface> OptimizeGPUSourceSurface(SourceSurface *aSurface) const;
+ #endif
+@@ -193,6 +197,7 @@
+ 
+ #ifdef USE_SKIA_GPU
+   sk_sp<GrContext> mGrContext;
++  bool mIsHeadless = true;
+ #endif
+ 
+   IntSize mSize;
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Factory.cpp gfx/2d-patched/Factory.cpp
+--- gfx/2d/Factory.cpp	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/Factory.cpp	2017-01-15 18:34:17.000000000 +0100
+@@ -705,6 +705,19 @@
+   return newTarget.forget();
+ }
+ 
++already_AddRefed<DrawTarget>
++Factory::CreateDrawTargetSkiaWithNativeGrContext(GrContext* aGrContext,
++                                           const IntSize &aSize,
++                                           const IntSize &aRenderSize,
++                                           SurfaceFormat aFormat)
++{
++  RefPtr<DrawTarget> newTarget = new DrawTargetSkia();
++  if (!newTarget->InitWithNativeGrContext(aGrContext, aSize, aRenderSize, aFormat)) {
++    return nullptr;
++  }
++  return newTarget.forget();
++}
++
+ #endif // USE_SKIA_GPU
+ 
+ #ifdef USE_SKIA
