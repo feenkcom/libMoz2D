@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/2D.h gfx/2d-patched/2D.h
---- gfx/2d/2D.h	2016-11-14 10:22:06.000000000 +0100
-+++ gfx/2d-patched/2D.h	2017-01-15 18:33:14.000000000 +0100
+--- gfx/2d/2D.h	2016-11-14 01:22:06 -0800
++++ gfx/2d-patched/2D.h	2017-01-15 14:39:18 -0800
 @@ -1258,6 +1258,14 @@
    {
      MOZ_CRASH("GFX: InitWithGrContext");
@@ -29,8 +29,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
    static void PurgeAllCaches();
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.cpp gfx/2d-patched/DrawTargetSkia.cpp
---- gfx/2d/DrawTargetSkia.cpp	2016-11-14 10:22:06.000000000 +0100
-+++ gfx/2d-patched/DrawTargetSkia.cpp	2017-01-15 21:00:42.000000000 +0100
+--- gfx/2d/DrawTargetSkia.cpp	2016-11-14 01:22:06 -0800
++++ gfx/2d-patched/DrawTargetSkia.cpp	2017-01-15 15:01:42 -0800
 @@ -28,6 +28,8 @@
  
  #ifdef USE_SKIA_GPU
@@ -74,7 +74,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 +  }
 +
 +
-+  sk_sp<const GrGLInterface> interface = sk_ref_sp(GrGLCreateNativeInterface());
++  const GrGLInterface* aGrInterface = GrGLCreateNativeInterface();
 +
 +  GrBackendRenderTargetDesc desc;
 +  desc.fWidth = aRenderSize.width;
@@ -84,7 +84,7 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 +  desc.fSampleCnt = 0;
 +  desc.fStencilBits = 8;
 +  GrGLint buffer;
-+  GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
++  GR_GL_GetIntegerv(aGrInterface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
 +  desc.fRenderTargetHandle = buffer;
 +
 +  SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -105,8 +105,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
  bool
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.h gfx/2d-patched/DrawTargetSkia.h
---- gfx/2d/DrawTargetSkia.h	2016-11-14 10:22:06.000000000 +0100
-+++ gfx/2d-patched/DrawTargetSkia.h	2017-01-15 18:49:16.000000000 +0100
+--- gfx/2d/DrawTargetSkia.h	2016-11-14 01:22:06 -0800
++++ gfx/2d-patched/DrawTargetSkia.h	2017-01-15 14:39:18 -0800
 @@ -145,6 +145,10 @@
                        SurfaceFormat aFormat) override {
      return InitWithGrContext(aGrContext, aSize, aFormat, false);
@@ -127,8 +127,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
    IntSize mSize;
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Factory.cpp gfx/2d-patched/Factory.cpp
---- gfx/2d/Factory.cpp	2016-11-14 10:22:06.000000000 +0100
-+++ gfx/2d-patched/Factory.cpp	2017-01-15 18:34:17.000000000 +0100
+--- gfx/2d/Factory.cpp	2016-11-14 01:22:06 -0800
++++ gfx/2d-patched/Factory.cpp	2017-01-15 14:39:18 -0800
 @@ -705,6 +705,19 @@
    return newTarget.forget();
  }

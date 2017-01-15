@@ -50,7 +50,7 @@ The following packages are required to build 64bit plugin
 	sudo apt-get install libasound2-dev libpulse-dev
 	sudo apt-get libxt-dev libxext-dev libxcb-shm0-dev libx11-xcb-dev
 
-#### 32bit
+#### 32bit (Do not install on your 64bit working station, it will break UI apps!)
 
 Make sure to register i386 architecture
 
