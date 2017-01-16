@@ -42,7 +42,6 @@ DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t wid
 }
 
 /* --------------- S O U R C E -- S U R F A C E ------------ */
-
 SourceSurface* moz2d_draw_target_create_surface_for_data (
 		DrawTarget* drawTarget,
 		unsigned char *aData,
@@ -64,6 +63,7 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 
 	int32_t size = width * height;
 	// every pixel takes 4 uchars, so we need to multiply size by 4
+
 	unsigned char *data = new unsigned char[ 4 * size ];
 	for (int32_t i = 0; i < size; i++) {
 		int32_t index = i * 4;
@@ -314,6 +314,12 @@ void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pa
 
 void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, Float r, Float g, Float b, Float a, DrawOptions* drawOptions) {
 	drawTarget->Fill(path, ColorPattern(Color(r,g,b,a)), *drawOptions);
+}
+
+void moz2d_draw_target_fill_rectangle_form (DrawTarget* drawTarget, Float x, Float y, Float width, Float height, DrawOptions* drawOptions, unsigned char *aFormData, int32_t aFormWidth, int32_t aFormHeight, int32_t aStride) {
+    SourceSurface* aSourceSurface = moz2d_draw_target_create_surface_for_data_form(drawTarget, aFormData, aFormWidth, aFormHeight, aStride, drawTarget->GetFormat());
+    drawTarget->FillRect(Rect(x,y,width,height), SurfacePattern(aSourceSurface, ExtendMode::CLAMP), *drawOptions);
+    aSourceSurface->Release();
 }
 
 /*
