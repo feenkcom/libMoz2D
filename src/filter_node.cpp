@@ -6,6 +6,7 @@
  */
 
 #include "filter_node.h"
+#include "ref_ptr.h"
 
 FilterNode* moz2d_filter_node_create(DrawTarget* drawTarget, FilterType filterType) {
 	return drawTarget->CreateFilter(filterType).take();
@@ -17,6 +18,11 @@ void moz2d_filter_node_set_input_filter(FilterNode *filterNode, uint32_t aIndex,
 
 void moz2d_filter_node_set_input_surface(FilterNode* filterNode, uint32_t aIndex, SourceSurface* aSurface) {
 	filterNode->SetInput(aIndex, aSurface);
+}
+
+void moz2d_filter_node_set_input_draw_target(FilterNode* filterNode, uint32_t aIndex, DrawTarget* aDrawTarget) {
+    RefPtr<SourceSurface> aSourceSurface = aDrawTarget->Snapshot();
+    filterNode->SetInput(aIndex, aSourceSurface);
 }
 
 void moz2d_filter_node_set_attribute_float(FilterNode* filterNode, uint32_t aIndex, Float value) {

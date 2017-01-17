@@ -36,6 +36,8 @@ extern "C" {
 #endif
 
 LIBRARY_API void moz2d_print_stderr (const char* message);
+LIBRARY_API void moz2d_print_success (const char* message);
+LIBRARY_API bool moz2d_test ();
 
 #ifdef __cplusplus
 }

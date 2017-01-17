@@ -22,6 +22,7 @@ extern "C" {
 LIBRARY_API FilterNode* moz2d_filter_node_create(DrawTarget *drawTarget, FilterType filterType);
 LIBRARY_API void moz2d_filter_node_set_input_filter(FilterNode *filterNode, uint32_t aIndex, FilterNode* aSourceFilter);
 LIBRARY_API void moz2d_filter_node_set_input_surface(FilterNode *filterNode, uint32_t aIndex, SourceSurface* aSurface);
+LIBRARY_API void moz2d_filter_node_set_input_draw_target(FilterNode* filterNode, uint32_t aIndex, DrawTarget* aDrawTarget);
 LIBRARY_API void moz2d_filter_node_set_attribute_float(FilterNode *filterNode, uint32_t aIndex, Float value);
 LIBRARY_API void moz2d_filter_node_set_attribute_int(FilterNode *filterNode, uint32_t aIndex, uint32_t value);
 LIBRARY_API void moz2d_filter_node_set_attribute_bool(FilterNode *filterNode, uint32_t aIndex, bool value);
