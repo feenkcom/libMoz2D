@@ -289,3 +289,11 @@ uint32_t moz2d_text_run_break_and_measure (
 uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun) {
 	return aTextRun->GetLength();
 }
+
+void moz2d_text_run_release(gfxTextRun* aTextRun) {
+    aTextRun->Release();
+}
+
+MozRefCountType moz2d_text_run_ref_count(gfxTextRun* aTextRun) {
+    return HackTextRun::refCount(aTextRun);
+}

@@ -14,8 +14,6 @@
 #include <stdint.h>
 
 using namespace mozilla;
-#include "layout/generic/nsTextRunTransformations.h"
-
 using namespace mozilla::gfx;
 
 
@@ -276,6 +274,26 @@ LIBRARY_API uint32_t moz2d_text_run_break_and_measure (
 		gfxBreakPriority *aBreakPriority);
 
 LIBRARY_API uint32_t moz2d_text_run_get_length(gfxTextRun* aTextRun);
+
+LIBRARY_API void moz2d_text_run_release(gfxTextRun* aTextRun);
+
+
+/**
+ * I am a helper class to access protected mRefCnt member for debug purposes
+ */
+class HackTextRun : public gfxTextRun {
+
+public:
+    HackTextRun(const gfxTextRunFactory::Parameters *aParams, uint32_t aLength, gfxFontGroup *aFontGroup,
+                uint32_t aFlags) : gfxTextRun(aParams, aLength, aFontGroup, aFlags) {}
+
+public:
+    static MozRefCountType refCount(gfxTextRun *aTextRun) {
+        HackTextRun *uglyHack = static_cast<HackTextRun*>(aTextRun);
+        return uglyHack->mRefCnt; }
+};
+
+LIBRARY_API MozRefCountType moz2d_text_run_ref_count(gfxTextRun* aTextRun);
 
 #ifdef __cplusplus
 }
