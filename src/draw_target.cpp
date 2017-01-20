@@ -203,6 +203,13 @@ void moz2d_draw_target_pop_clip(DrawTarget* drawTarget) {
 	stack->pop();
 }
 
+/*
+ * Is called when DrawTarget gets deleted (refCount becomes zero)
+ */
+void ClipStackDestroyed(void *aData)
+{
+    delete static_cast<std::stack<Rect>*>(aData);
+}
 /**
  * Clip is in user space
  */
@@ -212,7 +219,7 @@ void push_clip(DrawTarget* drawTarget, Rect clip) {
 	std::stack<Rect> *stack = static_cast<std::stack<Rect>*>(drawTarget->GetUserData(&sClippingBounds));
 	if (!stack) {
 		stack = new std::stack<Rect>();
-		drawTarget->AddUserData(&sClippingBounds, stack, nullptr);
+		drawTarget->AddUserData(&sClippingBounds, stack, ClipStackDestroyed);
 	}
 	Rect newClip = deviceClip;
 	if (!stack->empty()) {
@@ -397,14 +404,20 @@ void moz2d_draw_target_transform_concatenate(DrawTarget* drawTarget, Float a11, 
 }
 
 static UserDataKey sTransformKey;
-
+/*
+ * Is called when DrawTarget gets deleted (refCount becomes zero)
+ */
+void TransformStackDestroyed(void *aData)
+{
+    delete static_cast<std::stack<Rect>*>(aData);
+}
 void moz2d_draw_target_transform_push(DrawTarget* drawTarget) {
-	Matrix transform = drawTarget->GetTransform().Copy();
+	Matrix transform = drawTarget->GetTransform();
 
 	std::stack<Matrix> *stack = static_cast<std::stack<Matrix>*>(drawTarget->GetUserData(&sTransformKey));
 	if (!stack) {
 		stack = new std::stack<Matrix>();
-		drawTarget->AddUserData(&sTransformKey, stack, nullptr);
+		drawTarget->AddUserData(&sTransformKey, stack, TransformStackDestroyed);
 	}
 
 	stack->push(transform);
