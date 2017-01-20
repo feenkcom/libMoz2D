@@ -122,3 +122,7 @@ bool moz2d_font_style_get_is_style_synthesis(gfxFontStyle* aFontStyle) {
 uint32_t moz2d_font_style_get_override_language(gfxFontStyle* aFontStyle) {
 	return aFontStyle->languageOverride;
 }
+
+void moz2d_font_style_delete(gfxFontStyle* aFontStyle) {
+	delete aFontStyle;
+}

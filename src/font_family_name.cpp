@@ -41,3 +41,7 @@ const char* moz2d_font_family_name_to_string (FontFamilyName* aFontFamilyName, b
 	aFontFamilyName->AppendToString(string, aQuotes);
 	return ToNewUTF8String(string);
 }
+
+void moz2d_font_family_name_delete (FontFamilyName* aFontFamilyName) {
+	delete aFontFamilyName;
+}

@@ -42,6 +42,7 @@ LIBRARY_API bool moz2d_font_family_name_is_generic (FontFamilyName* aFontFamilyN
 LIBRARY_API FontFamilyType moz2d_font_family_name_get_type (FontFamilyName* aFontFamilyName);
 LIBRARY_API const char* moz2d_font_family_name_get_name (FontFamilyName* aFontFamilyName);
 LIBRARY_API const char* moz2d_font_family_name_to_string (FontFamilyName* aFontFamilyName, bool aQuotes);
+LIBRARY_API void moz2d_font_family_name_delete (FontFamilyName* aFontFamilyName);
 
 #ifdef __cplusplus
 }

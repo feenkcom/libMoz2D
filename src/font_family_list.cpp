@@ -104,3 +104,6 @@ FontFamilyName**  moz2d_font_family_list_get_font_list(FontFamilyList* aFontFami
 	return names;
 }
 
+void moz2d_font_family_list_delete(FontFamilyList* aFontFamilyList) {
+	delete aFontFamilyList;
+}

@@ -56,6 +56,7 @@ LIBRARY_API bool moz2d_font_style_get_is_printer_font(gfxFontStyle* aFontStyle);
 LIBRARY_API bool moz2d_font_style_get_is_weight_synthesis(gfxFontStyle* aFontStyle);
 LIBRARY_API bool moz2d_font_style_get_is_style_synthesis(gfxFontStyle* aFontStyle);
 LIBRARY_API uint32_t moz2d_font_style_get_override_language(gfxFontStyle* aFontStyle);
+LIBRARY_API void moz2d_font_style_delete(gfxFontStyle* aFontStyle);
 
 #ifdef __cplusplus
 }

@@ -53,6 +53,8 @@ LIBRARY_API const char* moz2d_font_family_list_to_string(FontFamilyList* aFontFa
  */
 LIBRARY_API FontFamilyName** moz2d_font_family_list_get_font_list(FontFamilyList* aFontFamilyList, uint32_t* length);
 
+LIBRARY_API void moz2d_font_family_list_delete(FontFamilyList* aFontFamilyList);
+
 #ifdef __cplusplus
 }
 #endif
