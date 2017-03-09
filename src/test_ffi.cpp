@@ -19,3 +19,11 @@ FFI_SOURCE_ASSOCIATION(moz2d_test_ffi_fixed_signed_max_, FFI_TYPES_FIXED_SIGNED_
 FFI_SOURCE_ASSOCIATION(moz2d_test_ffi_fixed_unsigned_max_, FFI_TYPES_FIXED_UNSIGNED_MAX)
 
 FFI_CALLBACK_SOURCE(moz2d_test_ffi_callback_, FFI_TYPES_FIXED)
+
+
+FFI_SOURCE(moz2d_test_ffi_, FFI_TYPES)
+FFI_SOURCE_ASSOCIATION(moz2d_test_ffi_signed_min_, FFI_TYPES_SIGNED_MIN)
+FFI_SOURCE_ASSOCIATION(moz2d_test_ffi_signed_max_, FFI_TYPES_SIGNED_MAX)
+FFI_SOURCE_ASSOCIATION(moz2d_test_ffi_unsigned_max_, FFI_TYPES_UNSIGNED_MAX)
+
+FFI_CALLBACK_SOURCE(moz2d_test_ffi_callback_, FFI_TYPES)

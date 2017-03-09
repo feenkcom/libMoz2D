@@ -8,6 +8,7 @@
 #include "exports.h"
 #include "macros.h"
 #include <stdint.h>
+#include <limits.h>
 
 #define FFI_FUNCTION_NAME(prefix, body) CONCATENATE(prefix, body)
 
@@ -25,7 +26,15 @@
 #define FFI_TYPES_FIXED_SIGNED_MAX int8_t, INT8_MAX, int16_t, INT16_MAX, int32_t, INT32_MAX, int64_t, INT64_MAX, intptr_t, INTPTR_MAX
 #define FFI_TYPES_FIXED_UNSIGNED_MAX uint8_t, UINT8_MAX, uint16_t, UINT16_MAX, uint32_t, UINT32_MAX, uint64_t, UINT64_MAX, uintptr_t, UINTPTR_MAX
 
-using namespace std;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+
+#define FFI_TYPES char, uchar, short, ushort, int, uint, long, ulong
+#define FFI_TYPES_SIGNED_MIN char, CHAR_MIN, short, SHRT_MIN, int, INT_MIN, long, LONG_MIN
+#define FFI_TYPES_SIGNED_MAX char, CHAR_MAX, short, SHRT_MAX, int, INT_MAX, long, LONG_MAX
+#define FFI_TYPES_UNSIGNED_MAX uchar, UCHAR_MAX, ushort, USHRT_MAX, uint, UINT_MAX, ulong, ULONG_MAX
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +45,13 @@ FFI_HEADER_ASSOCIATION(moz2d_test_ffi_fixed_signed_min_, FFI_TYPES_FIXED_SIGNED_
 FFI_HEADER_ASSOCIATION(moz2d_test_ffi_fixed_signed_max_, FFI_TYPES_FIXED_SIGNED_MAX)
 FFI_HEADER_ASSOCIATION(moz2d_test_ffi_fixed_unsigned_max_, FFI_TYPES_FIXED_UNSIGNED_MAX)
 
+FFI_HEADER(moz2d_test_ffi_, FFI_TYPES)
+FFI_HEADER_ASSOCIATION(moz2d_test_ffi_signed_min_, FFI_TYPES_SIGNED_MIN)
+FFI_HEADER_ASSOCIATION(moz2d_test_ffi_signed_max_, FFI_TYPES_SIGNED_MAX)
+FFI_HEADER_ASSOCIATION(moz2d_test_ffi_unsigned_max_, FFI_TYPES_UNSIGNED_MAX)
+
 FFI_CALLBACK_HEADER(moz2d_test_ffi_callback_, FFI_TYPES_FIXED)
+FFI_CALLBACK_HEADER(moz2d_test_ffi_callback_, FFI_TYPES)
 
 #ifdef __cplusplus
 }
