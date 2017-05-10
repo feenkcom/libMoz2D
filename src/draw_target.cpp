@@ -315,6 +315,12 @@ void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, Float x, Float y,
 	drawTarget->FillRect(Rect(x,y,width,height), ColorPattern(Color(r,g,b,a)), *drawOptions);
 }
 
+void moz2d_draw_target_fill_rectangle_form (DrawTarget* drawTarget, Float x, Float y, Float width, Float height, DrawOptions* drawOptions, unsigned char *aFormData, int32_t aFormWidth, int32_t aFormHeight, int32_t aStride) {
+    SourceSurface* aSourceSurface = moz2d_draw_target_create_surface_for_data_form(drawTarget, aFormData, aFormWidth, aFormHeight, aStride, drawTarget->GetFormat());
+    drawTarget->FillRect(Rect(x,y,width,height), SurfacePattern(aSourceSurface, ExtendMode::CLAMP), *drawOptions);
+    aSourceSurface->Release();
+}
+
 void moz2d_draw_target_fill_path(DrawTarget* drawTarget, Path* path, Pattern* pattern, DrawOptions* drawOptions) {
 	drawTarget->Fill(path, *pattern, *drawOptions);
 }
@@ -323,9 +329,9 @@ void moz2d_draw_target_fill_path_color (DrawTarget* drawTarget, Path* path, Floa
 	drawTarget->Fill(path, ColorPattern(Color(r,g,b,a)), *drawOptions);
 }
 
-void moz2d_draw_target_fill_rectangle_form (DrawTarget* drawTarget, Float x, Float y, Float width, Float height, DrawOptions* drawOptions, unsigned char *aFormData, int32_t aFormWidth, int32_t aFormHeight, int32_t aStride) {
+void moz2d_draw_target_fill_path_form (DrawTarget* drawTarget, Path* path, DrawOptions* drawOptions, unsigned char *aFormData, int32_t aFormWidth, int32_t aFormHeight, int32_t aStride) {
     SourceSurface* aSourceSurface = moz2d_draw_target_create_surface_for_data_form(drawTarget, aFormData, aFormWidth, aFormHeight, aStride, drawTarget->GetFormat());
-    drawTarget->FillRect(Rect(x,y,width,height), SurfacePattern(aSourceSurface, ExtendMode::CLAMP), *drawOptions);
+    drawTarget->Fill(path, SurfacePattern(aSourceSurface, ExtendMode::CLAMP), *drawOptions);
     aSourceSurface->Release();
 }
 
