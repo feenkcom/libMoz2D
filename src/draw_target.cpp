@@ -67,11 +67,11 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 	unsigned char *data = new unsigned char[ 4 * size ];
 	for (int32_t i = 0; i < size; i++) {
 		int32_t index = i * 4;
-		int32_t alpha = aData[index + 3];
+		unsigned char alpha = aData[index + 3];
 
-		int32_t red = (int32_t)(aData[index] / 255.0 * alpha);
-		int32_t green = (int32_t)(aData[index + 1] / 255.0 * alpha);
-		int32_t blue = (int32_t)(aData[index + 2] / 255.0 * alpha);
+		unsigned char red = (unsigned char)(aData[index] / 255.0f * alpha);
+		unsigned char green = (unsigned char)(aData[index + 1] / 255.0f * alpha);
+		unsigned char blue = (unsigned char)(aData[index + 2] / 255.0f * alpha);
 
 		data[index] = red;
 		data[index + 1] = green;
@@ -84,6 +84,20 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 	return surface;
 }
 
+SourceSurface* moz2d_draw_target_create_surface_from_native (
+		DrawTarget* drawTarget,
+		NativeSurfaceType aType,
+		SurfaceFormat aFormat,
+		int32_t width,
+		int32_t height,
+		void *aSurface) {
+
+	NativeSurface nativeSurface = {
+			aType, aFormat, IntSize(width, height), aSurface
+	};
+
+	return drawTarget->CreateSourceSurfaceFromNativeSurface(nativeSurface).take();
+}
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */

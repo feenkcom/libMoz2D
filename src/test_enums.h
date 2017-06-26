@@ -215,6 +215,14 @@ TEST(CapStyle,
      ROUND,
      SQUARE)
 
+TEST(NativeSurfaceType,
+     D3D10_TEXTURE,
+     CAIRO_CONTEXT,
+     CGCONTEXT,
+     CGCONTEXT_ACCELERATED,
+     OPENGL_TEXTURE
+)
+
 #ifdef __cplusplus
 }
 #endif
