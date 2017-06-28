@@ -50,6 +50,8 @@ before_install:
       sudo apt-get install gir1.2-glib-2.0:i386;
       sudo apt-get install gir1.2-atk-1.0:i386;
       sudo apt-get install libatk1.0-dev:i386;
+      sudo apt-get install libfontconfig1-dev:i386;
+      sudo apt-get install libfreetype6-dev:i386;
       sudo apt-get install libcairo2-dev:i386;
       sudo apt-get install gir1.2-gdkpixbuf-2.0:i386;
       sudo apt-get install libgdk-pixbuf2.0-dev:i386;
