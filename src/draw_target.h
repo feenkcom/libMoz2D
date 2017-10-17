@@ -11,11 +11,6 @@
 #include "exports.h"
 #include "2d/2D.h"
 
-typedef void* CDrawTarget;
-typedef void* CSourceSurface;
-typedef void* CPattern;
-typedef void* CColorPattern;
-
 using namespace mozilla::gfx;
 
 #ifdef __cplusplus
@@ -220,6 +215,12 @@ LIBRARY_API void moz2d_draw_target_draw_filter(DrawTarget* drawTarget, FilterNod
  * Path
  */
 LIBRARY_API PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillRule aFillRule);
+
+/*
+ * 3D Transformed
+ */
+
+ LIBRARY_API bool moz2d_draw_target_draw_3d_transformed(DrawTarget* drawTarget, SourceSurface* aSurface, Float* rawMatrix);
 
 /* --------------------------------------------------- */
 /* ----------- T R A N S F O R M A T I O N ----------- */

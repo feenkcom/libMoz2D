@@ -401,6 +401,19 @@ PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawTarget, FillR
 	return drawTarget->CreatePathBuilder(aFillRule).take();
 }
 
+/*
+ * 3D Transformed
+ */
+bool moz2d_draw_target_draw_3d_transformed(DrawTarget* drawTarget, SourceSurface* aSurface, Float* rawMatrix) {
+    Matrix4x4 matrix = Matrix4x4(
+            rawMatrix[0], rawMatrix[1], rawMatrix[2], rawMatrix[3],
+            rawMatrix[4], rawMatrix[5], rawMatrix[6], rawMatrix[7],
+            rawMatrix[8], rawMatrix[9], rawMatrix[10], rawMatrix[11],
+            rawMatrix[12], rawMatrix[13], rawMatrix[14], rawMatrix[15]);
+
+    return drawTarget->Draw3DTransformedSurface(aSurface, matrix);
+}
+
 /* --------------------------------------------------- */
 /* ----------- T R A N S F O R M A T I O N ----------- */
 /* --------------------------------------------------- */

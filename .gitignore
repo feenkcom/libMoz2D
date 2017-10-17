@@ -17,3 +17,7 @@ cmake-build*
 .DS_Store
 .bashrc
 .bash_profile
+
+mozilla-central-FIREFOX_NIGHTLY_57_END.zip
+
+*.zip

@@ -7,7 +7,8 @@
 
 #include "stub.h"
 
-#ifdef USE_NS_ABORT_OOM
+
+#if defined(MOZILLA_INTERNAL_API) || defined(USE_NS_ABORT_OOM)
 void
 NS_ABORT_OOM(size_t aSize)
 {
