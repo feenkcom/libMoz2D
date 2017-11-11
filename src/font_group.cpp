@@ -21,6 +21,8 @@ gfxFontGroup* moz2d_font_group_create (
 	return fontGroup;
 }
 
+
+
 void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical) {
 	*aMetrics = aFontGroup->GetFirstValidFont()->GetMetrics(isVertical ? gfxFont::Orientation::eVertical : gfxFont::Orientation::eHorizontal);
 	aMetrics->underlineOffset = aFontGroup->GetUnderlineOffset();

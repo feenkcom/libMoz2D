@@ -219,8 +219,6 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
 -    COMPONENT(INTERFACEINFOMANAGER_SERVICE, nsXPTIInterfaceInfoManagerGetSingleton)
 -
 -    COMPONENT(HASH_PROPERTY_BAG, nsHashPropertyBagCCConstructor)
--
--    COMPONENT(UUID_GENERATOR, nsUUIDGeneratorConstructor)
  
  #if defined(XP_WIN)
 -    COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor)

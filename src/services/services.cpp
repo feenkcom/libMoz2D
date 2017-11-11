@@ -258,8 +258,7 @@ void moz2d_services_init_services() {
 	NS_ADDREF(nsComponentManagerImpl::gComponentManager);
 	nsComponentManagerImpl::gComponentManager->Init();
 	// Notify observers of xpcom autoregistration start
-	NS_CreateServicesFromCategory(NS_XPCOM_STARTUP_CATEGORY, nullptr,
-			NS_XPCOM_STARTUP_OBSERVER_ID);
+	NS_CreateServicesFromCategory(NS_XPCOM_STARTUP_CATEGORY, nullptr, NS_XPCOM_STARTUP_OBSERVER_ID);
 
 	Preferences::GetInstanceForService();
 }

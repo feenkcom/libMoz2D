@@ -43,6 +43,7 @@ set(SRC
         ${MOZ_TOP_PATH}/xpcom/base/NSPRLogModulesParser.cpp
         ${MOZ_TOP_PATH}/xpcom/base/nsMemoryImpl.cpp
         ${MOZ_TOP_PATH}/xpcom/base/nsTraceRefcnt.cpp
+        ${MOZ_TOP_PATH}/xpcom/base/nsUUIDGenerator.cpp
         ${MOZ_TOP_PATH}/xpcom/build/nsXPCOMStrings.cpp
         ${MOZ_TOP_PATH}/xpcom/build/Services.cpp
         ${MOZ_TOP_PATH}/xpcom/components/nsComponentManager.cpp
