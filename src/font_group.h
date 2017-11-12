@@ -60,6 +60,12 @@ LIBRARY_API gfxTextRun* moz2d_font_group_make_text_run_utf16 (
 		int32_t aAppUnitsPerDevUnit,
 		uint32_t aTextRunFactoryFlags);
 
+LIBRARY_API gfxFont* moz2d_font_group_first_valid_font(gfxFontGroup* aFontGroup);
+LIBRARY_API char* moz2d_font_group_first_valid_font_name(gfxFontGroup* aFontGroup);
+LIBRARY_API char* moz2d_font_group_first_valid_font_family_name(gfxFontGroup* aFontGroup);
+LIBRARY_API char* moz2d_font_group_first_valid_font_real_face_name(gfxFontGroup* aFontGroup);
+LIBRARY_API void moz2d_font_group_update_user_fonts(gfxFontGroup* aFontGroup);
+
 #ifdef __cplusplus
 }
 #endif

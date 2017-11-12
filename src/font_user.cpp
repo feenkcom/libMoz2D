@@ -50,6 +50,13 @@ FontFaceBufferSource::TakeBuffer(uint8_t*& aBuffer, uint32_t& aLength)
     aLength = mSourceBufferLength;
 }
 
+bool FontFaceBufferSource::Equals(gfxFontFaceBufferSource* other) {
+    const FontFaceBufferSource* otherSource = static_cast<FontFaceBufferSource*>(other);
+    bool areEqual = this->mSourceBuffer == otherSource->mSourceBuffer &&
+           this->mSourceBufferLength == otherSource->mSourceBufferLength;
+    return areEqual;
+}
+
 UserFontSet* moz2d_font_user_set_create () {
     UserFontSet* aUserFontSet = new UserFontSet();
     // Need to increase reference, because my caller gets ownership over font set
@@ -74,14 +81,10 @@ gfxUserFontEntry* moz2d_font_user_find_or_create_user_font_entry (
     if (!faceSrc)
         return nullptr;
 
-
-
     RefPtr<FontFaceBufferSource> bufferSource = new FontFaceBufferSource(aBuffer, aBufferLength);
 
     faceSrc->mSourceType = gfxFontFaceSrc::eSourceType_Buffer;
     faceSrc->mBuffer = bufferSource;
-
-    unicodeRanges = new gfxCharacterMap();
 
     return aUserFontSet->FindOrCreateUserFontEntry(
             NS_ConvertUTF8toUTF16(aFamilyName),
@@ -93,7 +96,6 @@ gfxUserFontEntry* moz2d_font_user_find_or_create_user_font_entry (
             NO_FONT_LANGUAGE_OVERRIDE,
             unicodeRanges,
             NS_FONT_DISPLAY_AUTO).take();
-
 }
 
 void moz2d_font_user_entry_add(
@@ -101,8 +103,13 @@ void moz2d_font_user_entry_add(
         const char* aFamilyName, // UTF-8
         gfxUserFontEntry* aUserFontEntry) {
     aUserFontSet->AddUserFontEntry(NS_ConvertUTF8toUTF16(aFamilyName), aUserFontEntry);
+    aUserFontSet->IncrementGeneration(false);
 }
 
+
+bool moz2d_font_user_set_has_family(UserFontSet* aUserFontSet, const char* aFamilyName) { // UTF-8
+    return aUserFontSet->HasFamily(NS_ConvertUTF8toUTF16(aFamilyName));
+}
 
 void moz2d_font_user_entry_load(gfxUserFontEntry* aFontEntry) {
     aFontEntry->Load();

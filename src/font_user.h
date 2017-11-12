@@ -63,12 +63,12 @@ public:
     explicit FontFaceBufferSource(uint8_t* aSourceBuffer, uint32_t aSourceBufferLength)
             : mSourceBuffer(aSourceBuffer), mSourceBufferLength(aSourceBufferLength) {}
     virtual void TakeBuffer(uint8_t*& aBuffer, uint32_t& aLength);
+    virtual bool Equals(gfxFontFaceBufferSource* other);
 
-private:
+public:
     uint8_t* mSourceBuffer = nullptr;
     uint32_t mSourceBufferLength = 0;
 };
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,6 +87,8 @@ LIBRARY_API void moz2d_font_user_entry_add (
         UserFontSet* aUserFontSet,
         const char* aFamilyName, // UTF-8
         gfxUserFontEntry* aUserFontEntry);
+
+LIBRARY_API bool moz2d_font_user_set_has_family(UserFontSet* aUserFontSet, const char* aFamilyName); // UTF-8
 
 LIBRARY_API void moz2d_font_user_entry_load(gfxUserFontEntry* aFontEntry);
 LIBRARY_API gfxUserFontEntry::UserFontLoadState moz2d_font_user_entry_get_load_state(gfxUserFontEntry* aFontEntry);

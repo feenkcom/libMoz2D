@@ -71,3 +71,27 @@ gfxTextRun* moz2d_font_group_make_text_run_utf16 (
 			aTextRunFactoryFlags,
 			nullptr)).take();
 }
+
+
+gfxFont* moz2d_font_group_first_valid_font(gfxFontGroup* aFontGroup) {
+    return aFontGroup->GetFirstValidFont();
+}
+
+char* moz2d_font_group_first_valid_font_name(gfxFontGroup* aFontGroup) {
+	gfxFont* aFont = aFontGroup->GetFirstValidFont();
+	return ToNewUTF8String(aFont->GetName());
+}
+
+char* moz2d_font_group_first_valid_font_family_name(gfxFontGroup* aFontGroup) {
+    gfxFont* aFont = aFontGroup->GetFirstValidFont();
+    return ToNewUTF8String(aFont->GetFontEntry()->FamilyName());
+}
+
+char* moz2d_font_group_first_valid_font_real_face_name(gfxFontGroup* aFontGroup) {
+    gfxFont* aFont = aFontGroup->GetFirstValidFont();
+    return ToNewUTF8String(aFont->GetFontEntry()->RealFaceName());
+}
+
+void moz2d_font_group_update_user_fonts(gfxFontGroup* aFontGroup) {
+    aFontGroup->UpdateUserFonts();
+}
