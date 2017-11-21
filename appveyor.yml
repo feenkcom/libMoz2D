@@ -48,6 +48,8 @@ build_script:
     export PATH=`$PATH:/c/Program\ Files/CMake/bin
 
     export PATH=~/$MOZILLA_BUILD/bin:`$PATH
+    
+    echo $PATH
 
     sh build.sh --arch $ARCH
 
@@ -166,6 +168,7 @@ build_script:
 
     Start-Process "dos2unix.exe" "windows.sh" -Wait -NoNewWindow
 
+    Get-ChildItem Env:
 
     cmd /c $PROJECT_ROOT\$MOZILLA_BUILD\$SHELL
 artifacts:
