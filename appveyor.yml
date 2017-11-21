@@ -14,7 +14,7 @@ cache:
 - C:\projects\moz2d\mozilla-build\7z1604-x64.msi
 - C:\projects\moz2d\mozilla-build\MozillaBuildSetup-2.2.0.exe
 - C:\projects\moz2d\mozilla-build\node-v6.7.0-x64.msi
-- C:\projects\moz2d\FIREFOX_AURORA_50_BASE.tar.gz
+- C:\projects\moz2d\FIREFOX_AURORA_52_BASE.tar.gz
 - C:\projects\moz2d\mozilla-build\cmake-3.7.0-rc1-win64-x64.msi
 build_script:
 - ps: >-
