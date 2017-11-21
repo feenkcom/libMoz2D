@@ -32,8 +32,6 @@ protected:
 class AnyInlineRefCountedClass
 {
 	NS_INLINE_DECL_REFCOUNTING(AnyInlineRefCountedClass)
-public:
-	MozRefCountType refCount(){ return mRefCnt; }
 protected:
     // Protected destructor, to discourage deletion outside of Release():
     virtual ~AnyInlineRefCountedClass() {}
@@ -58,7 +56,6 @@ LIBRARY_API MozRefCountType moz2d_ref_ptr_count(AnyRefCountedClass* refPtr);
 LIBRARY_API void moz2d_ref_ptr_add_ref(AnyRefCountedClass* refPtr);
 LIBRARY_API void moz2d_ref_ptr_release(AnyRefCountedClass* refPtr);
 
-LIBRARY_API MozRefCountType moz2d_inline_ref_ptr_count(AnyInlineRefCountedClass* refPtr);
 LIBRARY_API void moz2d_inline_ref_ptr_release(AnyInlineRefCountedClass* refPtr);
 LIBRARY_API void moz2d_inline_ref_ptr_add_ref(AnyInlineRefCountedClass* refPtr);
 

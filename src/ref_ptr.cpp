@@ -27,10 +27,6 @@ void moz2d_ref_ptr_add_ref(AnyRefCountedClass* refPtr) {
 	refPtr->AddRef();
 }
 
-MozRefCountType moz2d_inline_ref_ptr_count(AnyInlineRefCountedClass* refPtr) {
-	return refPtr->refCount();
-}
-
 void moz2d_inline_ref_ptr_release(AnyInlineRefCountedClass* refPtr) {
 	refPtr->Release();
 }

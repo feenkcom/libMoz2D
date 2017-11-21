@@ -179,7 +179,7 @@ module.exports = {
             cxx: {
                 cross: {
                     general: '',
-                    mac: '-mssse3 -msse4.1 -fexceptions',
+                    mac: '-mssse3 -msse4.1 -fexceptions -DUSE_NS_ABORT_OOM',
                     // for some strange reason -FI does not work with CMake
                     win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
                     linux: '-mssse3 -msse4.1 -fexceptions -fPIC -DUSE_NS_ABORT_OOM'
