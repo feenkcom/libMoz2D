@@ -64,6 +64,10 @@ UserFontSet* moz2d_font_user_set_create () {
     return aUserFontSet;
 }
 
+void moz2d_font_user_set_release (UserFontSet* aUserFontSet) {
+	aUserFontSet->Release();
+}
+
 // Caller owns a newly created font entry
 
 gfxUserFontEntry* moz2d_font_user_find_or_create_user_font_entry (
@@ -106,6 +110,9 @@ void moz2d_font_user_entry_add(
     aUserFontSet->IncrementGeneration(false);
 }
 
+void moz2d_font_user_entry_release(gfxUserFontEntry* aUserFontEntry) {
+	aUserFontEntry->Release();
+}
 
 bool moz2d_font_user_set_has_family(UserFontSet* aUserFontSet, const char* aFamilyName) { // UTF-8
     return aUserFontSet->HasFamily(NS_ConvertUTF8toUTF16(aFamilyName));

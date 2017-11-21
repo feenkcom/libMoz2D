@@ -75,6 +75,8 @@ extern "C" {
 #endif
 
 LIBRARY_API UserFontSet* moz2d_font_user_set_create ();
+LIBRARY_API void moz2d_font_user_set_release (UserFontSet* aUserFontSet);
+
 LIBRARY_API gfxUserFontEntry* moz2d_font_user_find_or_create_user_font_entry(
         UserFontSet* aUserFontSet,
         const char* aFamilyName, // UTF-8
@@ -83,11 +85,15 @@ LIBRARY_API gfxUserFontEntry* moz2d_font_user_find_or_create_user_font_entry(
         gfxFontStyle* aFontStyle // only uses weight, stretch and style
 );
 
+
+
 LIBRARY_API void moz2d_font_user_entry_add (
         UserFontSet* aUserFontSet,
         const char* aFamilyName, // UTF-8
         gfxUserFontEntry* aUserFontEntry);
 
+LIBRARY_API void moz2d_font_user_entry_release(gfxUserFontEntry* aUserFontEntry);
+		
 LIBRARY_API bool moz2d_font_user_set_has_family(UserFontSet* aUserFontSet, const char* aFamilyName); // UTF-8
 
 LIBRARY_API void moz2d_font_user_entry_load(gfxUserFontEntry* aFontEntry);

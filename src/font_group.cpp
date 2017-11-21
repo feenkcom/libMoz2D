@@ -21,7 +21,9 @@ gfxFontGroup* moz2d_font_group_create (
 	return fontGroup;
 }
 
-
+void moz2d_font_group_release (gfxFontGroup* aFontGroup) {
+	aFontGroup->Release();
+}
 
 void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical) {
 	*aMetrics = aFontGroup->GetFirstValidFont()->GetMetrics(isVertical ? gfxFont::Orientation::eVertical : gfxFont::Orientation::eHorizontal);

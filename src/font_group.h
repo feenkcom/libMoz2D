@@ -28,6 +28,7 @@ LIBRARY_API gfxFontGroup* moz2d_font_group_create (
 		gfxUserFontSet* aUserFontSet,
 		float aDevToCssSize);
 
+LIBRARY_API void moz2d_font_group_release (gfxFontGroup* aFontGroup);
 LIBRARY_API void moz2d_font_group_metrics (gfxFontGroup* aFontGroup, gfxFont::Metrics* aMetrics, bool isVertical);
 
 /**

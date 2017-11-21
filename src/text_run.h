@@ -13,6 +13,8 @@
 #include "gfxTextRun.h"
 #include <stdint.h>
 
+typedef unsigned int SmalltalkPtr;
+
 using namespace mozilla;
 using namespace mozilla::gfx;
 
@@ -53,7 +55,7 @@ struct BreaksCollector final {
 class PluggablePropertyProvider : public gfxTextRun::PropertyProvider {
 
 public:
-	void SetGetHyphenationBreaks(void (*getHyphenationBreaks)(std::uintptr_t, BreaksCollector*)) {
+	void SetGetHyphenationBreaks(void (*getHyphenationBreaks)(SmalltalkPtr, BreaksCollector*)) {
 		mGetHyphenationBreaks = getHyphenationBreaks;
 	}
 
@@ -61,28 +63,29 @@ public:
         mHyphensOption = hyphensOption;
 	}
 
-	void SetGetHyphenWidth(void (*getHyphenWidth)(std::uintptr_t, PropertyCollector*)) {
+	void SetGetHyphenWidth(void (*getHyphenWidth)(SmalltalkPtr, PropertyCollector*)) {
 		mGetHyphenWidth = getHyphenWidth;
 	}
 
-	void SetGetSpacing(void (*getSpacing)(std::uintptr_t, SpacingCollector*)) {
+	void SetGetSpacing(void (*getSpacing)(SmalltalkPtr, SpacingCollector*)) {
 		mGetSpacing = getSpacing;
 	}
 
-	void SetGetDrawTarget(void (*getDrawTarget)(std::uintptr_t, PropertyCollector*)) {
+	void SetGetDrawTarget(void (*getDrawTarget)(SmalltalkPtr, PropertyCollector*)) {
 		mGetDrawTarget = getDrawTarget;
 	}
 
-	void SetGetAppUnitsPerDevUnit(void (*getAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*)) {
+	void SetGetAppUnitsPerDevUnit(void (*getAppUnitsPerDevUnit)(SmalltalkPtr, PropertyCollector*)) {
 		mGetAppUnitsPerDevUnit = getAppUnitsPerDevUnit;
 	}
 
-	PluggablePropertyProvider(std::uintptr_t smalltalkPtr) {
+	PluggablePropertyProvider(SmalltalkPtr smalltalkPtr) {
 		mSmalltalkPtr = smalltalkPtr;
 	}
 
 	virtual ~PluggablePropertyProvider() {}
 
+	// Callback is optional
 	virtual void GetHyphenationBreaks(gfxTextRun::Range aRange, bool *aBreakBefore) {
         BreaksCollector collector;
         collector.start = aRange.start;
@@ -94,21 +97,28 @@ public:
         for (index = 0; index < aRange.Length(); ++index) {
             collector.breaks[index] = false;
         }
-
-        mGetHyphenationBreaks(mSmalltalkPtr, &collector);
+		if (mGetHyphenationBreaks) {
+			mGetHyphenationBreaks(mSmalltalkPtr, &collector);
+		}
+		// we didn't allocate anyspace and just reused passed pointer to an array
         collector.breaks = nullptr;
 	}
 
+	// Does not require a callback
 	virtual int8_t GetHyphensOption() {
 		return mHyphensOption;
 	}
 
+	// Callback is optional
 	virtual gfxFloat GetHyphenWidth() {
         PropertyCollector collector;
-        mGetHyphenWidth(mSmalltalkPtr, &collector);
+		if (mGetHyphenWidth) {
+			mGetHyphenWidth(mSmalltalkPtr, &collector);
+		}
 		return collector.hyphenWidth;
 	}
 
+	// Callback is optional
 	virtual void GetSpacing(gfxTextRun::Range aRange, Spacing *aSpacing) {
 
         SpacingCollector collector;
@@ -119,9 +129,11 @@ public:
         for (index = 0; index < aRange.Length() * 2; ++index) {
             collector.spacing[index] = 0;
         }
-
-		mGetSpacing(mSmalltalkPtr, &collector);
-
+		
+		if (mGetSpacing) {
+			mGetSpacing(mSmalltalkPtr, &collector);
+		}
+		
 		for (index = 0; index < aRange.Length(); ++index) {
             aSpacing[index].mBefore = collector.spacing[index * 2];
             aSpacing[index].mAfter = collector.spacing[index * 2 + 1];
@@ -131,20 +143,28 @@ public:
         collector.spacing = nullptr;
 	}
 
+	// Callback is optional
 	virtual already_AddRefed<DrawTarget> GetDrawTarget() {
         PropertyCollector collector;
-        mGetDrawTarget(mSmalltalkPtr, &collector);
+		if (mGetDrawTarget) {
+			mGetDrawTarget(mSmalltalkPtr, &collector);
+		}
+		else { return nullptr; };
+        
 		RefPtr<DrawTarget> drawTarget = collector.drawTarget;
 		return drawTarget.forget();
 	}
 
+	// Callback is optional
 	virtual uint32_t GetAppUnitsPerDevUnit() {
         PropertyCollector collector;
-        mGetAppUnitsPerDevUnit(mSmalltalkPtr, &collector);
+		if (mGetAppUnitsPerDevUnit) {
+			mGetAppUnitsPerDevUnit(mSmalltalkPtr, &collector);
+		}
         return collector.appUnits;
 	}
 	
-	bool isValid() {
+	bool isValid() {		
 		return mGetHyphenationBreaks
 			&& mGetHyphenWidth
 			&& mGetSpacing
@@ -152,18 +172,18 @@ public:
 			&& mGetAppUnitsPerDevUnit;
 	}
 
-    std::uintptr_t getSmalltalkPtr() {
+    SmalltalkPtr getSmalltalkPtr() {
         return mSmalltalkPtr;
     }
 
 private:
-	void (*mGetHyphenationBreaks)(std::uintptr_t, BreaksCollector*);
-	void (*mGetHyphenWidth)(std::uintptr_t, PropertyCollector*);
-	void (*mGetSpacing)(std::uintptr_t, SpacingCollector*);
-	void (*mGetDrawTarget)(std::uintptr_t, PropertyCollector*);
-	void (*mGetAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*);
+	void (*mGetHyphenationBreaks)(SmalltalkPtr, BreaksCollector*) = nullptr;
+	void (*mGetHyphenWidth)(SmalltalkPtr, PropertyCollector*) = nullptr;
+	void (*mGetSpacing)(SmalltalkPtr, SpacingCollector*) = nullptr;
+	void (*mGetDrawTarget)(SmalltalkPtr, PropertyCollector*) = nullptr;
+	void (*mGetAppUnitsPerDevUnit)(SmalltalkPtr, PropertyCollector*) = nullptr;
     int8_t mHyphensOption = 0;
-	std::uintptr_t mSmalltalkPtr = 0;	// identity hash of smalltalk property provider
+	SmalltalkPtr mSmalltalkPtr = 0;	// identity hash of smalltalk property provider
 };
 
 struct TextRunMetrics {
@@ -190,17 +210,21 @@ LIBRARY_API bool* moz2d_text_run_breaks_collector_get_breaks (BreaksCollector* p
 LIBRARY_API uint32_t moz2d_text_run_breaks_collector_get_start (BreaksCollector* propertyCollector);
 LIBRARY_API uint32_t moz2d_text_run_breaks_collector_get_end (BreaksCollector* propertyCollector);
 
-LIBRARY_API PluggablePropertyProvider* moz2d_text_run_property_provider_create(std::uintptr_t smalltalkPtr);
+LIBRARY_API PluggablePropertyProvider* moz2d_text_run_property_provider_create(SmalltalkPtr smalltalkPtr);
 
 LIBRARY_API void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
-		void (*getHyphenationBreaks)(std::uintptr_t, BreaksCollector*),
-		void (*getHyphenWidth)(std::uintptr_t, PropertyCollector*),
-		void (*getSpacing)(std::uintptr_t, SpacingCollector*),
-		void (*getDrawTarget)(std::uintptr_t, PropertyCollector*),
-		void (*getAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*));
+		void (*getHyphenationBreaks)(SmalltalkPtr, BreaksCollector*),
+		void (*getHyphenWidth)(SmalltalkPtr, PropertyCollector*),
+		void (*getSpacing)(SmalltalkPtr, SpacingCollector*),
+		void (*getDrawTarget)(SmalltalkPtr, PropertyCollector*),
+		void (*getAppUnitsPerDevUnit)(SmalltalkPtr, PropertyCollector*));
+		
+LIBRARY_API void moz2d_text_run_property_provider_init_draw_target_callback (
+		PluggablePropertyProvider* propertyProvider,
+		void (*getDrawTarget)(SmalltalkPtr, PropertyCollector*));
 
-LIBRARY_API std::uintptr_t moz2d_text_run_property_provider_get_smalltalk_ptr (PluggablePropertyProvider* propertyProvider);
+LIBRARY_API SmalltalkPtr moz2d_text_run_property_provider_get_smalltalk_ptr (PluggablePropertyProvider* propertyProvider);
 LIBRARY_API gfxFloat moz2d_text_run_property_provider_get_hyphen_width (PluggablePropertyProvider* propertyProvider);
 LIBRARY_API uint32_t moz2d_text_run_property_provider_get_app_units (PluggablePropertyProvider* propertyProvider);
 LIBRARY_API void moz2d_text_run_property_provider_get_hyphenation_breaks (PluggablePropertyProvider* propertyProvider, uint32_t start, uint32_t end, bool * aBreakBefore);

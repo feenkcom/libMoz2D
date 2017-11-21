@@ -21,3 +21,4 @@ cmake-build*
 mozilla-central-FIREFOX_NIGHTLY_57_END.zip
 
 *.zip
+*.wget-hsts

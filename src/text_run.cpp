@@ -5,7 +5,6 @@
  *      Author: Aliaksei Syrel
  */
 
-
 #include "text_run.h"
 #include "gfxContext.h"
 #include "gfx2DGlue.h"
@@ -109,22 +108,29 @@ void moz2d_text_run_draw_color (
 	drawTarget->SetTransform(transform);
 }
 
-PluggablePropertyProvider* moz2d_text_run_property_provider_create(std::uintptr_t smalltalkPtr) {
+PluggablePropertyProvider* moz2d_text_run_property_provider_create(SmalltalkPtr smalltalkPtr) {
 	return new PluggablePropertyProvider(smalltalkPtr);
 }
 
 void moz2d_text_run_property_provider_init (
 		PluggablePropertyProvider* propertyProvider,
-		void (*getHyphenationBreaks)(std::uintptr_t, BreaksCollector*),
-		void (*getHyphenWidth)(std::uintptr_t, PropertyCollector*),
-		void (*getSpacing)(std::uintptr_t, SpacingCollector*),
-		void (*getDrawTarget)(std::uintptr_t, PropertyCollector*),
-		void (*getAppUnitsPerDevUnit)(std::uintptr_t, PropertyCollector*)) {
+		void (*getHyphenationBreaks)(SmalltalkPtr, BreaksCollector*),
+		void (*getHyphenWidth)(SmalltalkPtr, PropertyCollector*),
+		void (*getSpacing)(SmalltalkPtr, SpacingCollector*),
+		void (*getDrawTarget)(SmalltalkPtr, PropertyCollector*),
+		void (*getAppUnitsPerDevUnit)(SmalltalkPtr, PropertyCollector*)) {
+		
 	propertyProvider->SetGetHyphenationBreaks(getHyphenationBreaks);
 	propertyProvider->SetGetHyphenWidth(getHyphenWidth);
 	propertyProvider->SetGetSpacing(getSpacing);
 	propertyProvider->SetGetDrawTarget(getDrawTarget);
 	propertyProvider->SetGetAppUnitsPerDevUnit(getAppUnitsPerDevUnit);
+}
+
+void moz2d_text_run_property_provider_init_draw_target_callback (
+		PluggablePropertyProvider* propertyProvider,
+		void (*getDrawTarget)(SmalltalkPtr, PropertyCollector*)) {
+			propertyProvider->SetGetDrawTarget(getDrawTarget);
 }
 
 void moz2d_text_run_property_collector_set_app_units (PropertyCollector* propertyCollector, uint32_t appUnits) {
@@ -171,7 +177,7 @@ uint32_t moz2d_text_run_property_provider_get_app_units (PluggablePropertyProvid
     return propertyProvider->GetAppUnitsPerDevUnit();
 }
 
-std::uintptr_t moz2d_text_run_property_provider_get_smalltalk_ptr (PluggablePropertyProvider* propertyProvider) {
+SmalltalkPtr moz2d_text_run_property_provider_get_smalltalk_ptr (PluggablePropertyProvider* propertyProvider) {
     return propertyProvider->getSmalltalkPtr();
 }
 
