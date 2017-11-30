@@ -1,6 +1,6 @@
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/2D.h gfx/2d-patched/2D.h
---- gfx/2d/2D.h	2016-11-14 01:22:06 -0800
-+++ gfx/2d-patched/2D.h	2017-01-15 14:39:18 -0800
+--- gfx/2d/2D.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/2D.h	2017-11-30 15:11:19.000000000 +0100
 @@ -1258,6 +1258,14 @@
    {
      MOZ_CRASH("GFX: InitWithGrContext");
@@ -29,8 +29,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
    static void PurgeAllCaches();
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.cpp gfx/2d-patched/DrawTargetSkia.cpp
---- gfx/2d/DrawTargetSkia.cpp	2016-11-14 01:22:06 -0800
-+++ gfx/2d-patched/DrawTargetSkia.cpp	2017-01-15 15:01:42 -0800
+--- gfx/2d/DrawTargetSkia.cpp	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/DrawTargetSkia.cpp	2017-08-19 16:36:54.000000000 +0200
 @@ -28,6 +28,8 @@
  
  #ifdef USE_SKIA_GPU
@@ -105,8 +105,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
  bool
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/DrawTargetSkia.h gfx/2d-patched/DrawTargetSkia.h
---- gfx/2d/DrawTargetSkia.h	2016-11-14 01:22:06 -0800
-+++ gfx/2d-patched/DrawTargetSkia.h	2017-01-15 14:39:18 -0800
+--- gfx/2d/DrawTargetSkia.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/DrawTargetSkia.h	2017-01-16 14:31:43.000000000 +0100
 @@ -145,6 +145,10 @@
                        SurfaceFormat aFormat) override {
      return InitWithGrContext(aGrContext, aSize, aFormat, false);
@@ -127,8 +127,8 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  
    IntSize mSize;
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Factory.cpp gfx/2d-patched/Factory.cpp
---- gfx/2d/Factory.cpp	2016-11-14 01:22:06 -0800
-+++ gfx/2d-patched/Factory.cpp	2017-01-15 14:39:18 -0800
+--- gfx/2d/Factory.cpp	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/Factory.cpp	2017-01-16 14:31:43.000000000 +0100
 @@ -705,6 +705,19 @@
    return newTarget.forget();
  }
@@ -149,3 +149,50 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
  #endif // USE_SKIA_GPU
  
  #ifdef USE_SKIA
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/HelpersCairo.h gfx/2d-patched/HelpersCairo.h
+--- gfx/2d/HelpersCairo.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/HelpersCairo.h	2017-11-30 14:26:42.000000000 +0100
+@@ -70,6 +70,8 @@
+       return CAIRO_OPERATOR_HSL_COLOR;
+     case CompositionOp::OP_LUMINOSITY:
+       return CAIRO_OPERATOR_HSL_LUMINOSITY;
++    case CompositionOp::OP_CLEAR:
++      return CAIRO_OPERATOR_CLEAR;
+     case CompositionOp::OP_COUNT:
+       break;
+   }
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/HelpersD2D.h gfx/2d-patched/HelpersD2D.h
+--- gfx/2d/HelpersD2D.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/HelpersD2D.h	2017-11-30 15:07:17.000000000 +0100
+@@ -244,6 +244,8 @@
+     return D2D1_COMPOSITE_MODE_DESTINATION_ATOP;
+   case CompositionOp::OP_XOR:
+     return D2D1_COMPOSITE_MODE_XOR;
++  case CompositionOp::OP_CLEAR:
++    return D2D1_COMPOSITE_MODE_DESTINATION_OUT; // clear is not supported by D2D1. Use the the closest operator
+   default:
+     return D2D1_COMPOSITE_MODE_SOURCE_OVER;
+   }
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/HelpersSkia.h gfx/2d-patched/HelpersSkia.h
+--- gfx/2d/HelpersSkia.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/HelpersSkia.h	2017-11-30 14:27:53.000000000 +0100
+@@ -243,6 +243,8 @@
+       return SkBlendMode::kColor;
+     case CompositionOp::OP_LUMINOSITY:
+       return SkBlendMode::kLuminosity;
++    case CompositionOp::OP_CLEAR:
++      return SkBlendMode::kClear;
+     default:
+       return SkBlendMode::kSrcOver;
+   }
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Types.h gfx/2d-patched/Types.h
+--- gfx/2d/Types.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/Types.h	2017-11-30 14:26:07.000000000 +0100
+@@ -208,6 +208,7 @@
+   OP_SATURATION,
+   OP_COLOR,
+   OP_LUMINOSITY,
++  OP_CLEAR,
+   OP_COUNT
+ };
+ 

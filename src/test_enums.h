@@ -173,6 +173,7 @@ TEST(CompositionOp,
      OP_SATURATION,
      OP_COLOR,
      OP_LUMINOSITY,
+     OP_CLEAR,
      OP_COUNT)
 
 TEST(ExtendMode,
