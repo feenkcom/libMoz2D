@@ -185,6 +185,18 @@ diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej'
      default:
        return SkBlendMode::kSrcOver;
    }
+diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Tools.h gfx/2d-patched/Tools.h
+--- gfx/2d/Tools.h	2016-11-14 10:22:06.000000000 +0100
++++ gfx/2d-patched/Tools.h	2017-11-30 22:56:30.000000000 +0100
+@@ -23,7 +23,7 @@
+   case CompositionOp::OP_OUT:
+   case CompositionOp::OP_DEST_IN:
+   case CompositionOp::OP_DEST_ATOP:
+-  case CompositionOp::OP_SOURCE:
++  //case CompositionOp::OP_SOURCE:   - I want source operator to behave the same as in cairo and skia
+     return false;
+   default:
+     return true;
 diff -Naur --exclude '.*' --exclude '*.pyc' --exclude '*.orig' --exclude '*.rej' gfx/2d/Types.h gfx/2d-patched/Types.h
 --- gfx/2d/Types.h	2016-11-14 10:22:06.000000000 +0100
 +++ gfx/2d-patched/Types.h	2017-11-30 14:26:07.000000000 +0100
