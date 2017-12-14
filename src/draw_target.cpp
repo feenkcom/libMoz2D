@@ -331,7 +331,7 @@ void moz2d_draw_target_fill_rect_color(DrawTarget* drawTarget, Float x, Float y,
 
 void moz2d_draw_target_fill_rectangle_form (DrawTarget* drawTarget, Float x, Float y, Float width, Float height, DrawOptions* drawOptions, unsigned char *aFormData, int32_t aFormWidth, int32_t aFormHeight, int32_t aStride) {
     SourceSurface* aSourceSurface = moz2d_draw_target_create_surface_for_data_form(drawTarget, aFormData, aFormWidth, aFormHeight, aStride, drawTarget->GetFormat());
-    drawTarget->FillRect(Rect(x,y,width,height), SurfacePattern(aSourceSurface, ExtendMode::CLAMP), *drawOptions);
+	drawTarget->DrawSurface(aSourceSurface, Rect(x,y,width,height), Rect(0,0,aFormWidth,aFormHeight), DrawSurfaceOptions(), *drawOptions);
     aSourceSurface->Release();
 }
 

@@ -181,7 +181,7 @@ module.exports = {
                     general: '',
                     mac: '-mssse3 -msse4.1 -fexceptions -DUSE_NS_ABORT_OOM',
                     // for some strange reason -FI does not work with CMake
-                    win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
+                    win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h -DSK_CPU_SSE_LEVEL=31 -DSK_CPU_SSE_LEVEL=41',
                     linux: '-mssse3 -msse4.1 -fexceptions -fPIC -DUSE_NS_ABORT_OOM'
                 },
                 i386: {
