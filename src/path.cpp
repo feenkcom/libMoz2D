@@ -330,3 +330,11 @@ void moz2d_path_get_stroked_bounds(Path* path, StrokeOptions* aStrokeOptions, Re
 	retBounds->width = bounds.width;
 	retBounds->height = bounds.height;
 }
+
+bool moz2d_path_contains_point(Path *path, float x, float y) {
+	return path->ContainsPoint(Point(x,y), Matrix());
+}
+
+bool moz2d_path_stroke_contains_point(Path *path, float x, float y, StrokeOptions* aStrokeOptions) {
+	return path->StrokeContainsPoint(*aStrokeOptions, Point(x,y), Matrix());
+}

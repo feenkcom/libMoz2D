@@ -68,6 +68,8 @@ LIBRARY_API Path* moz2d_shape_ellipse (DrawTarget* drawTarget, float x, float y,
 LIBRARY_API Path* moz2d_shape_circle (DrawTarget* drawTarget, float x, float y, float radius, FillRule aFillRule);
 
 LIBRARY_API void moz2d_path_get_stroked_bounds(Path* path, StrokeOptions* aStrokeOptions, Rect* retBounds);
+LIBRARY_API bool moz2d_path_contains_point(Path *path, float x, float y);
+LIBRARY_API bool moz2d_path_stroke_contains_point(Path *path, float x, float y, StrokeOptions* aStrokeOptions);
 
 #ifdef __cplusplus
 }
