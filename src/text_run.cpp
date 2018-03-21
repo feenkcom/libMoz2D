@@ -55,9 +55,14 @@ void moz2d_text_run_draw_pattern (
 		StrokeOptions* strokeOptions,
 		Pattern* aFillPattern,
 		Pattern* aStrokePattern) {
+
 	Matrix transform = drawTarget->GetTransform();
 
 	RefPtr<gfxContext> aContext = gfxContext::CreatePreservingTransformOrNull(drawTarget);
+	if (!aContext) {
+		return;
+	}
+
 	RefPtr<gfxPattern> fillPattern = ThebesPattern(aFillPattern);
 	RefPtr<gfxPattern> strokePattern = ThebesPattern(aStrokePattern);
 	aContext->SetPattern(fillPattern);
@@ -95,6 +100,10 @@ void moz2d_text_run_draw_color (
 	Matrix transform = drawTarget->GetTransform();
 
 	RefPtr<gfxContext> aContext = gfxContext::CreatePreservingTransformOrNull(drawTarget);
+	if (!aContext) {
+		return;
+	}
+
 	aContext->SetColor(Color(fillR, fillG, fillB, fillA));
 
 	gfxTextRun::DrawParams aParams = gfxTextRun::DrawParams(aContext);

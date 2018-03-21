@@ -10,6 +10,8 @@
 #include "2d/Filters.h"
 #include "gfxPlatform.h"
 #include "2d/Logging.h"
+#include "cairo/cairo/src/cairo-pdf.h"
+#include "cairo/cairo/src/cairo-svg.h"
 
 #include <stack> // std::stack
 
@@ -37,8 +39,24 @@ DrawTarget* moz2d_draw_target_create_for_data (unsigned char* aData, int32_t wid
 	return gfxPlatform::GetPlatform()->CreateDrawTargetForData(aData, IntSize(width, height), aStride, aFormat).take();
 }
 
+DrawTarget* moz2d_draw_target_create_for_cairo_surface(cairo_surface_t* aSurface, int32_t width, int32_t height, SurfaceFormat aFormat) {
+	return Factory::CreateDrawTargetForCairoSurface(aSurface, IntSize(width, height), &aFormat).take();
+}
+
 DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height) {
 	 return drawTarget->CreateSimilarDrawTarget(IntSize(width, height), drawTarget->GetFormat()).take();
+}
+
+cairo_surface_t* moz2d_draw_target_create_cairo_surface_for_svg(const char *filename, double width, double height) {
+    return cairo_svg_surface_create(filename, width, height);
+}
+
+cairo_surface_t* moz2d_draw_target_create_cairo_surface_for_pdf(const char *filename, double width, double height) {
+    return cairo_pdf_surface_create(filename, width, height);
+}
+
+void moz2d_draw_target_cairo_surface_destroy(cairo_surface_t* surface) {
+    cairo_surface_destroy(surface);
 }
 
 /* --------------- S O U R C E -- S U R F A C E ------------ */

@@ -43,6 +43,7 @@ LIBRARY_API DrawTarget* moz2d_draw_target_create_for_data(unsigned char* aData, 
 
 LIBRARY_API DrawTarget* moz2d_draw_target_create_similar(DrawTarget* drawTarget, int32_t width, int32_t height);
 
+LIBRARY_API DrawTarget* moz2d_draw_target_create_for_cairo_surface(cairo_surface_t* aSurface, int32_t width, int32_t height, SurfaceFormat aFormat);
 
 LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_for_data (
 		DrawTarget* drawTarget,
@@ -67,6 +68,10 @@ LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_from_native (
 		int32_t width,
 		int32_t height,
 		void *aSurface);
+
+LIBRARY_API cairo_surface_t* moz2d_draw_target_create_cairo_surface_for_svg(const char *filename, double width, double height);
+LIBRARY_API cairo_surface_t* moz2d_draw_target_create_cairo_surface_for_pdf(const char *filename, double width, double height);
+LIBRARY_API void moz2d_draw_target_cairo_surface_destroy(cairo_surface_t* surface);
 
 /* --------------------------------------------------- */
 /* ------------------- T E S T I N G ----------------- */

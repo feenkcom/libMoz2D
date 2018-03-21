@@ -44,6 +44,8 @@ module.exports = {
                 'modules/woff2',
                 'modules/libpref',
 
+                'media/libpng',
+
                 'memory/fallible',
                 'memory/mozalloc',
 
@@ -221,7 +223,7 @@ module.exports = {
             }]
         },
         defines: {
-            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR -DLIBRARY_EXPORTS',
+            general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR -DLIBRARY_EXPORTS -DCAIRO_HAS_PDF_SURFACE -DCAIRO_HAS_SVG_SURFACE -DFT_CONFIG_OPTION_USE_PNG -DCAIRO_HAS_PNG_FUNCTIONS -DPNG_bKGD_SUPPORTED -DPNG_WRITE_PACKSWAP_SUPPORTED -DPNG_WRITE_USER_TRANSFORM_SUPPORTED',
             linux: ''
         },
         undefines: {
