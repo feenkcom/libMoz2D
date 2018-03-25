@@ -56,3 +56,4 @@ deploy:
   file: "bintray-${MOZ_VERSION}.json"
   user: "syrel"
   key: ${BINTRAY_API_KEY}
+  skip_cleanup: true
