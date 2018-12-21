@@ -245,9 +245,7 @@ const mozilla::Module::ContractIDEntry kXPCOMContracts[] = {
 #undef COMPONENT_M
 
 
-
-const mozilla::Module kXPCOMModule = { mozilla::Module::kVersion,
-		kXPCOMCIDEntries, kXPCOMContracts };
+const mozilla::Module kXPCOMModule = { mozilla::Module::kVersion, kXPCOMCIDEntries, kXPCOMContracts };
 
 void moz2d_services_init_services() {
 
@@ -257,6 +255,7 @@ void moz2d_services_init_services() {
 	nsComponentManagerImpl::gComponentManager = new nsComponentManagerImpl();
 	NS_ADDREF(nsComponentManagerImpl::gComponentManager);
 	nsComponentManagerImpl::gComponentManager->Init();
+
 	// Notify observers of xpcom autoregistration start
 	NS_CreateServicesFromCategory(NS_XPCOM_STARTUP_CATEGORY, nullptr, NS_XPCOM_STARTUP_OBSERVER_ID);
 
@@ -305,12 +304,16 @@ void moz2d_services_shutdown_services() {
 	// Finally, release the component manager last because it unloads the
 	// libraries:
 	if (nsComponentManagerImpl::gComponentManager) {
+	    nsComponentManagerImpl::gComponentManager->Shutdown();
+        nsComponentManagerImpl::sStaticModules = nullptr;
 		nsrefcnt cnt;
 		NS_RELEASE2(nsComponentManagerImpl::gComponentManager, cnt);
 		NS_ASSERTION(cnt == 0,
 				"Component Manager being held past XPCOM shutdown.");
 	}
+
 	nsComponentManagerImpl::gComponentManager = nullptr;
+
 	nsCategoryManager::Destroy();
 
 	moz2d_services_shutdown_atom_table();
