@@ -272,7 +272,7 @@ uint32_t moz2d_text_run_break_and_measure (
 		bool aCanWordWrap,
 		gfxBreakPriority *aBreakPriority) {
 
-	gfxTextRun::Metrics* metrics = new gfxTextRun::Metrics();
+	gfxTextRun::Metrics metrics;
 
 	uint32_t result = aTextRun->BreakAndMeasureText(
 			aStart,
@@ -283,7 +283,7 @@ uint32_t moz2d_text_run_break_and_measure (
 			aSuppressBreak,
 			aTrimWhitespace,
             true, //TODO what is this?
-			metrics,
+			&metrics,
 			aBoundingBoxType,
 			aDrawTargetForTightBoundingBox,
 			aUsedHyphenation,
@@ -291,13 +291,13 @@ uint32_t moz2d_text_run_break_and_measure (
 			aCanWordWrap,
 			aBreakPriority);
 
-	aMetrics->mAdvanceWidth = metrics->mAdvanceWidth;
-	aMetrics->mAscent = metrics->mAscent;
-	aMetrics->mDescent = metrics->mDescent;
-	aMetrics->mBoundingBoxX = metrics->mBoundingBox.x;
-	aMetrics->mBoundingBoxY = metrics->mBoundingBox.y;
-	aMetrics->mBoundingBoxWidth = metrics->mBoundingBox.width;
-	aMetrics->mBoundingBoxHeight = metrics->mBoundingBox.height;
+	aMetrics->mAdvanceWidth = metrics.mAdvanceWidth;
+	aMetrics->mAscent = metrics.mAscent;
+	aMetrics->mDescent = metrics.mDescent;
+	aMetrics->mBoundingBoxX = metrics.mBoundingBox.x;
+	aMetrics->mBoundingBoxY = metrics.mBoundingBox.y;
+	aMetrics->mBoundingBoxWidth = metrics.mBoundingBox.width;
+	aMetrics->mBoundingBoxHeight = metrics.mBoundingBox.height;
 	return result;
 }
 
