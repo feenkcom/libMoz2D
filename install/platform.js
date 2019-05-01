@@ -66,6 +66,22 @@ function Platform() {
         return flags;
     };
 
+	_this.flagsRelease = function (type) {
+		// flags release, general platform
+        var flags = _this.string(_this.object(_this.object(_this.config().build.flags[type]).release).general);
+		// flags release, current platform
+        flags += ' ' + _this.string(_this.platform(_this.object(_this.object(_this.config().build.flags[type]).release)));
+		return flags;
+	};
+	
+	_this.flagsDebug = function (type) {
+		// flags debug, general platform
+        var flags = _this.string(_this.object(_this.object(_this.config().build.flags[type]).debug).general);
+		// flags debug, current platform
+        flags += ' ' + _this.string(_this.platform(_this.object(_this.object(_this.config().build.flags[type]).debug)));
+		return flags;
+	};
+
     /**
      * Return a string containing all ASM compiler flags
      * @return {String}
@@ -135,6 +151,22 @@ function Platform() {
         flags += ' ' + _this.platformCFlags();
         return flags;
     };
+	
+	_this.cFlagsRelease = function () {
+		return _this.flagsRelease('c');
+	};
+	
+	_this.cxxFlagsRelease = function () {
+		return _this.flagsRelease('cxx');
+	};
+	
+	_this.cFlagsDebug = function () {
+		return _this.flagsDebug('c');
+	};
+	
+	_this.cxxFlagsDebug = function () {
+		return _this.flagsDebug('cxx');
+	};
 
     /**
      * Return a string containing C flags

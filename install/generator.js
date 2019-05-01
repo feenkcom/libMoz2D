@@ -102,6 +102,10 @@ module.exports = function Generator() {
         cmake += _this.generatePlatformAsmFlags(aPlatform);
         cmake += _this.generatePlatformCFlags(aPlatform);
         cmake += _this.generatePlatformCxxFlags(aPlatform);
+        cmake += _this.generatePlatformCFlagsRelease(aPlatform);
+        cmake += _this.generatePlatformCxxFlagsRelease(aPlatform);
+        cmake += _this.generatePlatformCFlagsDebug(aPlatform);
+        cmake += _this.generatePlatformCxxFlagsDebug(aPlatform);
         cmake += _this.generatePlatformLinkerFlags(aPlatform) + '\n';
         cmake += _this.generatePlatformIncludes(aPlatform) + '\n';
         cmake += _this.generatePlatformPackages(aPlatform) + '\n';
@@ -156,6 +160,22 @@ module.exports = function Generator() {
 
     _this.generatePlatformCFlags = function (aPlatform) {
         return 'set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ' + aPlatform.cCompilerFlags() + ' ' + aPlatform.cFlags()+'")\n';
+    };
+	
+	_this.generatePlatformCFlagsRelease = function (aPlatform) {
+        return 'set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ' + aPlatform.cFlagsRelease()+'")\n';
+    };
+	
+	_this.generatePlatformCxxFlagsRelease = function (aPlatform) {
+        return 'set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ' + aPlatform.cxxFlagsRelease()+'")\n';
+    };
+	
+	_this.generatePlatformCFlagsDebug = function (aPlatform) {
+        return 'set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ' + aPlatform.cFlagsDebug()+'")\n';
+    };
+	
+	_this.generatePlatformCxxFlagsDebug = function (aPlatform) {
+        return 'set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ' + aPlatform.cxxFlagsDebug()+'")\n';
     };
 
     _this.generatePlatformCxxFlags = function (aPlatform) {

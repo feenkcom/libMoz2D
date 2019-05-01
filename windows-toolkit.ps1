@@ -4,7 +4,7 @@ $MOZILLA_TOOLKIT = "MozillaBuildSetup-2.2.0.exe"
 $7ZIP = "7z1604-x64.msi"
 $NODE = "node-v6.7.0-x64.msi"
 $CMAKE = "cmake-3.7.0-rc1-win64-x64.msi"
-$SHELL = "start-shell-msvc2015.bat"
+$SHELL = "start-shell-msvc2015-x64.bat"
 
 Write-Host "Started build in $PROJECT_ROOT"
 md -Force $PROJECT_ROOT\$MOZILLA_BUILD | Out-Null

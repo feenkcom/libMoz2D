@@ -137,6 +137,8 @@ module.exports = {
                 'glib-2.0'
             ],
             win: [
+				'msvcrt.lib',
+				'msvcmrt.lib',
 				'winmm.lib',
 				'wsock32.lib',
 				// GetFileVersionInfoSizeW
@@ -171,6 +173,20 @@ module.exports = {
                     win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h',
                     linux: '-mssse3 -msse4.1 -fPIC'
                 },
+				release: {
+					general: '',
+                    mac: '',
+                    // to link libraries statically
+                    win: '/MT',
+                    linux: ''
+				},
+				debug: {
+					general: '',
+                    mac: '',
+                    // to link libraries statically
+                    win: '/MTd',
+                    linux: ''
+				},
                 i386: {
                     linux: ''
                 },
@@ -186,6 +202,20 @@ module.exports = {
                     win: '/FI${MOZ_TOP_OBJ_PATH}/mozilla-config.h -DSK_CPU_SSE_LEVEL=31 -DSK_CPU_SSE_LEVEL=41',
                     linux: '-mssse3 -msse4.1 -fexceptions -fPIC -DUSE_NS_ABORT_OOM'
                 },
+				release: {
+					general: '',
+                    mac: '',
+                    // to link libraries statically
+                    win: '/MT',
+                    linux: ''
+				},
+				debug: {
+					general: '',
+                    mac: '',
+                    // to link libraries statically
+                    win: '/MTd',
+                    linux: ''
+				},
                 i386: {
                     linux: ''
                 },
@@ -224,7 +254,8 @@ module.exports = {
         },
         defines: {
             general: '-DMOZILLA_EXTERNAL_LINKAGE -DMOZ_DUMP_PAINTING -DXPCOM_GLUE_USE_NSPR -DLIBRARY_EXPORTS -DCAIRO_HAS_PDF_SURFACE -DCAIRO_HAS_SVG_SURFACE -DFT_CONFIG_OPTION_USE_PNG -DCAIRO_HAS_PNG_FUNCTIONS -DPNG_bKGD_SUPPORTED -DPNG_WRITE_PACKSWAP_SUPPORTED -DPNG_WRITE_USER_TRANSFORM_SUPPORTED',
-            linux: ''
+            linux: '',
+			win: '-D_DLL'
         },
         undefines: {
             general: [
@@ -237,7 +268,8 @@ module.exports = {
 			win: [
 			    // SEH exceptions does not work, disable them
 			    // https://blogs.msdn.microsoft.com/zhanli/2010/06/25/structured-exception-handling-seh-and-c-exception-handling/
-			    'HAVE_SEH_EXCEPTIONS'
+			    'HAVE_SEH_EXCEPTIONS',
+				'MOZ_STATIC_RUNTIME'
 			]
         },
         includes: [
