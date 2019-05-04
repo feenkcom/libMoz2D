@@ -61,6 +61,13 @@ LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_for_data_form (
         int32_t aStride,
         SurfaceFormat aFormat);
 
+LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_for_data_b8g8r8 (
+		DrawTarget* drawTarget,
+		unsigned char *aData,
+		int32_t width,
+		int32_t height,
+		int32_t aStride);
+
 LIBRARY_API SourceSurface* moz2d_draw_target_create_surface_from_native (
         DrawTarget* drawTarget,
 		NativeSurfaceType aType,

@@ -102,6 +102,36 @@ SourceSurface* moz2d_draw_target_create_surface_for_data_form (
 	return surface;
 }
 
+SourceSurface* moz2d_draw_target_create_surface_for_data_b8g8r8 (
+        DrawTarget* drawTarget,
+        unsigned char *aData,
+        int32_t width,
+        int32_t height,
+        int32_t aStride) {
+
+    int32_t size = width * height;
+    // every pixel takes 4 uchars, so we need to multiply size by 4
+
+    unsigned char *data = new unsigned char[ 4 * size ];
+
+    size_t s, d;
+    for (size_t y = 0; y < height; y++) {
+        for (size_t x = 0; x < width; x++) {
+            s = y * aStride + (x * 3);
+            d = y * width * 4 + (x * 4);
+
+            data[d] = aData[s];
+            data[d + 1] = aData[s + 1];
+            data[d + 2] = aData[s + 2];
+            data[d + 3] = 255;
+        }
+    }
+
+    SourceSurface* surface = moz2d_draw_target_create_surface_for_data(drawTarget, data, width, height, width * 4, SurfaceFormat::B8G8R8X8);
+    delete[] data;
+    return surface;
+}
+
 SourceSurface* moz2d_draw_target_create_surface_from_native (
 		DrawTarget* drawTarget,
 		NativeSurfaceType aType,
