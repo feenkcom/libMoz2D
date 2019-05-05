@@ -2,10 +2,6 @@ language: cpp
 sudo: required
 
 dist: trusty
-#osx_image: xcode10
-
-os:
-  - osx
 
 env:
   - ARCH="x86_64"
@@ -28,25 +24,11 @@ addons:
     - ccache
     - autoconf@2.13
 
-script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      ./build.sh --arch ${ARCH};
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      PowerShell -Command 'Write-Output "Started build (OUTPUT)"' -Verbose;
-      PowerShell -Command 'Write-Host "Started build (HOST)"' -Verbose;
-      PowerShell Get-Process;
-      PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose;
-      PowerShell -File 'windows-toolkit.ps1' -Verbose;
-    fi
-
-deploy:
-  skip_cleanup: true
-  provider: script
-  script: bash .travis.deploy.sh
-
 jobs:
  include:
+ - os: osx
+   script:
+    - ./build.sh --arch ${ARCH};
  - os: linux
    before_install:
     - sudo apt-get update;
@@ -60,4 +42,10 @@ jobs:
     - ./build.sh --arch ${ARCH};
  - os: windows
    script:
-    - powershell 'windows-toolkit.ps1'
+    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
+    - PowerShell -File windows-toolkit.ps1
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash .travis.deploy.sh
