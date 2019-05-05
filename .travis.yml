@@ -6,7 +6,6 @@ dist: trusty
 
 os:
   - osx
-  - windows
 
 env:
   - ARCH="x86_64"
@@ -61,5 +60,4 @@ jobs:
     - ./build.sh --arch ${ARCH};
  - os: windows
    script:
-    - powershell 'Write-Output "Started build (OUTPUT)"'
     - powershell 'windows-toolkit.ps1'
