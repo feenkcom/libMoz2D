@@ -49,9 +49,11 @@ script:
       ./build.sh --arch ${ARCH};
     fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      PowerShell -Command 'Write-Output "Started build (OUTPUT)"' -Verbose;
+      PowerShell -Command 'Write-Host "Started build (HOST)"' -Verbose;
       PowerShell Get-Process;
-      sudo PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose;
-      sudo PowerShell -File 'windows-toolkit.ps1' -Verbose;
+      PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose;
+      PowerShell -File 'windows-toolkit.ps1' -Verbose;
     fi
 
 deploy:
