@@ -2,7 +2,7 @@ language: cpp
 sudo: required
 
 dist: trusty
-osx_image: xcode8
+#osx_image: xcode10
 
 os:
   - linux
@@ -12,16 +12,32 @@ os:
 env:
   - ARCH="x86_64"
 
+cache:
+  directories:
+  - mozilla-central-52
+  - patches
+
+addons:
+  homebrew:
+    packages:
+    - node
+	- yasm
+	- mercurial
+	- cmake
+	- gawk
+	- ccache
+	autoconf@2.13
+
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      echo "Updating Homebrew...";
-      brew update;
-      brew tap homebrew/versions;
-      sudo chown -R $(whoami) /usr/local;
-      brew unlink node; brew unlink mercurial; brew unlink cmake; brew unlink autoconf;
-      brew install node yasm mercurial cmake gawk ccache autoconf@2.13;
-      brew link --overwrite cmake;
-      brew link --overwrite mercurial;
+      #echo "Updating Homebrew...";
+      #brew update;
+      #brew tap homebrew/versions;
+      #sudo chown -R $(whoami) /usr/local;
+      #brew unlink node; brew unlink mercurial; brew unlink cmake; brew unlink autoconf;
+      #brew install node yasm mercurial cmake gawk ccache autoconf@2.13;
+      #brew link --overwrite cmake;
+      #brew link --overwrite mercurial;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;

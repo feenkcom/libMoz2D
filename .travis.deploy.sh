@@ -22,7 +22,7 @@ else
 	fi
 	
 	if [[ $TRAVIS_OS_NAME == "windows" ]]; then
-		scp Moz2D.dll $FEENK_CLOUD:/var/www/html/Moz2D/windows/development/x86_64/libMoz2D.dll
+		scp Release/Moz2D.dll $FEENK_CLOUD:/var/www/html/Moz2D/windows/development/x86_64/libMoz2D.dll
 	fi
 	
 	ssh-agent -k

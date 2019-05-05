@@ -36,6 +36,10 @@ function Builder (_args) {
             platform.log('   Archive exists, no need to download');
             return;
         }
+        if (_this.isExtracted()) {
+            _this.log(_this.tab('Sources exist, no need to download'));
+            return;
+        }
         // --no-check-certificate is required because on windows it fails to locally verify issuer's authority
         var cmd = 'wget -q --no-check-certificate ' + platform.sourcesURL() + ' -O' + platform.sourcesArchive()+'_tmp';
         execSync(cmd, { stdio: ['pipe', 'pipe', process.stderr] });

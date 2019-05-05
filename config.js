@@ -23,7 +23,7 @@ module.exports = {
         url: 'https://hg.mozilla.org/mozilla-central/archive/',
         version: 'FIREFOX_AURORA_52_BASE',
         format: '.tar.gz',
-        arch: 'i386', // i386, x86_64
+        arch: 'x86_64', // i386, x86_64
         packages: {
             general: [
                 'gfx/2d',
