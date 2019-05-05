@@ -5,7 +5,6 @@ dist: trusty
 #osx_image: xcode10
 
 os:
-  - linux
   - osx
   - windows
 
@@ -30,22 +29,8 @@ addons:
     - ccache
     - autoconf@2.13
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get update;
-      curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -;
-      sudo apt-get install nodejs yasm autoconf2.13;
-      sudo apt-get install libgtk2.0-dev libgtk-3-dev libgconf2-dev;
-      sudo apt-get install libasound2-dev libpulse-dev;
-      sudo apt-get install libxt-dev libxext-dev libxcb-shm0-dev libx11-xcb-dev;
-      sudo apt-get install mesa-common-dev libgl1-mesa-dev;
-    fi
-
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      ./build.sh --arch ${ARCH};
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       ./build.sh --arch ${ARCH};
     fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
@@ -63,6 +48,17 @@ deploy:
 
 jobs:
  include:
+ - os: linux
+   before_install:
+    - sudo apt-get update;
+    - curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -;
+    - sudo apt-get install nodejs yasm autoconf2.13;
+    - sudo apt-get install libgtk2.0-dev libgtk-3-dev libgconf2-dev;
+    - sudo apt-get install libasound2-dev libpulse-dev;
+    - sudo apt-get install libxt-dev libxext-dev libxcb-shm0-dev libx11-xcb-dev;
+    - sudo apt-get install mesa-common-dev libgl1-mesa-dev;
+   script:
+    - ./build.sh --arch ${ARCH};
  - os: windows
    script:
     - PowerShell -Command 'Write-Output "Started build (OUTPUT)"' -Verbose;
