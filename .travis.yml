@@ -60,3 +60,9 @@ deploy:
   skip_cleanup: true
   provider: script
   script: bash .travis.deploy.sh
+
+jobs:
+ include:
+ - os: windows
+   script:
+    - PowerShell -Command 'Write-Output "Started build (OUTPUT)"' -Verbose;
