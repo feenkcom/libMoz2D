@@ -47,8 +47,7 @@ jobs:
     - ./build.sh
  - os: windows
    script:
-    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' 2>&1 | echo
-    - PowerShell -File windows-toolkit.ps1 2>&1 | echo
+    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' 2>&1
 
 deploy:
   skip_cleanup: true
