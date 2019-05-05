@@ -52,13 +52,14 @@ function Builder (_args) {
      */
     _this.extract = function () {
         _this.stage('Extracting ' + platform.sourcesArchive() + '... this may take a while');
-        if (!_this.isDownloaded())
-            throw new Error('Error! Sources are not downloaded!');
 
         if (_this.isExtracted()) {
             _this.log(_this.tab('Sources exist, no need to extract.'));
             return;
         }
+		
+        if (!_this.isDownloaded())
+            throw new Error('Error! Sources are not downloaded!');
 
         _this.exec('rm -rf ' + platform.sources() + '_tmp');
         _this.exec('mkdir ' + platform.sources() + '_tmp');
