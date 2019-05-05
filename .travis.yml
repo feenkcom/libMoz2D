@@ -17,6 +17,7 @@ cache:
   - mozilla-central-52
   - patches
   - mozilla-build
+  - build/mozilla-central-52
 
 addons:
   homebrew:
@@ -49,7 +50,7 @@ script:
     fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose;
-      PowerShell -File 'windows-toolkit.ps1' -Verbose;
+      .\windows-toolkit.ps1;
     fi
 
 deploy:

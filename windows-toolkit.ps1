@@ -90,7 +90,7 @@ fi
 export PATH=`$PATH:/c/Program\ Files/nodejs
 export PATH=`$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/$MOZILLA_BUILD/bin:`$PATH
-./buil.sh
+./build.sh
 "@ | out-file ".bashrc" -encoding utf8
 
 Start-Process "dos2unix.exe" ".bashrc" -Wait -NoNewWindow
