@@ -24,3 +24,4 @@ mozilla-central-FIREFOX_NIGHTLY_57_END.zip
 *.wget-hsts
 *.bash_history
 .ssh/known_hosts
+deploy_key
