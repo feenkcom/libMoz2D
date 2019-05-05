@@ -47,7 +47,7 @@ jobs:
     - ./build.sh
  - os: windows
    script:
-    - start /wait /b cmd /c PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose 2>&1 | echo
+    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' 2>&1 | echo
     - PowerShell -File windows-toolkit.ps1 2>&1 | echo
 
 deploy:
