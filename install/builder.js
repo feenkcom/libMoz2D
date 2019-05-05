@@ -213,7 +213,7 @@ function Builder (_args) {
     };
 
     _this.isExtracted = function () {
-        return _this.isExists(platform.sources());
+        return _this.isExists(platform.sources()) && _this.isEmpty(platform.sources());
     };
 
     _this.isConfigured = function () {
@@ -231,6 +231,19 @@ function Builder (_args) {
             exists = false;
         }
         return exists;
+    };
+	
+    _this.isEmpty = function (aFile) {
+        var empty = false;
+
+        try {
+            var files = fs.readdirSync(aFile);
+            empty = !files.length;
+        }
+        catch (e) {
+            empty = true;
+        }
+        return empty;
     };
 
     _this.exec = function(cmd, dir) {
