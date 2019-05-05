@@ -61,4 +61,5 @@ jobs:
     - ./build.sh --arch ${ARCH};
  - os: windows
    script:
-    - PowerShell -Command 'Write-Output "Started build (OUTPUT)"' -Verbose;
+    - powershell 'Write-Output "Started build (OUTPUT)"'
+	- powershell 'windows-toolkit.ps1'
