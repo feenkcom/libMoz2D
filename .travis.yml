@@ -47,8 +47,7 @@ jobs:
     - ./build.sh
  - os: windows
    script:
-    - PowerShell -Command '$VerbosePreference = "Continue"' -Verbose
-    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose
+    - cmd /c PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose 2>&1 | echo
     - cmd /c PowerShell -File windows-toolkit.ps1 -Verbose 2>&1 | echo
 
 deploy:
