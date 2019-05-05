@@ -49,7 +49,7 @@ jobs:
    script:
     - PowerShell -Command '$VerbosePreference = "Continue"' -Verbose
     - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' -Verbose
-    - PowerShell -File windows-toolkit.ps1 -Verbose
+    - cmd /c PowerShell -File windows-toolkit.ps1 -Verbose 2>&1 | echo
 
 deploy:
   skip_cleanup: true
