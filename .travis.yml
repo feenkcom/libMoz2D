@@ -47,7 +47,7 @@ jobs:
     - ./build.sh
  - os: windows
    script:
-    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' 2>&1
+    - PowerShell -Command 'Write-Output "Started build in $PROJECT_ROOT"' 2>&1 | echo
 
 deploy:
   skip_cleanup: true
