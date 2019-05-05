@@ -41,14 +41,14 @@ before_install:
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      ./build.sh --arch ${ARCH}
+      ./build.sh --arch ${ARCH};
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      ./build.sh --arch ${ARCH}
+      ./build.sh --arch ${ARCH};
     fi
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
-      PowerShell -File 'windows-toolkit.ps1'
+      PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned';
+      PowerShell -File 'windows-toolkit.ps1';
     fi
 
 deploy:
