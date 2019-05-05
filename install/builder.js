@@ -213,7 +213,7 @@ function Builder (_args) {
     };
 
     _this.isExtracted = function () {
-        return _this.isExists(platform.sources()) && _this.isEmpty(platform.sources());
+        return _this.isExists(platform.sources()) && !_this.isEmpty(platform.sources());
     };
 
     _this.isConfigured = function () {
