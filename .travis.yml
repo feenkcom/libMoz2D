@@ -5,4 +5,4 @@ matrix:
     - os: windows
 
 script:
-  - ./windows-toolkit.sh
+  - ./windows-toolkit.sh 1>&2
