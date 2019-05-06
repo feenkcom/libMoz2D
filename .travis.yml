@@ -17,7 +17,7 @@ addons:
     - yasm
     - mercurial
     - cmake
-    - gawk
+    - awk
     - ccache
     - autoconf@2.13
   apt:
