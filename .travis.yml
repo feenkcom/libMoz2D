@@ -46,7 +46,7 @@ jobs:
    script: ./build.sh
  - os: windows
    filter_secrets: false
-   script: ./windows-toolkit.sh
+   script: travis_wait ./windows-toolkit.sh
 
 deploy:
   skip_cleanup: true

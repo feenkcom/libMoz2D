@@ -35,10 +35,12 @@ fi
 export PATH=$PATH:/c/Program\ Files/nodejs
 export PATH=$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/mozilla-build/bin:$PATH
+ls -la
 ./build.sh
 exit' > .bashrc
 
 export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
 
-./mozilla-build/start-shell-msvc2015-x64.bat
+ls -la
+START /wait "MozillaShell" CMD /c ./mozilla-build/start-shell-msvc2015-x64.bat
