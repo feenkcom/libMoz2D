@@ -47,6 +47,8 @@ jobs:
     - ./build.sh
  - os: windows
    script:
+    - echo 'start'
+    - cmd /c 'echo haba'
     - PowerShell -Command 'Write-Output "Started build in $PROJECT_ROOT"' 2>&1 | echo
 
 deploy:
