@@ -6,7 +6,7 @@ matrix:
 
 install:
   # Enable running local PowerShell scripts
-  - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
+  - sudo PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
 
 script:
   - ./example_windows_script.bat
