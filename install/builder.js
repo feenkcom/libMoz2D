@@ -65,7 +65,7 @@ function Builder (_args) {
         _this.exec('mkdir ' + platform.sources() + '_tmp');
 
         try{
-			var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 2>&1 | awk \'!(NR%5000)\'';
+			var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 | awk \'!(NR%500)\'';
 			_this.exec(command);
 			
         } catch(e) {

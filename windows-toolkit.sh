@@ -35,14 +35,14 @@ fi
 export PATH=$PATH:/c/Program\ Files/nodejs
 export PATH=$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/mozilla-build/bin:$PATH
-ls -la
 ./build.sh
 exit' > .bashrc
 
-ls -la
 fold_end moz.1
 
 export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
 
+fold_start moz.2 "Building Moz2D"
 ./mozilla-build/start-shell-msvc2015-x64.bat
+fold_end moz.2
