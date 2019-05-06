@@ -49,8 +49,9 @@ jobs:
    script:
     - pwd
     - echo.exe 'start'
+    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
     - PowerShell -Command "Write-Output OUTPUT"
-    - PowerShell -Command "Write-HOST HOST"
+    - PowerShell -File windows-toolkit-x.ps1
 
 deploy:
   skip_cleanup: true
