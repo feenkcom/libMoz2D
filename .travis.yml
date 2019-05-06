@@ -49,6 +49,8 @@ jobs:
    script:
     - pwd
     - echo.exe 'start'
+    - echo 'start2'
+    - echo | powershell -Command 'Write-Output start'
     - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
     - PowerShell -File windows-toolkit-x.ps1
 
