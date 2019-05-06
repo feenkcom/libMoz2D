@@ -49,8 +49,8 @@ jobs:
    script:
     - pwd
     - echo.exe 'start'
-    - PowerShell -Command 'Write-Output "OUTPUT"'
-    - PowerShell -Command 'Write-Host "HOST"'
+    - PowerShell -Command "Write-Output OUTPUT"
+    - PowerShell -Command "Write-HOST HOST"
 
 deploy:
   skip_cleanup: true
