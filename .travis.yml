@@ -46,12 +46,15 @@ jobs:
    script:
     - ./build.sh
  - os: windows
+   install:
+    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
    script:
     - pwd
     - echo.exe 'start'
     - echo 'start2'
-    - PowerShell -Command 'Write-Verbose verbose'
-    - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
+    - PowerShell -Command 'Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table -AutoSize'
+    - PowerShell -Command 'Get-Location'
+    - PowerShell -File 'example_powershell_script.ps1'
     - PowerShell -File .\windows-toolkit-x.ps1
 
 deploy:
