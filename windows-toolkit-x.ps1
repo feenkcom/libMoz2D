@@ -1,2 +1,1 @@
-﻿$VerbosePreference = "Continue"
-Write-Verbose "Hello"
+﻿Write-Verbose "Hello"
