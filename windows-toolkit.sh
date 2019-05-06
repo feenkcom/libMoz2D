@@ -1,11 +1,22 @@
 #!/bin/bash
 
+fold_start() {
+  echo -e "travis_fold:start:$1\033[33;1m$2\033[0m"
+}
+
+fold_end() {
+  echo -e "\ntravis_fold:end:$1\r"
+}
+
+fold_start moz.1 "Installing MozillaBuild"
 mkdir -p mozilla-build
 
 curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe --output mozilla-build/MozillaBuildSetup-2.2.0.exe
 #wget -O mozilla-build/MozillaBuildSetup-2.2.0.exe https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe
 
 7z x mozilla-build/MozillaBuildSetup-2.2.0.exe -omozilla-build
+
+fold_end moz.1
 
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
