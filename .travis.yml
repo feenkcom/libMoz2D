@@ -50,6 +50,7 @@ jobs:
     - pwd
     - echo.exe 'start'
     - echo 'start2'
+    - PowerShell -Command 'Write-Verbose verbose'
     - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
     - PowerShell -File windows-toolkit-x.ps1
 
