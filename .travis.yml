@@ -50,7 +50,6 @@ jobs:
     - pwd
     - echo.exe 'start'
     - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
-    - PowerShell -Command "Write-Output OUTPUT"
     - PowerShell -File windows-toolkit-x.ps1
 
 deploy:
