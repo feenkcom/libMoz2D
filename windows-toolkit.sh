@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mkdir -p mozilla-build
-ls -la
 
 curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe --output mozilla-build/MozillaBuildSetup-2.2.0.exe
 #wget -O mozilla-build/MozillaBuildSetup-2.2.0.exe https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe
@@ -18,8 +17,10 @@ export PATH=`$PATH:/c/Program\ Files/nodejs
 export PATH=`$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/$MOZILLA_BUILD/bin:`$PATH
 ./build.sh
+exit
 EOL
 
-ls -la
+export STARTUP_DIR=$(pwd)
+export HOME=$(pwd)
 
 ./mozilla-build/start-shell-msvc2015-x64.bat
