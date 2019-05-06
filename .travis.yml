@@ -47,9 +47,10 @@ jobs:
     - ./build.sh
  - os: windows
    script:
+    - pwd
     - echo.exe 'start'
-    - PowerShell -Command 'Write-Output "OUTPUT"' 2>&1 | echo.exe
-    - PowerShell -Command 'Write-Host "HOST"' 2>&1 | echo.exe
+    - PowerShell -Command 'Write-Output "OUTPUT"'
+    - PowerShell -Command 'Write-Host "HOST"'
 
 deploy:
   skip_cleanup: true
