@@ -163,8 +163,8 @@ function Builder (_args) {
         _this.success(_this.tab('Done'));
 
         _this.stage('Configuring build system...');
-        _this.exec('sh mach clobber', platform.sources());
-        _this.exec('sh mach configure', platform.sources());
+		_this.exec('./mach clobber ', platform.sources());
+        _this.exec('./mach configure ', platform.sources());
         _this.success(_this.tab('Done'));
 
         _this.stage('Generating ipdl sources...');
@@ -250,7 +250,7 @@ function Builder (_args) {
         // we use shell wrapper to print all errors
         var command = 'sh ' + platform.config().project.installer + '/exec.sh "' + cmd + '"';
         if (!_.isUndefined(dir)) command += ' "' + dir + '"';
-        return execSync(command, { stdio: [process.stdin, process.stdout, process.stdout] });
+        return execSync(command, {stdio: 'inherit'});
     };
 
     _this.execSilent = function(cmd, dir) {

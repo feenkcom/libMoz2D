@@ -9,6 +9,7 @@ fold_end() {
 }
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+export PATH=$PATH:/c/Program\ Files/7-Zip
 
 fold_start moz.1 "Installing MozillaBuild"
 mkdir -p mozilla-build
@@ -23,8 +24,8 @@ fi
 # NODE
 if [ ! -f "mozilla-build/nodejs-install.log" ]; then
 	curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
+	msiexec //i mozilla-build\\node-v6.7.0-x64.msi //qn //log mozilla-build\\nodejs-install.log
 fi
-msiexec //i mozilla-build\\node-v6.7.0-x64.msi //qn //log mozilla-build\\nodejs-install.log
 
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
