@@ -22,7 +22,6 @@ addons:
     - autoconf@2.13
   apt:
     packages:
-    - nodejs
     - yasm
     - autoconf2.13
     - libgtk2.0-dev
@@ -42,10 +41,12 @@ jobs:
  - os: osx
    script: ./build.sh
  - os: linux
+   before_install:
+    - curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -
    script: ./build.sh
  - os: windows
    filter_secrets: false
-   script: travis_wait 30 ./windows-toolkit.sh
+   script: ./windows-toolkit.sh
 
 deploy:
   skip_cleanup: true
