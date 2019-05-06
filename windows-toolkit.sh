@@ -7,18 +7,17 @@ curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0
 
 7z x mozilla-build/MozillaBuildSetup-2.2.0.exe -omozilla-build
 
-echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" >> .bash_profile
+echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
-cat >> .bashrc <<EOL
-if [[ \`"$STARTUP_DIR\`" != \`"$PWD\`" ]]; then
+echo '
+if [[ \"$STARTUP_DIR\" != \"$PWD\" ]]; then
     cd $STARTUP_DIR
 fi
-export PATH=`$PATH:/c/Program\ Files/nodejs
-export PATH=`$PATH:/c/Program\ Files/CMake/bin
-export PATH=~/$MOZILLA_BUILD/bin:`$PATH
+export PATH=$PATH:/c/Program\ Files/nodejs
+export PATH=$PATH:/c/Program\ Files/CMake/bin
+export PATH=~/mozilla-build/bin:$PATH
 ./build.sh
-exit
-EOL
+exit' > .bashrc
 
 export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
