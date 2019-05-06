@@ -8,6 +8,8 @@ fold_end() {
   echo -e "\ntravis_fold:end:$1\r"
 }
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 fold_start moz.1 "Installing MozillaBuild"
 mkdir -p mozilla-build
 
@@ -22,12 +24,7 @@ fi
 if [ ! -f "mozilla-build/nodejs-install.log" ]; then
 	curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
 fi
-
-echo "before node install"
-msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
-echo "after node install"
-
-START /wait "NodeInstall" CMD /c msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
+msiexec //i mozilla-build\\node-v6.7.0-x64.msi //qn //log mozilla-build\\nodejs-install.log
 
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
@@ -48,4 +45,4 @@ fold_end moz.1
 export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
 
-START /wait "MozillaShell" CMD /c ./mozilla-build/start-shell-msvc2015-x64.bat
+./mozilla-build/start-shell-msvc2015-x64.bat
