@@ -11,11 +11,18 @@ fold_end() {
 fold_start moz.1 "Installing MozillaBuild"
 mkdir -p mozilla-build
 
-curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe --output mozilla-build/MozillaBuildSetup-2.2.0.exe
-7z x mozilla-build/MozillaBuildSetup-2.2.0.exe -omozilla-build
+# MozillaBuild
+if [ ! -f "mozilla-build/toolkit-install.log" ]; then
+	curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe --output mozilla-build/MozillaBuildSetup-2.2.0.exe
+	7z x mozilla-build/MozillaBuildSetup-2.2.0.exe -omozilla-build
+	echo "Success" > mozilla-build/toolkit-install.log
+fi
 
+# NODE
+if [ ! -f "mozilla-build/nodejs-install.log" ]; then
+	msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
+fi
 curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
-msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
 
 fold_end moz.1
 
