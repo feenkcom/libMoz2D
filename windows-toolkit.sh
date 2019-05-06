@@ -20,11 +20,10 @@ fi
 
 # NODE
 if [ ! -f "mozilla-build/nodejs-install.log" ]; then
-	msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
+	curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
 fi
-curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
 
-fold_end moz.1
+START /wait "NodeInstall" CMD /c msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
 
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
@@ -39,8 +38,10 @@ ls -la
 ./build.sh
 exit' > .bashrc
 
+ls -la
+fold_end moz.1
+
 export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
 
-ls -la
 START /wait "MozillaShell" CMD /c ./mozilla-build/start-shell-msvc2015-x64.bat
