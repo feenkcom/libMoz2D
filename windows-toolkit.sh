@@ -16,8 +16,8 @@ mkdir -p mozilla-build
 
 # MozillaBuild
 if [ ! -f "mozilla-build/toolkit-install.log" ]; then
-	curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-2.2.0.exe --output mozilla-build/MozillaBuildSetup-2.2.0.exe
-	7z x mozilla-build/MozillaBuildSetup-2.2.0.exe -omozilla-build
+	curl https://ftp.mozilla.org/pub/mozilla/libraries/win32/MozillaBuildSetup-3.2.exe --output mozilla-build/MozillaBuildSetup-3.2.exe
+	7z x mozilla-build/MozillaBuildSetup-3.2.exe -omozilla-build
 	echo "Success" > mozilla-build/toolkit-install.log
 fi
 
@@ -45,5 +45,5 @@ export STARTUP_DIR=$(pwd)
 export HOME=$(pwd)
 
 fold_start moz.2 "Building Moz2D"
-./mozilla-build/start-shell-msvc2015-x64.bat
+./mozilla-build/start-shell.bat
 fold_end moz.2
