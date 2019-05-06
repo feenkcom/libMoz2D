@@ -9,3 +9,5 @@ cd
 
 echo Current directory contents:
 dir
+
+PowerShell.exe -executionpolicy remotesigned -File  '.\example_powershell_script.ps1'

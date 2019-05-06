@@ -10,4 +10,3 @@ install:
 
 script:
   - ./example_windows_script.bat
-  - PowerShell -File 'example_powershell_script.ps1'
