@@ -23,6 +23,10 @@ if [ ! -f "mozilla-build/nodejs-install.log" ]; then
 	curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
 fi
 
+echo "before node install"
+msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
+echo "after node install"
+
 START /wait "NodeInstall" CMD /c msiexec /i mozilla-build/node-v6.7.0-x64.msi /qn /log mozilla-build/nodejs-install.log
 
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
