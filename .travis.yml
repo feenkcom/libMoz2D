@@ -48,6 +48,8 @@ jobs:
  - os: windows
    script:
     - echo.exe 'start'
+    - PowerShell -Command 'Write-Output "OUTPUT"' 2>&1 | echo.exe
+    - PowerShell -Command 'Write-Host "HOST"' 2>&1 | echo.exe
 
 deploy:
   skip_cleanup: true
