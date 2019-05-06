@@ -4,9 +4,5 @@ matrix:
   include:
     - os: windows
 
-install:
-  # Enable running local PowerShell scripts
-  - sudo PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
-
 script:
   - ./windows-toolkit.sh
