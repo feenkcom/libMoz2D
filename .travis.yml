@@ -46,6 +46,7 @@ jobs:
    script: ./build.sh
  - os: windows
    filter_secrets: false
+   install: choco install visualstudio2017-workload-vctools
    script: ./windows-toolkit.sh
 
 deploy:
