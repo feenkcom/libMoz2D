@@ -9,10 +9,5 @@ install:
   - PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
 
 script:
-  - find ~/.bin
-  - find ~/bin
-  - env
-  - make --version
-  - example_windows_script.bat
-  - PowerShell -Command 'Get-Location'
+  - ./example_windows_script.bat
   - PowerShell -File 'example_powershell_script.ps1'
