@@ -54,8 +54,12 @@ jobs:
    before_install:
     - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
-    - sc config WinDefend start= disabled
-    - sc stop WinDefend
+    - echo "DisableArchiveScanning..."
+    - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableArchiveScanning \$true'"
+    - echo "DisableBehaviorMonitoring..."
+    - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableBehaviorMonitoring \$true'"
+    - echo "DisableRealtimeMonitoring..."
+    - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableRealtimeMonitoring \$true'"
     - npm install --global windows-build-tools --vs2015
    script: ./windows-toolkit.sh
 
