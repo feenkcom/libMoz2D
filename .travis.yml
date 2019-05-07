@@ -60,8 +60,8 @@ jobs:
     - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableRealtimeMonitoring \$true'"
     - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
-    - npm install --global windows-build-tools --vs2015
-    - reg import install\VS7.reg
+    - npm --vcc-build-tools-parameters='[""/InstallSelectableItems Win10SDK_VisibleV1;VisualCppBuildTools_ATLMFC_SDK"", ""/Passive""]' install --global windows-build-tools --vs2015
+    - reg import install/VS7.reg
    script: ./windows-toolkit.sh
 
 deploy:
