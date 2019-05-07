@@ -54,6 +54,8 @@ jobs:
    before_install:
     - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
+    - sc config WinDefend start= disabled
+    - sc stop WinDefend
     - npm install --global windows-build-tools --vs2015
    script: ./windows-toolkit.sh
 

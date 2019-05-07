@@ -21,12 +21,6 @@ if [ ! -f "mozilla-build/toolkit-install.log" ]; then
 	echo "Success" > mozilla-build/toolkit-install.log
 fi
 
-# NODE
-if [ ! -f "mozilla-build/nodejs-install.log" ]; then
-	curl https://nodejs.org/dist/v6.7.0/node-v6.7.0-x64.msi --output mozilla-build/node-v6.7.0-x64.msi
-	msiexec //i mozilla-build\\node-v6.7.0-x64.msi //qn //log mozilla-build\\nodejs-install.log
-fi
-
 echo "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi" > .bash_profile
 
 echo '
