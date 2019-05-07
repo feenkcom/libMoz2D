@@ -51,9 +51,10 @@ jobs:
 #   script: ./build.sh
  - os: windows
    filter_secrets: false
-   install:
+   before_install:
     - choco install nodejs
-    - /c/Program\ Files/nodejs/npm install --global windows-build-tools --vs2015
+   install:
+    - npm install --global windows-build-tools --vs2015
     - choco install vcpython27
    script: ./windows-toolkit.sh
 
