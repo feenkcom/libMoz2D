@@ -46,7 +46,7 @@ jobs:
    script: ./build.sh
  - os: windows
    filter_secrets: false
-   install: choco install visualstudio2017-workload-nativedesktop vcpython27
+   install: choco install visualstudio2015community vcpython27
    script: ./windows-toolkit.sh
 
 deploy:
