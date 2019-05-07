@@ -52,7 +52,7 @@ jobs:
  - os: windows
    filter_secrets: false
    before_install:
-    - choco install nodejs && export PATH=/c/Program\ Files/nodejs/npm:$PATH && node --version
+    - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
     - npm install --global windows-build-tools --vs2015
     - choco install vcpython27
