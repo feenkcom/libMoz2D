@@ -66,7 +66,7 @@ function Builder (_args) {
 
         try{
 			var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 | awk \'!(NR%500)\'';
-			_this.exec(command);
+			_this.execExtract(command);
 			
         } catch(e) {
             platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
@@ -75,6 +75,13 @@ function Builder (_args) {
         _this.exec('rm -rf ' + platform.sources());
         _this.exec('mv ' + platform.sources() + '_tmp ' + platform.sources());
         platform.log('Extracted in ' + platform.sources());
+    };
+
+    /**
+     * Execute a command to extract sources
+     */
+    _this.execExtract = function (command) {
+        _this.exec(command);
     };
 
     /**

@@ -17,6 +17,13 @@ function BuilderMac(args) {
         _this.exec('cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES='+ _this.platform().arch() +' ..', _this.platform().output());
         _this.exec('make',_this.platform().output());
     };
+	
+    /**
+     * Execute a command to extract sources
+     */
+    _this.execExtract = function (command) {
+        _this.execSilent(command);
+    };
 
     return _this;
 }
