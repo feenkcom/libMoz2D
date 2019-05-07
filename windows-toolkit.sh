@@ -30,6 +30,11 @@ fi
 export PATH=$PATH:/c/Program\ Files/nodejs
 export PATH=$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/mozilla-build/bin:$PATH
+unset CXX
+unset CC
+unset TRAVIS_COMPILER
+unset CXX_FOR_BUILD
+unset CC_FOR_BUILD
 env
 #./build.sh
 exit' > .bashrc
