@@ -46,7 +46,9 @@ jobs:
    script: ./build.sh
  - os: windows
    filter_secrets: false
-   install: choco install visualstudio2015community vcpython27
+   install:
+    - choco install VisualStudio2015Community -packageParameters "--AdminFile install/AdminDeployment.xml"
+    - choco install vcpython27
    script: ./windows-toolkit.sh
 
 deploy:
