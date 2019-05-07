@@ -3,11 +3,11 @@ sudo: required
 
 dist: trusty
 
-cache:
-  directories:
-  - patches
-  - mozilla-build
-  - build/mozilla-central-52
+#cache:
+#  directories:
+#  - patches
+#  - mozilla-build
+#  - build/mozilla-central-52
 
 addons:
   homebrew:
