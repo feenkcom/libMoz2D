@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7]
+"FrameworkDir32"="C:\\Windows\\Microsoft.NET\\Framework\\"
+"FrameworkDir64"="C:\\Windows\\Microsoft.NET\\Framework64"
+"14.0"="C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\"
+"FrameworkVer32"="v4.0.30319"
+"FrameworkVer64"="v4.0.30319"
+
