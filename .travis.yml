@@ -51,15 +51,16 @@ jobs:
 #   script: ./build.sh
  - os: windows
    filter_secrets: false
-   before_install:
-    - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
-   install:
+   before_cache:
     - echo "DisableArchiveScanning..."
     - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableArchiveScanning \$true'"
     - echo "DisableBehaviorMonitoring..."
     - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableBehaviorMonitoring \$true'"
     - echo "DisableRealtimeMonitoring..."
     - powershell Start-Process -PassThru -Wait PowerShell -ArgumentList "'-Command Set-MpPreference -DisableRealtimeMonitoring \$true'"
+   before_install:
+    - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
+   install:
     - npm install --global windows-build-tools --vs2015
    script: ./windows-toolkit.sh
 
