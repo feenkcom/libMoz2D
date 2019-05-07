@@ -35,7 +35,6 @@ unset CC
 unset TRAVIS_COMPILER
 unset CXX_FOR_BUILD
 unset CC_FOR_BUILD
-env
 ./build.sh
 exit' > .bashrc
 
