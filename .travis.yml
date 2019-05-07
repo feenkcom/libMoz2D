@@ -55,7 +55,6 @@ jobs:
     - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
     - npm install --global windows-build-tools --vs2015
-    - choco install vcpython27
    script: ./windows-toolkit.sh
 
 deploy:
