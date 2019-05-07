@@ -37,18 +37,18 @@ addons:
 
 jobs:
  include:
- - os: osx
-   cache:
-     directories:
-       - mozilla-central-52
-   script: ./build.sh
- - os: linux
-   cache:
-     directories:
-       - mozilla-central-52
-   before_install:
-    - curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -
-   script: ./build.sh
+# - os: osx
+#   cache:
+#     directories:
+#       - mozilla-central-52
+#   script: ./build.sh
+# - os: linux
+#   cache:
+#     directories:
+#       - mozilla-central-52
+#   before_install:
+#    - curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -
+#   script: ./build.sh
  - os: windows
    filter_secrets: false
    install:
