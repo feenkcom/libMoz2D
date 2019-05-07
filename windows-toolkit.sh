@@ -30,7 +30,8 @@ fi
 export PATH=$PATH:/c/Program\ Files/nodejs
 export PATH=$PATH:/c/Program\ Files/CMake/bin
 export PATH=~/mozilla-build/bin:$PATH
-./build.sh
+env
+#./build.sh
 exit' > .bashrc
 
 fold_end moz.1
