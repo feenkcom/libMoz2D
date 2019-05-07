@@ -53,7 +53,7 @@ jobs:
    filter_secrets: false
    install:
     - choco install nodejs
-    - refreshenv
+    - cmd //c refreshenv
     - npm install --global windows-build-tools --vs2015
     - choco install vcpython27
    script: ./windows-toolkit.sh
