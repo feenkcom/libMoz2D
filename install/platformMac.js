@@ -21,10 +21,10 @@ function BuilderMac(args) {
     /**
      * Execute a command to extract sources
      */
-    _this.execExtract = function (command) {
-        _this.execSilent(command);
+    _this.execExtract = function () {
+        var command = 'tar -zxf ' + _this.platform().sourcesArchive() +' -C ' + _this.platform().sources() + '_tmp --strip-components 1';
+        _this.exec(command);
     };
-
     return _this;
 }
 

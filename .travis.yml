@@ -47,7 +47,7 @@ jobs:
  - os: windows
    filter_secrets: false
    install:
-    - choco install VisualStudio2015Community -packageParameters "--AdminFile install/AdminDeployment.xml"
+    - travis_wait 30 choco install VisualStudio2015Community -packageParameters "--AdminFile install/AdminDeployment.xml"
     - choco install vcpython27
    script: ./windows-toolkit.sh
 

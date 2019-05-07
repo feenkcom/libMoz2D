@@ -65,11 +65,9 @@ function Builder (_args) {
         _this.exec('mkdir ' + platform.sources() + '_tmp');
 
         try{
-			var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 | awk \'!(NR%500)\'';
-			_this.execExtract(command);
-			
+            _this.execExtract();
         } catch(e) {
-            platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant.');
+            platform.log('	We continue, sometimes tar has issues creating symlinks, it is not relevant. (' + e + ')');
         }
 
         _this.exec('rm -rf ' + platform.sources());
@@ -80,7 +78,8 @@ function Builder (_args) {
     /**
      * Execute a command to extract sources
      */
-    _this.execExtract = function (command) {
+    _this.execExtract = function () {
+        var command = 'tar -zxvf ' + platform.sourcesArchive() +' -C ' + platform.sources() + '_tmp --strip-components 1 | awk \'!(NR%500)\'';
         _this.exec(command);
     };
 
