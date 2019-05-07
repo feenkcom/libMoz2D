@@ -61,7 +61,6 @@ jobs:
     - choco install nodejs && export PATH=/c/Program\ Files/nodejs/:$PATH && node --version
    install:
 #    - choco install -y vcbuildtools -ia "/InstallSelectableItems VisualCppBuildTools_ATLMFC_SDK;Win81SDK_CppBuildSKUV1"
-    - choco install vcpython27
 #    - reg import install/VS7.reg
    script: ./windows-toolkit.sh
 
