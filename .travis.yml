@@ -5,7 +5,6 @@ dist: trusty
 
 cache:
   directories:
-  - mozilla-central-52
   - patches
   - mozilla-build
   - build/mozilla-central-52
@@ -39,8 +38,14 @@ addons:
 jobs:
  include:
  - os: osx
+   cache:
+     directories:
+       - mozilla-central-52
    script: ./build.sh
  - os: linux
+   cache:
+     directories:
+       - mozilla-central-52
    before_install:
     - curl -sL https://deb.nodesource.com/setup_7.x | sudo bash -
    script: ./build.sh
