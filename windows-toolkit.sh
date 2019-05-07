@@ -36,7 +36,7 @@ unset TRAVIS_COMPILER
 unset CXX_FOR_BUILD
 unset CC_FOR_BUILD
 env
-#./build.sh
+./build.sh
 exit' > .bashrc
 
 fold_end moz.1
