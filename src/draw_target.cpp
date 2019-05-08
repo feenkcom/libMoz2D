@@ -462,6 +462,16 @@ bool moz2d_draw_target_draw_3d_transformed(DrawTarget* drawTarget, SourceSurface
     return drawTarget->Draw3DTransformedSurface(aSurface, matrix);
 }
 
+
+void moz2d_draw_target_draw_surface_with_shadow(
+		DrawTarget* drawTarget, SourceSurface* aSurface,
+		Float destX, Float destY, Float r, Float g, Float b, Float a,
+		Float offsetX, Float offsetY,
+		Float aSigma,
+		CompositionOp aOperator) {
+	drawTarget->DrawSurfaceWithShadow(aSurface, Point(destX, destY), Color(r,g,b,a), Point(offsetX, offsetY), aSigma, aOperator);
+}
+
 /* --------------------------------------------------- */
 /* ----------- T R A N S F O R M A T I O N ----------- */
 /* --------------------------------------------------- */

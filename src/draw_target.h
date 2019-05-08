@@ -232,8 +232,17 @@ LIBRARY_API PathBuilder* moz2d_draw_target_create_path_builder(DrawTarget* drawT
  * 3D Transformed
  */
 
- LIBRARY_API bool moz2d_draw_target_draw_3d_transformed(DrawTarget* drawTarget, SourceSurface* aSurface, Float* rawMatrix);
+LIBRARY_API bool moz2d_draw_target_draw_3d_transformed(DrawTarget* drawTarget, SourceSurface* aSurface, Float* rawMatrix);
 
+/*
+ * Shadow
+ */
+LIBRARY_API void moz2d_draw_target_draw_surface_with_shadow(
+		DrawTarget* drawTarget, SourceSurface* aSurface,
+		Float destX, Float destY, Float r, Float g, Float b, Float a,
+		Float offsetX, Float offsetY,
+		Float aSigma,
+		CompositionOp aOperator);
 /* --------------------------------------------------- */
 /* ----------- T R A N S F O R M A T I O N ----------- */
 /* --------------------------------------------------- */
