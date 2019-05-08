@@ -1,6 +1,8 @@
-# Moz2D [![Build Status](https://travis-ci.org/syrel/Moz2D.svg?branch=master)](https://travis-ci.org/syrel/Moz2D) [ ![Download](https://api.bintray.com/packages/syrel/Moz2D/libMoz2D/images/download.svg) ](https://bintray.com/syrel/Moz2D/libMoz2D/_latestVersion)
+# Moz2D [![Build Status](https://travis-ci.com/feenkcom/libMoz2D.svg?branch=master)](https://travis-ci.com/feenkcom/libMoz2D)
+
 Scripts to compile `gfx` part of Mozilla Firefox as single shared library
 
+Mozilla Firefox has its own mozmake files. Node.js is used to parses them and convert to CMakeFiles which can be a bit easier to integrate in VM building process and also to compile only a part of Firefox (`gfx` and some helper libs) 
 
 Compile shared library (32 bit):
 
