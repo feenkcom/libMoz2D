@@ -22,7 +22,7 @@ module.exports = {
         mozilla_config: 'mozilla-config.h',
         url: 'https://hg.mozilla.org/mozilla-central/archive/',
         version: 'FIREFOX_AURORA_52_BASE',
-        format: '.tar.gz',
+        format: '.zip',
         arch: 'x86_64', // i386, x86_64
         packages: {
             general: [
