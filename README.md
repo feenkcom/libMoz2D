@@ -24,7 +24,7 @@ Utilities:<br>
 
 Install dependencies with homebrew http://brew.sh:
 
-	brew install wget node cmake yasm homebrew/versions/autoconf213 
+	brew install wget node cmake yasm autoconf213 
 
 ### Ubuntu / Travis
 
